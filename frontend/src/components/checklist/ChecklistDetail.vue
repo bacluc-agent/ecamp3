@@ -10,7 +10,7 @@
       <v-toolbar-title v-if="!editChecklistName" tag="h1" class="font-weight-bold ml-0">
         {{ checklist.name }}
         <v-btn
-          v-if="!editChecklistName && !isOutsider"
+          v-if="!editChecklistName && canEdit"
           icon
           class="ml-1 visible-on-hover"
           width="24"
@@ -113,6 +113,12 @@ export default {
     }
   },
   computed: {
+    // Use explicit guest/outsider check instead of !isContributor: when
+    // camp=null (global admin / prototype checklists) both isGuest and
+    // isOutsider are false, so canEdit stays true — preserving editing rights.
+    canEdit() {
+      return !this.isGuest && !this.isOutsider
+    },
     items() {
       return this.checklist.checklistItems().items.filter((item) => !item.parent)
     },
@@ -127,7 +133,7 @@ export default {
       .$loadItems()
 
     await nextTick()
-    this.debouncedDisabled = this.isOutsider
+    this.debouncedDisabled = !this.canEdit
   },
   methods: {
     checklistRoute,
