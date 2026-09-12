@@ -71,3 +71,5 @@ Danke dass du mithelfen möchtest! Es gibt ein paar verschiedene Arten wie du be
 - Bevor du mit programmieren loslegen kannst, lies unsere [contributing guidelines](./CONTRIBUTING_DE.md)
 - Studier die [Dokumentation im Wiki](https://github.com/ecamp/ecamp3/wiki)
 - Such dir ein [einsteigertaugliches Issue](https://github.com/ecamp/ecamp3/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) aus und probiere es zu lösen
+
+Test compliance
