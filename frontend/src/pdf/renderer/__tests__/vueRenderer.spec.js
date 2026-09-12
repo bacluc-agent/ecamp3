@@ -43,6 +43,109 @@ it('renders a simple Vue component', async () => {
   )
 })
 
+it('renders periods in chronological order regardless of selection order', () => {
+  // given
+  const storeData = {
+    '/periods/period-1': {
+      description: 'First period',
+      start: '2024-05-10',
+      end: '2024-05-13',
+      id: 'period-1',
+      days: { href: '/days?period=%2Fapi%2Fperiods%2Fperiod-1' },
+      scheduleEntries: { href: '/schedule_entries?period=%2Fapi%2Fperiods%2Fperiod-1' },
+      _meta: { self: '/periods/period-1', loading: false },
+    },
+    '/periods/period-2': {
+      description: 'Second period',
+      start: '2024-05-14',
+      end: '2024-05-17',
+      id: 'period-2',
+      days: { href: '/days?period=%2Fapi%2Fperiods%2Fperiod-2' },
+      scheduleEntries: { href: '/schedule_entries?period=%2Fapi%2Fperiods%2Fperiod-2' },
+      _meta: { self: '/periods/period-2', loading: false },
+    },
+    '/periods/period-3': {
+      description: 'Third period',
+      start: '2024-05-18',
+      end: '2024-05-21',
+      id: 'period-3',
+      days: { href: '/days?period=%2Fapi%2Fperiods%2Fperiod-3' },
+      scheduleEntries: { href: '/schedule_entries?period=%2Fapi%2Fperiods%2Fperiod-3' },
+      _meta: { self: '/periods/period-3', loading: false },
+    },
+    '/days?period=%2Fapi%2Fperiods%2Fperiod-1': {
+      items: [],
+      _meta: { self: '/days?period=%2Fapi%2Fperiods%2Fperiod-1', loading: false },
+    },
+    '/days?period=%2Fapi%2Fperiods%2Fperiod-2': {
+      items: [],
+      _meta: { self: '/days?period=%2Fapi%2Fperiods%2Fperiod-2', loading: false },
+    },
+    '/days?period=%2Fapi%2Fperiods%2Fperiod-3': {
+      items: [],
+      _meta: { self: '/days?period=%2Fapi%2Fperiods%2Fperiod-3', loading: false },
+    },
+    '/schedule_entries?period=%2Fapi%2Fperiods%2Fperiod-1': {
+      items: [],
+      _meta: {
+        self: '/schedule_entries?period=%2Fapi%2Fperiods%2Fperiod-1',
+        loading: false,
+      },
+    },
+    '/schedule_entries?period=%2Fapi%2Fperiods%2Fperiod-2': {
+      items: [],
+      _meta: {
+        self: '/schedule_entries?period=%2Fapi%2Fperiods%2Fperiod-2',
+        loading: false,
+      },
+    },
+    '/schedule_entries?period=%2Fapi%2Fperiods%2Fperiod-3': {
+      items: [],
+      _meta: {
+        self: '/schedule_entries?period=%2Fapi%2Fperiods%2Fperiod-3',
+        loading: false,
+      },
+    },
+  }
+  const store = wrap(storeData)
+
+  // when
+  const result = renderVueToPdfStructure(CampPrint, {
+    store,
+    $tc: tcMock,
+    locale: 'de',
+    config: {
+      language: 'de',
+      documentName: 'Sort test.pdf',
+      options: { pageNumbers: false },
+      contents: [
+        {
+          type: 'Story',
+          options: {
+            periods: ['/periods/period-3', '/periods/period-1', '/periods/period-2'],
+            contentType: 'Storycontext',
+          },
+        },
+      ],
+    },
+  })
+
+  // then
+  const textValues = []
+  const collectText = (node) => {
+    if (node?.type === 'TEXT_INSTANCE') {
+      textValues.push(node.value)
+    }
+    ;(node?.children || []).forEach(collectText)
+  }
+  collectText(result)
+  expect(textValues.filter((value) => value.startsWith('Story: '))).toEqual([
+    'Story: First period',
+    'Story: Second period',
+    'Story: Third period',
+  ])
+})
+
 describe.each(['A3', 'A4', 'A5'])('in %p format', (pageSize) => {
   describe('rendering a full camp', () => {
     it('renders the cover page', async () => {
