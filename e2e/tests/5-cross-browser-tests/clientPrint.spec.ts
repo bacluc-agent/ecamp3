@@ -13,7 +13,7 @@ test.describe('Client print test', { tag: '@mature' }, () => {
 
   test('downloads PDF', async ({ page }) => {
     await page.goto('/')
-    await page.waitForURL('/camps')
+    await expect(page).toHaveURL(/\/camps$/)
 
     await page.locator('a:has-text("GRGR")').click()
     await page.locator('a:has-text("Admin")').click()
