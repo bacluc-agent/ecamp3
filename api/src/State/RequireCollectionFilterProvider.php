@@ -63,7 +63,7 @@ final readonly class RequireCollectionFilterProvider implements ProviderInterfac
         $queryParameters = $this->getQueryParameters($request);
 
         foreach ($scopingFilters as $scopingFilter) {
-            if (\array_key_exists($scopingFilter, $queryParameters)) {
+            if (\array_key_exists($scopingFilter, $queryParameters) && $this->hasValue($queryParameters[$scopingFilter])) {
                 return;
             }
         }
@@ -92,5 +92,19 @@ final readonly class RequireCollectionFilterProvider implements ProviderInterfac
         $queryString = RequestParser::getQueryString($request);
 
         return $queryString ? RequestParser::parseRequestParams($queryString) : [];
+    }
+
+    private function hasValue(mixed $value): bool {
+        if (\is_array($value)) {
+            foreach ($value as $item) {
+                if ($this->hasValue($item)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return null !== $value && '' !== trim((string) $value);
     }
 }
