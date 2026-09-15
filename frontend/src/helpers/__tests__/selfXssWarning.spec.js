@@ -11,6 +11,7 @@ describe('warnAboutSelfXss', () => {
   })
 
   afterEach(() => {
+    i18n.global.locale.value = 'en'
     vi.restoreAllMocks()
   })
 

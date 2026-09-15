@@ -42,5 +42,8 @@ test.describe('create new camp', { tag: '@mature' }, () => {
 
     await expect(page.locator('main >> text=Lagerinfos')).toBeVisible()
     await expect(page.locator('[data-testid="title"] input')).toHaveValue(campTitle)
+
+    await page.goto('/camps')
+    await expect(page.locator('body')).toContainText(campTitle)
   })
 })

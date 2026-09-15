@@ -33,6 +33,7 @@ import NewVersionAvailableDialog from '@/components/NewVersionAvailableDialog.vu
 import CommentsPanel from '@/components/comments/CommentsPanel.vue'
 import ToastHost from '@/components/toast/ToastHost.vue'
 import { getEnv } from '@/environment.js'
+import { warnAboutSelfXss } from '@/helpers/selfXssWarning.js'
 
 export default {
   name: 'App',
@@ -80,6 +81,10 @@ export default {
       if (VueI18n.global.availableLocales.includes(profile.language)) {
         this.$store.commit('setLanguage', profile.language)
       }
+    }
+
+    if (process.env.NODE_ENV === 'production') {
+      warnAboutSelfXss()
     }
 
     // Wait for next tick to ensure all footer components are rendered
