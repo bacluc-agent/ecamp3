@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiProperty;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -16,16 +15,6 @@ class CampRootContentNode {
     #[ORM\ManyToOne(targetEntity: ContentNode::class, inversedBy: 'campRootContentNodes')]
     public ContentNode $rootContentNode;
 
-    #[ApiProperty(
-        required: false,
-        openapiContext: [
-            'anyOf' => [
-                ['$ref' => '#/components/schemas/Camp'],
-                ['type' => 'null'],
-            ],
-        ],
-    )]
-    #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Camp::class, inversedBy: 'campRootContentNodes')]
     public Camp $camp;
 }
