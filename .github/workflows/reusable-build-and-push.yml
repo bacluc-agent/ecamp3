@@ -256,7 +256,7 @@ jobs:
         run: |
           npm ci --no-audit
           npm run build
-          SENTRY_AUTH_TOKEN="$NUXT_SENTRY_AUTH_TOKEN" npx --yes @sentry/cli sourcemaps upload .output --org "$NUXT_SENTRY_ORG" --project "$NUXT_SENTRY_PROJECT" --release "$NUXT_SENTRY_RELEASE_NAME"
+          SENTRY_AUTH_TOKEN="$NUXT_SENTRY_AUTH_TOKEN" npx --yes @sentry/cli@2.58.6 sourcemaps upload .output --org "$NUXT_SENTRY_ORG" --project "$NUXT_SENTRY_PROJECT" --release "$NUXT_SENTRY_RELEASE_NAME"
         env:
           NUXT_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           NUXT_SENTRY_ORG: ${{ vars.SENTRY_ORG }}
