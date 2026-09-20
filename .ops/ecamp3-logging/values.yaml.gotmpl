@@ -38,40 +38,12 @@ fluent-operator:
 
 fluentd:
   output:
-    elasticsearch:
+    loki:
       enable: true
-      scheme: http
-      host: "elasticsearch.ecamp3-logging.svc.cluster.local"
-      port: 9200
-      index: "kubernetes"
-      suppressTypeName: true
+      url: "http://loki.ecamp3-logging.svc.cluster.local:3100"
+    elasticsearch:
+      enable: false
 
-elastic:
-  version: 8.13.2
-
-elasticsearch:
-  elasticNode:
-    resources:
-      requests:
-        memory: {{ .Environment.Values | get "ELASTIC_NODE_REQUESTS_MEMORY" "1000Mi" }}
-      limits:
-        memory: {{ .Environment.Values | get "ELASTIC_NODE_LIMITS_MEMORY" "1000Mi"}}
-  persistence:
-    storageClassName: do-block-storage
-    resources:
-      requests:
-        storage: {{ .Environment.Values | get "ELASTIC_NODE_STORAGE_SIZE" nil | required "Please define ELASTIC_NODE_STORAGE_SIZE. There is no good default value." }}
-  removeOldIndexes:
-    maxIndexAge: {{ .Environment.Values | get "ELASTIC_NODE_MAX_INDEX_AGE" "15" }}
-    image: node
-    # renovate: datasource=docker depName=node
-    tag: "24.20.0"
-
-kibana:
-  name: kibana
-  version:
-  resources:
-    requests:
-      memory: 500Mi
-    limits:
-      memory: 1Gi
+# ponytail: Elasticsearch and Kibana removed; Loki is the lightweight sink
+# elastic: ... (disabled)
+# kibana: ... (disabled)
