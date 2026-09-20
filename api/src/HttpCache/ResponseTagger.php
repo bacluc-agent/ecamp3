@@ -39,7 +39,7 @@ class ResponseTagger {
             return false;
         }
 
-        $requestUri = $request->getRequestUri();
+        $requestUri = preg_replace('/\?.*$/', '', $request->getRequestUri());
 
         return (bool) preg_match('{'.$this->matchPath.'}', $requestUri);
     }

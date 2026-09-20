@@ -47,6 +47,14 @@ export async function getAuthContext(user: string): Promise<APIRequestContext> {
 
 export { getPdfProperties } from './getPdfProperties'
 
+function withJsonhalSuffix(uri: string): string {
+  const queryIndex = uri.indexOf('?')
+  if (queryIndex === -1) {
+    return `${uri}.jsonhal`
+  }
+  return `${uri.slice(0, queryIndex)}.jsonhal${uri.slice(queryIndex)}`
+}
+
 export async function expectCacheHeader(
   request: APIRequestContext,
   uri: string,
@@ -55,7 +63,9 @@ export async function expectCacheHeader(
   await test.step(
     `Check Header: ${expectedHeader}`,
     async () => {
-      const response = await request.get(`${API_ROOT_URL_CACHED}${uri}.jsonhal`)
+      const response = await request.get(
+        `${API_ROOT_URL_CACHED}${withJsonhalSuffix(uri)}`
+      )
       expect(response.headers()['x-cache']).toBe(expectedHeader)
     },
     { box: true }
@@ -99,7 +109,9 @@ export async function waitForCacheMiss(request: APIRequestContext, uri: string) 
       await expect
         .poll(
           async () => {
-            const response = await request.get(`${API_ROOT_URL_CACHED}${uri}.jsonhal`)
+            const response = await request.get(
+              `${API_ROOT_URL_CACHED}${withJsonhalSuffix(uri)}`
+            )
             return response.headers()['x-cache']
           },
           { timeout: 10000 }
@@ -111,7 +123,7 @@ export async function waitForCacheMiss(request: APIRequestContext, uri: string) 
 }
 
 export async function apiGet(request: APIRequestContext, uri: string) {
-  return await request.get(`${API_ROOT_URL_CACHED}${uri}.jsonhal`)
+  return await request.get(`${API_ROOT_URL_CACHED}${withJsonhalSuffix(uri)}`)
 }
 
 export async function apiPatch(
@@ -119,7 +131,7 @@ export async function apiPatch(
   uri: string,
   body: Record<string, unknown>
 ) {
-  return await request.patch(`${API_ROOT_URL_CACHED}${uri}.jsonhal`, {
+  return await request.patch(`${API_ROOT_URL_CACHED}${withJsonhalSuffix(uri)}`, {
     data: body,
     headers: {
       'Content-Type': 'application/merge-patch+json',
@@ -132,7 +144,7 @@ export async function apiPost(
   uri: string,
   body: Record<string, unknown>
 ) {
-  return await request.post(`${API_ROOT_URL_CACHED}${uri}.jsonhal`, {
+  return await request.post(`${API_ROOT_URL_CACHED}${withJsonhalSuffix(uri)}`, {
     data: body,
     headers: {
       'Content-Type': 'application/hal+json',
@@ -141,7 +153,7 @@ export async function apiPost(
 }
 
 export async function apiDelete(request: APIRequestContext, uri: string) {
-  return await request.delete(`${API_ROOT_URL_CACHED}${uri}.jsonhal`)
+  return await request.delete(`${API_ROOT_URL_CACHED}${withJsonhalSuffix(uri)}`)
 }
 
 export async function createCampViaUI(page: Page, campTitle: string): Promise<string> {
