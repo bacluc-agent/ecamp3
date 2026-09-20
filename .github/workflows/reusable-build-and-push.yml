@@ -102,8 +102,8 @@ jobs:
           yq_pipe=$yq_pipe'| .value.build'
           yq_pipe=$yq_pipe'| .dockerfile=.context + "/" + .dockerfile'
           yq_pipe=$yq_pipe'| [.]'
-          cat /tmp/docker-compose.yml | yq "$yq_pipe"
-          BUILD_INFO=$(cat /tmp/docker-compose.yml | yq "$yq_pipe" -o=json)
+          yq "$yq_pipe" /tmp/docker-compose.yml
+          BUILD_INFO=$(yq "$yq_pipe" /tmp/docker-compose.yml -o=json)
           BUILD_INFO=$(echo "$BUILD_INFO" | jq -c -s add | sed "s|:local||g")
           echo "$BUILD_INFO"
           echo "result=$BUILD_INFO" | tr -d "\n"  >> "$GITHUB_OUTPUT"
