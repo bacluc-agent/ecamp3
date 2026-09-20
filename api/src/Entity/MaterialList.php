@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\InputFilter;
@@ -42,6 +43,21 @@ use Symfony\Component\Validator\Constraints as Assert;
         new GetCollection(
             security: 'is_authenticated()'
         ),
+        new GetCollection(
+            uriTemplate: self::CAMP_SUBRESOURCE_URI_TEMPLATE,
+            uriVariables: [
+                'campId' => new Link(
+                    toProperty: 'camp',
+                    fromClass: Camp::class,
+                    security: 'is_granted("CAMP_COLLABORATOR", camp) or
+                               is_granted("CAMP_IS_PUBLIC", camp)'
+                ),
+            ],
+            security: 'is_fully_authenticated()',
+            extraProperties: [
+                'filter_by_current_user' => false,
+            ]
+        ),
         new Post(
             denormalizationContext: ['groups' => ['write', 'create']],
             securityPostDenormalize: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object) or object.camp === null'
@@ -54,6 +70,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['camp'])]
 #[ORM\Entity(repositoryClass: MaterialListRepository::class)]
 class MaterialList extends BaseEntity implements BelongsToCampInterface, CopyFromPrototypeInterface {
+    public const CAMP_SUBRESOURCE_URI_TEMPLATE = '/camps/{campId}/material_lists{._format}';
+
     /**
      * The items that are part of this list.
      */
@@ -62,7 +80,7 @@ class MaterialList extends BaseEntity implements BelongsToCampInterface, CopyFro
         exactMessage: 'It\'s not possible to delete a material list as long as it has items linked to it.',
         groups: ['delete']
     )]
-    #[ApiProperty(writable: false, example: '["/material_items/1a2b3c4d"]')]
+    #[ApiProperty(writable: false, example: '["/material_items/1a2b3c4d"]', uriTemplate: MaterialItem::MATERIAL_LIST_SUBRESOURCE_URI_TEMPLATE)]
     #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: MaterialItem::class, mappedBy: 'materialList')]
     #[ORM\OrderBy(['article' => 'ASC', 'createTime' => 'ASC'])]

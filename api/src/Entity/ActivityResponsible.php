@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use App\Repository\ActivityResponsibleRepository;
 use App\Validator\AssertBelongsToSameCamp;
@@ -31,6 +32,21 @@ use Symfony\Component\Validator\Constraints as Assert;
         new GetCollection(
             security: 'is_authenticated()'
         ),
+        new GetCollection(
+            uriTemplate: self::ACTIVITY_SUBRESOURCE_URI_TEMPLATE,
+            uriVariables: [
+                'activityId' => new Link(
+                    toProperty: 'activity',
+                    fromClass: Activity::class,
+                    security: 'is_granted("CAMP_COLLABORATOR", activity) or
+                               is_granted("CAMP_IS_PUBLIC", activity)'
+                ),
+            ],
+            security: 'is_fully_authenticated()',
+            extraProperties: [
+                'filter_by_current_user' => false,
+            ]
+        ),
         new Post(
             securityPostDenormalize: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object) or object.activity === null'
         ), ],
@@ -45,6 +61,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: ActivityResponsibleRepository::class)]
 #[ORM\UniqueConstraint(name: 'activity_campCollaboration_unique', columns: ['activityId', 'campCollaborationId'])]
 class ActivityResponsible extends BaseEntity implements BelongsToCampInterface {
+    public const ACTIVITY_SUBRESOURCE_URI_TEMPLATE = '/activities/{activityId}/activity_responsibles{._format}';
+
     /**
      * The activity that the person is responsible for.
      */

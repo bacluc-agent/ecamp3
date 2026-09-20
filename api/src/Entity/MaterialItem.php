@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Doctrine\Filter\MaterialItemPeriodFilter;
@@ -47,6 +48,51 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_authenticated()',
             provider: MaterialItemCollectionProvider::class
         ),
+        new GetCollection(
+            uriTemplate: self::CAMP_SUBRESOURCE_URI_TEMPLATE,
+            uriVariables: [
+                'campId' => new Link(
+                    toProperty: 'camp',
+                    fromClass: Camp::class,
+                    security: 'is_granted("CAMP_COLLABORATOR", camp) or
+                               is_granted("CAMP_IS_PUBLIC", camp)'
+                ),
+            ],
+            security: 'is_fully_authenticated()',
+            extraProperties: [
+                'filter_by_current_user' => false,
+            ]
+        ),
+        new GetCollection(
+            uriTemplate: self::MATERIAL_LIST_SUBRESOURCE_URI_TEMPLATE,
+            uriVariables: [
+                'materialListId' => new Link(
+                    toProperty: 'materialList',
+                    fromClass: MaterialList::class,
+                    security: 'is_granted("CAMP_COLLABORATOR", materialList) or
+                               is_granted("CAMP_IS_PUBLIC", materialList)'
+                ),
+            ],
+            security: 'is_fully_authenticated()',
+            extraProperties: [
+                'filter_by_current_user' => false,
+            ]
+        ),
+        new GetCollection(
+            uriTemplate: self::MATERIAL_NODE_SUBRESOURCE_URI_TEMPLATE,
+            uriVariables: [
+                'materialNodeId' => new Link(
+                    toProperty: 'materialNode',
+                    fromClass: MaterialNode::class,
+                    security: 'is_granted("CAMP_COLLABORATOR", materialNode) or
+                               is_granted("CAMP_IS_PUBLIC", materialNode)'
+                ),
+            ],
+            security: 'is_fully_authenticated()',
+            extraProperties: [
+                'filter_by_current_user' => false,
+            ]
+        ),
         new Post(
             denormalizationContext: ['groups' => ['write', 'create']],
             securityPostDenormalize: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object) or (object.period === null and object.materialNode === null)',
@@ -60,6 +106,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(filterClass: MaterialItemPeriodFilter::class)]
 #[ORM\Entity(repositoryClass: MaterialItemRepository::class)]
 class MaterialItem extends BaseEntity implements BelongsToCampInterface, CopyFromPrototypeInterface {
+    public const CAMP_SUBRESOURCE_URI_TEMPLATE = '/camps/{campId}/material_items{._format}';
+    public const MATERIAL_LIST_SUBRESOURCE_URI_TEMPLATE = '/material_lists/{materialListId}/material_items{._format}';
+    public const MATERIAL_NODE_SUBRESOURCE_URI_TEMPLATE = '/content_node/material_nodes/{materialNodeId}/material_items{._format}';
+
     /**
      * The Camp to which this item belongs.
      *

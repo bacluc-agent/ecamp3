@@ -102,7 +102,8 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
     #[Assert\Count(min: 2, minMessage: 'A camp must have at least one period.', groups: ['Period:delete'])]
     #[ApiProperty(
         writableLink: true,
-        example: [['description' => 'Hauptlager', 'start' => '2022-01-01', 'end' => '2022-01-08']]
+        example: [['description' => 'Hauptlager', 'start' => '2022-01-01', 'end' => '2022-01-08']],
+        uriTemplate: Period::CAMP_SUBRESOURCE_URI_TEMPLATE
     )]
     #[Groups(['read', 'create'])]
     #[ORM\OneToMany(targetEntity: Period::class, mappedBy: 'camp', cascade: ['persist'], orphanRemoval: true)]
@@ -153,7 +154,7 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
      * Lists for collecting the required materials needed for carrying out the programme. Each collaborator
      * has a material list, and there may be more, such as shopping lists.
      */
-    #[ApiProperty(writable: false, example: '["/material_lists/1a2b3c4d"]')]
+    #[ApiProperty(writable: false, example: '["/material_lists/1a2b3c4d"]', uriTemplate: MaterialList::CAMP_SUBRESOURCE_URI_TEMPLATE)]
     #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: MaterialList::class, mappedBy: 'camp', cascade: ['persist'], orphanRemoval: true)]
     #[ORM\OrderBy(['name' => 'ASC', 'createTime' => 'ASC'])]
@@ -162,6 +163,8 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
     /**
      * List of MaterialItems that belong to this Camp.
      */
+    #[ApiProperty(writable: false, uriTemplate: MaterialItem::CAMP_SUBRESOURCE_URI_TEMPLATE)]
+    #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: MaterialItem::class, mappedBy: 'camp', cascade: ['persist'], orphanRemoval: true)]
     #[ORM\OrderBy(['article' => 'ASC', 'createTime' => 'ASC'])]
     public Collection $materialItems;

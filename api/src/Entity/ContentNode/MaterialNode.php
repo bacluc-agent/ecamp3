@@ -53,7 +53,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[ORM\Entity(repositoryClass: MaterialNodeRepository::class)]
 class MaterialNode extends ContentNode {
-    #[ApiProperty(readableLink: true, writableLink: false)]
+    #[ApiProperty(readableLink: true, writableLink: false, uriTemplate: MaterialItem::MATERIAL_NODE_SUBRESOURCE_URI_TEMPLATE)]
     #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: MaterialItem::class, mappedBy: 'materialNode', cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\OrderBy(['article' => 'ASC', 'createTime' => 'ASC'])]
