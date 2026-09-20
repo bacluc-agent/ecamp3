@@ -9,7 +9,9 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use App\Repository\ActivityResponsibleRepository;
 use App\Validator\AssertBelongsToSameCamp;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,7 +31,23 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object)'
         ),
         new GetCollection(
-            security: 'is_authenticated()'
+            security: 'is_authenticated()',
+            openapi: new OpenApiOperation(description: 'Deprecated: use /activities/{activityId}/activity_responsibles instead.')
+        ),
+        new GetCollection(
+            uriTemplate: self::ACTIVITY_SUBRESOURCE_URI_TEMPLATE,
+            uriVariables: [
+                'activityId' => new Link(
+                    toProperty: 'activity',
+                    fromClass: Activity::class,
+                    security: 'is_granted("CAMP_COLLABORATOR", activity) or is_granted("CAMP_IS_PUBLIC", activity)'
+                ),
+            ],
+            normalizationContext: ['groups' => ['read']],
+            security: 'is_fully_authenticated()',
+            extraProperties: [
+                'filter_by_current_user' => false,
+            ]
         ),
         new Post(
             securityPostDenormalize: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object) or object.activity === null'
@@ -45,6 +63,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: ActivityResponsibleRepository::class)]
 #[ORM\UniqueConstraint(name: 'activity_campCollaboration_unique', columns: ['activityId', 'campCollaborationId'])]
 class ActivityResponsible extends BaseEntity implements BelongsToCampInterface {
+    public const ACTIVITY_SUBRESOURCE_URI_TEMPLATE = '/activities/{activityId}/activity_responsibles{._format}'; // ponytail: no custom controller needed; API Platform subresource handles filtering via Doctrine relation.
     /**
      * The activity that the person is responsible for.
      */

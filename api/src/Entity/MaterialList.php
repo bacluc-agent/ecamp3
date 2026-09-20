@@ -9,8 +9,10 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use App\InputFilter;
 use App\Repository\MaterialListRepository;
 use App\Util\EntityMap;
@@ -40,7 +42,23 @@ use Symfony\Component\Validator\Constraints as Assert;
             validate: true
         ),
         new GetCollection(
-            security: 'is_authenticated()'
+            security: 'is_authenticated()',
+            openapi: new OpenApiOperation(description: 'Deprecated: use /camps/{campId}/material_lists instead.')
+        ),
+        new GetCollection(
+            uriTemplate: self::CAMP_SUBRESOURCE_URI_TEMPLATE,
+            uriVariables: [
+                'campId' => new Link(
+                    toProperty: 'camp',
+                    fromClass: Camp::class,
+                    security: 'is_granted("CAMP_COLLABORATOR", camp) or is_granted("CAMP_IS_PUBLIC", camp)'
+                ),
+            ],
+            normalizationContext: ['groups' => ['read']],
+            security: 'is_fully_authenticated()',
+            extraProperties: [
+                'filter_by_current_user' => false,
+            ]
         ),
         new Post(
             denormalizationContext: ['groups' => ['write', 'create']],
@@ -54,6 +72,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['camp'])]
 #[ORM\Entity(repositoryClass: MaterialListRepository::class)]
 class MaterialList extends BaseEntity implements BelongsToCampInterface, CopyFromPrototypeInterface {
+    public const CAMP_SUBRESOURCE_URI_TEMPLATE = '/camps/{campId}/material_lists{._format}'; // ponytail: no custom controller needed; API Platform subresource handles filtering via Doctrine relation.
+
     /**
      * The items that are part of this list.
      */
