@@ -3,3 +3,5 @@ PLAYWRIGHT_VERSION=1.63.0
 
 # renovate: datasource=docker depName=mcr.microsoft.com/playwright
 PLAYWRIGHT_DOCKER_VERSION=1.63.0-noble
+
+# evidence: marker-only PR trigger check
