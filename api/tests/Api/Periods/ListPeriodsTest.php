@@ -135,4 +135,31 @@ class ListPeriodsTest extends ECampApiTestCase {
             ['href' => $this->getIriFor('period1campShared')],
         ], $response->toArray()['_links']['items']);
     }
+
+    public function testListPeriodsAsCampSubresourceIsAllowedForCollaborator() {
+        $camp = static::getFixture('camp1');
+        $response = static::createClientWithCredentials()->request('GET', "/camps/{$camp->getId()}/periods");
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains([
+            'totalItems' => 2,
+            '_links' => [
+                'items' => [],
+            ],
+            '_embedded' => [
+                'items' => [],
+            ],
+        ]);
+        $this->assertEqualsCanonicalizing([
+            ['href' => $this->getIriFor('period1')],
+            ['href' => $this->getIriFor('period2')],
+        ], $response->toArray()['_links']['items']);
+    }
+
+    public function testListPeriodsAsCampSubresourceIsDeniedForUnrelatedUser() {
+        $camp = static::getFixture('camp1');
+        static::createClientWithCredentials(['email' => static::$fixtures['user4unrelated']->getEmail()])
+            ->request('GET', "/camps/{$camp->getId()}/periods")
+        ;
+        $this->assertResponseStatusCodeSame(404);
+    }
 }

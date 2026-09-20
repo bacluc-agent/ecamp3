@@ -279,6 +279,9 @@ class EndpointPerformanceTest extends ECampApiTestCase {
         $checklist1Id = $this->getFixture('checklist1')->getId();
         $dayId = $this->getFixture('day1period1')->getId();
         $periodId = $this->getFixture('period1')->getId();
+        $materialList1Id = $this->getFixture('materialList1')->getId();
+        $materialNode1Id = $this->getFixture('materialNode1')->getId();
+        $activity1Id = $this->getFixture('activity1')->getId();
 
         return [
             '/camps/{id}/activities' => $camp1Id,
@@ -286,11 +289,17 @@ class EndpointPerformanceTest extends ECampApiTestCase {
             '/camps/{id}/camp_collaborations' => $camp1Id,
             '/camps/{id}/categories' => $camp1Id,
             '/camps/{id}/checklists' => $camp1Id,
+            '/camps/{id}/material_items' => $camp1Id,
+            '/camps/{id}/material_lists' => $camp1Id,
+            '/camps/{id}/periods' => $camp1Id,
             '/checklists/{id}/checklist_items' => $checklist1Id,
+            '/content_node/material_nodes/{id}/material_items' => $materialNode1Id,
             '/days/{id}/day_responsibles' => $dayId,
+            '/material_lists/{id}/material_items' => $materialList1Id,
             '/periods/{id}/days' => $periodId,
             '/periods/{id}/schedule_entries' => $periodId,
-            '/activities/{id}/comments' => $this->getFixture('activity1')->getId(),
+            '/activities/{id}/activity_responsibles' => $activity1Id,
+            '/activities/{id}/comments' => $activity1Id,
         ];
     }
 

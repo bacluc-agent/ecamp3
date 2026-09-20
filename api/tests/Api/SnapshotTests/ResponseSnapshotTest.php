@@ -271,10 +271,16 @@ class ResponseSnapshotTest extends ECampApiTestCase {
     #[TestWith(['/camps', '/camp_collaborations'], '/camps_{campId}_camp_collaborations')]
     #[TestWith(['/camps', '/checklists'], '/camps_{campId}_checklists')]
     #[TestWith(['/camps', '/categories'], '/camps_{campId}_categories')]
+    #[TestWith(['/camps', '/material_items'], '/camps_{campId}_material_items')]
+    #[TestWith(['/camps', '/material_lists'], '/camps_{campId}_material_lists')]
+    #[TestWith(['/camps', '/periods'], '/camps_{campId}_periods')]
     #[TestWith(['/checklists', '/checklist_items'], '/checklists_{campId}_checklist_items')]
+    #[TestWith(['/content_node/material_nodes', '/material_items'], '/content_node/material_nodes_{materialNodeId}_material_items')]
     #[TestWith(['/days', '/day_responsibles'], '/days_{campId}_day_responsibles')]
+    #[TestWith(['/material_lists', '/material_items'], '/material_lists_{materialListId}_material_items')]
     #[TestWith(['/periods', '/days'], '/periods_{campId}_days')]
     #[TestWith(['/periods', '/schedule_entries'], '/periods_{campId}_schedule_entries')]
+    #[TestWith(['/activities', '/activity_responsibles'], '/activities_{activityId}_activity_responsibles')]
     public function testSubResourceUrlMatchesSnapshot(string $endpoint, string $subresource) {
         $fixture = self::getFixtureFor($endpoint);
         $uri = "{$endpoint}/{$fixture->getId()}{$subresource}";

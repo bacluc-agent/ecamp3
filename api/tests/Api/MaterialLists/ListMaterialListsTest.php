@@ -167,4 +167,33 @@ class ListMaterialListsTest extends ECampApiTestCase {
             ['href' => $this->getIriFor('materialList2campShared')],
         ], $response->toArray()['_links']['items']);
     }
+
+    public function testListMaterialListsAsCampSubresourceIsAllowedForCollaborator() {
+        $camp = static::getFixture('camp1');
+        $response = static::createClientWithCredentials()->request('GET', "/camps/{$camp->getId()}/material_lists");
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains([
+            'totalItems' => 4,
+            '_links' => [
+                'items' => [],
+            ],
+            '_embedded' => [
+                'items' => [],
+            ],
+        ]);
+        $this->assertEqualsCanonicalizing([
+            ['href' => $this->getIriFor('materialList1')],
+            ['href' => $this->getIriFor('materialList2WithNoItems')],
+            ['href' => $this->getIriFor('materialList3Manager')],
+            ['href' => $this->getIriFor('materialList4Member')],
+        ], $response->toArray()['_links']['items']);
+    }
+
+    public function testListMaterialListsAsCampSubresourceIsDeniedForUnrelatedUser() {
+        $camp = static::getFixture('camp1');
+        static::createClientWithCredentials(['email' => static::$fixtures['user4unrelated']->getEmail()])
+            ->request('GET', "/camps/{$camp->getId()}/material_lists")
+        ;
+        $this->assertResponseStatusCodeSame(404);
+    }
 }

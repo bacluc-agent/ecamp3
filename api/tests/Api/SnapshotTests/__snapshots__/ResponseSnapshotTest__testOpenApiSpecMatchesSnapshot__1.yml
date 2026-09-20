@@ -4010,6 +4010,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem'
+          readOnly: true
           type: array
         materialLists:
           items:
@@ -4220,6 +4221,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-create_write.jsonMergePatch'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -4369,6 +4371,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem-read'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList-read'
@@ -4394,6 +4401,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -4457,6 +4465,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -4575,6 +4584,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
@@ -4600,6 +4614,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -4663,6 +4678,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -4781,6 +4797,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
@@ -4806,6 +4827,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -4869,6 +4891,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -4991,6 +5014,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
@@ -5080,6 +5108,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -5198,6 +5227,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem-read_CampCollaboration.Camp_CampCollaboration.User'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList-read_CampCollaboration.Camp_CampCollaboration.User'
@@ -5223,6 +5257,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read_CampCollaboration.Camp_CampCollaboration.User'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -5286,6 +5321,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -5404,6 +5440,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem-read_CampCollaboration.User'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList-read_CampCollaboration.User'
@@ -5429,6 +5470,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read_CampCollaboration.User'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -5492,6 +5534,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -5610,6 +5653,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem-read_Category.PreferredContentTypes'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList-read_Category.PreferredContentTypes'
@@ -5635,6 +5683,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read_Category.PreferredContentTypes'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -5698,6 +5747,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -5816,6 +5866,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem-read_Category.PreferredContentTypes_Category.ContentNodes'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList-read_Category.PreferredContentTypes_Category.ContentNodes'
@@ -5841,6 +5896,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read_Category.PreferredContentTypes_Category.ContentNodes'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -5904,6 +5960,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -6022,6 +6079,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem-read_Day.DayResponsibles'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList-read_Day.DayResponsibles'
@@ -6047,6 +6109,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read_Day.DayResponsibles'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -6110,6 +6173,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -6228,6 +6292,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem-read_Period.Camp_Period.Days'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList-read_Period.Camp_Period.Days'
@@ -6253,6 +6322,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read_Period.Camp_Period.Days'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -6316,6 +6386,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -6434,6 +6505,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem-read_ScheduleEntry.Activity'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList-read_ScheduleEntry.Activity'
@@ -6459,6 +6535,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read_ScheduleEntry.Activity'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -6522,6 +6599,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -6634,6 +6712,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-write_create.jsonMergePatch'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -6781,6 +6860,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-write_create.jsonMergePatch'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -7065,6 +7145,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.html-read'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.html-read'
@@ -7090,6 +7175,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -7153,6 +7239,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -7271,6 +7358,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.html-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.html-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
@@ -7296,6 +7388,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -7359,6 +7452,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -7477,6 +7571,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.html-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.html-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
@@ -7502,6 +7601,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -7565,6 +7665,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -7687,6 +7788,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.html-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.html-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
@@ -7776,6 +7882,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -7894,6 +8001,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.html-read_CampCollaboration.Camp_CampCollaboration.User'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.html-read_CampCollaboration.Camp_CampCollaboration.User'
@@ -7919,6 +8031,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read_CampCollaboration.Camp_CampCollaboration.User'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -7982,6 +8095,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -8100,6 +8214,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.html-read_CampCollaboration.User'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.html-read_CampCollaboration.User'
@@ -8125,6 +8244,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read_CampCollaboration.User'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -8188,6 +8308,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -8306,6 +8427,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.html-read_Category.PreferredContentTypes'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.html-read_Category.PreferredContentTypes'
@@ -8331,6 +8457,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read_Category.PreferredContentTypes'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -8394,6 +8521,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -8512,6 +8640,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.html-read_Category.PreferredContentTypes_Category.ContentNodes'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.html-read_Category.PreferredContentTypes_Category.ContentNodes'
@@ -8537,6 +8670,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read_Category.PreferredContentTypes_Category.ContentNodes'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -8600,6 +8734,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -8718,6 +8853,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.html-read_Day.DayResponsibles'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.html-read_Day.DayResponsibles'
@@ -8743,6 +8883,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read_Day.DayResponsibles'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -8806,6 +8947,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -8924,6 +9066,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.html-read_Period.Camp_Period.Days'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.html-read_Period.Camp_Period.Days'
@@ -8949,6 +9096,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read_Period.Camp_Period.Days'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -9012,6 +9160,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -9130,6 +9279,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.html-read_ScheduleEntry.Activity'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.html-read_ScheduleEntry.Activity'
@@ -9155,6 +9309,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read_ScheduleEntry.Activity'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -9218,6 +9373,7 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -9479,12 +9635,14 @@ components:
             periods:
               items:
                 $ref: '#/components/schemas/Period.jsonld-read'
+              readOnly: true
               type: array
           required:
             - activities
             - campCollaborations
             - categories
             - checklists
+            - materialItems
             - materialLists
             - periods
             - printYSLogoOnPicasso
@@ -9601,6 +9759,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.jsonld-read'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.jsonld-read'
@@ -9692,12 +9855,14 @@ components:
             periods:
               items:
                 $ref: '#/components/schemas/Period.jsonld-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
+              readOnly: true
               type: array
           required:
             - activities
             - campCollaborations
             - categories
             - checklists
+            - materialItems
             - materialLists
             - periods
             - printYSLogoOnPicasso
@@ -9814,6 +9979,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.jsonld-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.jsonld-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
@@ -9905,12 +10075,14 @@ components:
             periods:
               items:
                 $ref: '#/components/schemas/Period.jsonld-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
+              readOnly: true
               type: array
           required:
             - activities
             - campCollaborations
             - categories
             - checklists
+            - materialItems
             - materialLists
             - periods
             - printYSLogoOnPicasso
@@ -10027,6 +10199,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.jsonld-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.jsonld-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
@@ -10115,6 +10292,7 @@ components:
             - campCollaborations
             - categories
             - checklists
+            - materialItems
             - materialLists
             - periods
             - printYSLogoOnPicasso
@@ -10236,6 +10414,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.jsonld-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.jsonld-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
@@ -10334,6 +10517,7 @@ components:
             - campCollaborations
             - categories
             - checklists
+            - materialItems
             - materialLists
             - periods
             - printYSLogoOnPicasso
@@ -10450,6 +10634,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.jsonld-read_CampCollaboration.Camp_CampCollaboration.User'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.jsonld-read_CampCollaboration.Camp_CampCollaboration.User'
@@ -10475,6 +10664,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.jsonld-read_CampCollaboration.Camp_CampCollaboration.User'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -10547,6 +10737,7 @@ components:
             - campCollaborations
             - categories
             - checklists
+            - materialItems
             - materialLists
             - periods
             - printYSLogoOnPicasso
@@ -10663,6 +10854,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.jsonld-read_CampCollaboration.User'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.jsonld-read_CampCollaboration.User'
@@ -10688,6 +10884,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.jsonld-read_CampCollaboration.User'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -10755,6 +10952,7 @@ components:
             - campCollaborations
             - categories
             - checklists
+            - materialItems
             - materialLists
             - periods
             - printYSLogoOnPicasso
@@ -10875,6 +11073,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.jsonld-read_Category.PreferredContentTypes'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.jsonld-read_Category.PreferredContentTypes'
@@ -10900,6 +11103,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.jsonld-read_Category.PreferredContentTypes'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -10967,6 +11171,7 @@ components:
             - campCollaborations
             - categories
             - checklists
+            - materialItems
             - materialLists
             - periods
             - printYSLogoOnPicasso
@@ -11087,6 +11292,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.jsonld-read_Category.PreferredContentTypes_Category.ContentNodes'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.jsonld-read_Category.PreferredContentTypes_Category.ContentNodes'
@@ -11112,6 +11322,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.jsonld-read_Category.PreferredContentTypes_Category.ContentNodes'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -11184,6 +11395,7 @@ components:
             - campCollaborations
             - categories
             - checklists
+            - materialItems
             - materialLists
             - periods
             - printYSLogoOnPicasso
@@ -11300,6 +11512,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.jsonld-read_Day.DayResponsibles'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.jsonld-read_Day.DayResponsibles'
@@ -11325,6 +11542,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.jsonld-read_Day.DayResponsibles'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -11395,12 +11613,14 @@ components:
             periods:
               items:
                 $ref: '#/components/schemas/Period.jsonld-read_Period.Camp_Period.Days'
+              readOnly: true
               type: array
           required:
             - activities
             - campCollaborations
             - categories
             - checklists
+            - materialItems
             - materialLists
             - periods
             - printYSLogoOnPicasso
@@ -11517,6 +11737,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.jsonld-read_Period.Camp_Period.Days'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.jsonld-read_Period.Camp_Period.Days'
@@ -11608,12 +11833,14 @@ components:
             periods:
               items:
                 $ref: '#/components/schemas/Period.jsonld-read_ScheduleEntry.Activity'
+              readOnly: true
               type: array
           required:
             - activities
             - campCollaborations
             - categories
             - checklists
+            - materialItems
             - materialLists
             - periods
             - printYSLogoOnPicasso
@@ -11730,6 +11957,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.jsonld-read_ScheduleEntry.Activity'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.jsonld-read_ScheduleEntry.Activity'
@@ -37872,6 +38104,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -37952,6 +38185,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem-read'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -38025,6 +38259,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -38098,6 +38333,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -38171,6 +38407,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -38244,6 +38481,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem-read_CampCollaboration.Camp_CampCollaboration.User'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -38317,6 +38555,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem-read_CampCollaboration.User'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -38390,6 +38629,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem-read_Category.PreferredContentTypes'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -38463,6 +38703,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem-read_Category.PreferredContentTypes_Category.ContentNodes'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -38536,6 +38777,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem-read_Day.DayResponsibles'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -38609,6 +38851,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem-read_Period.Camp_Period.Days'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -38682,6 +38925,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem-read_ScheduleEntry.Activity'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -38935,6 +39179,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem.html-read'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -39008,6 +39253,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem.html-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -39081,6 +39327,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem.html-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -39154,6 +39401,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem.html-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -39227,6 +39475,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem.html-read_CampCollaboration.Camp_CampCollaboration.User'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -39300,6 +39549,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem.html-read_CampCollaboration.User'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -39373,6 +39623,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem.html-read_Category.PreferredContentTypes'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -39446,6 +39697,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem.html-read_Category.PreferredContentTypes_Category.ContentNodes'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -39519,6 +39771,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem.html-read_Day.DayResponsibles'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -39592,6 +39845,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem.html-read_Period.Camp_Period.Days'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -39665,6 +39919,7 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem.html-read_ScheduleEntry.Activity'
+          readOnly: true
           type: array
         parent:
           anyOf:
@@ -39849,6 +40104,7 @@ components:
             materialItems:
               items:
                 $ref: '#/components/schemas/MaterialItem.jsonld-read'
+              readOnly: true
               type: array
             parent:
               anyOf:
@@ -39925,6 +40181,7 @@ components:
             materialItems:
               items:
                 $ref: '#/components/schemas/MaterialItem.jsonld-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
+              readOnly: true
               type: array
             parent:
               anyOf:
@@ -40001,6 +40258,7 @@ components:
             materialItems:
               items:
                 $ref: '#/components/schemas/MaterialItem.jsonld-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
+              readOnly: true
               type: array
             parent:
               anyOf:
@@ -40077,6 +40335,7 @@ components:
             materialItems:
               items:
                 $ref: '#/components/schemas/MaterialItem.jsonld-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+              readOnly: true
               type: array
             parent:
               anyOf:
@@ -40153,6 +40412,7 @@ components:
             materialItems:
               items:
                 $ref: '#/components/schemas/MaterialItem.jsonld-read_CampCollaboration.Camp_CampCollaboration.User'
+              readOnly: true
               type: array
             parent:
               anyOf:
@@ -40229,6 +40489,7 @@ components:
             materialItems:
               items:
                 $ref: '#/components/schemas/MaterialItem.jsonld-read_CampCollaboration.User'
+              readOnly: true
               type: array
             parent:
               anyOf:
@@ -40305,6 +40566,7 @@ components:
             materialItems:
               items:
                 $ref: '#/components/schemas/MaterialItem.jsonld-read_Category.PreferredContentTypes'
+              readOnly: true
               type: array
             parent:
               anyOf:
@@ -40381,6 +40643,7 @@ components:
             materialItems:
               items:
                 $ref: '#/components/schemas/MaterialItem.jsonld-read_Category.PreferredContentTypes_Category.ContentNodes'
+              readOnly: true
               type: array
             parent:
               anyOf:
@@ -40457,6 +40720,7 @@ components:
             materialItems:
               items:
                 $ref: '#/components/schemas/MaterialItem.jsonld-read_Day.DayResponsibles'
+              readOnly: true
               type: array
             parent:
               anyOf:
@@ -40533,6 +40797,7 @@ components:
             materialItems:
               items:
                 $ref: '#/components/schemas/MaterialItem.jsonld-read_Period.Camp_Period.Days'
+              readOnly: true
               type: array
             parent:
               anyOf:
@@ -40609,6 +40874,7 @@ components:
             materialItems:
               items:
                 $ref: '#/components/schemas/MaterialItem.jsonld-read_ScheduleEntry.Activity'
+              readOnly: true
               type: array
             parent:
               anyOf:
@@ -54103,6 +54369,114 @@ paths:
       summary: 'Creates a Activity resource.'
       tags:
         - Activity
+  '/activities/{activityId}/activity_responsibles':
+    get:
+      description: 'Retrieves the collection of ActivityResponsible resources.'
+      operationId: api_activities_activityIdactivity_responsibles_get_collection
+      parameters:
+        -
+          deprecated: false
+          description: ''
+          explode: false
+          in: query
+          name: activity
+          required: false
+          schema:
+            type: string
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: false
+          in: query
+          name: activity.camp
+          required: false
+          schema:
+            type: string
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: true
+          in: query
+          name: 'activity.camp[]'
+          required: false
+          schema:
+            items:
+              type: string
+            type: array
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: true
+          in: query
+          name: 'activity[]'
+          required: false
+          schema:
+            items:
+              type: string
+            type: array
+          style: form
+        -
+          deprecated: false
+          description: 'Activity identifier'
+          explode: false
+          in: path
+          name: activityId
+          required: true
+          schema:
+            type: string
+          style: simple
+      responses:
+        200:
+          content:
+            application/hal+json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/HalCollectionBaseSchemaNoPagination' }
+                  - { properties: { _embedded: { additionalProperties: { items: { $ref: '#/components/schemas/ActivityResponsible.jsonhal-read' }, type: array } } }, type: object }
+                description: 'ActivityResponsible.jsonhal-read collection.'
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ActivityResponsible-read'
+                type: array
+            application/ld+json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchemaNoPagination' }
+                  - { properties: { member: { items: { $ref: '#/components/schemas/ActivityResponsible.jsonld-read' }, type: array } }, required: [member], type: object }
+                description: 'ActivityResponsible.jsonld-read collection.'
+                type: object
+            application/vnd.api+json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/JsonApiCollectionBaseSchemaNoPagination' }
+                  - { properties: { data: { items: { properties: { attributes: { properties: { _id: { description: 'An internal, unique, randomly generated identifier of this entity.', example: 1a2b3c4d, maxLength: 16, readOnly: true, type: string } }, type: object }, id: { type: string }, relationships: { properties: { activity: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } }, campCollaboration: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } } }, type: object }, type: { type: string } }, required: [id, type], type: object }, type: array }, included: { description: 'Related resources requested via the "include" query parameter.', externalDocs: { url: 'https://jsonapi.org/format/#fetching-includes' }, items: { anyOf: [{ $ref: '#/components/schemas/Activity.jsonapi' }, { $ref: '#/components/schemas/CampCollaboration.jsonapi' }] }, readOnly: true, type: array } }, type: object }
+                description: 'ActivityResponsible.jsonapi collection.'
+            text/html:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ActivityResponsible.html-read'
+                type: array
+          description: 'ActivityResponsible collection'
+        403:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden
+          links: []
+      summary: 'Retrieves the collection of ActivityResponsible resources.'
+      tags:
+        - ActivityResponsible
   '/activities/{activityId}/comments':
     get:
       description: 'Retrieves the collection of Comment resources.'
@@ -56572,6 +56946,328 @@ paths:
       summary: 'Retrieves the collection of Checklist resources.'
       tags:
         - Checklist
+  '/camps/{campId}/material_items':
+    get:
+      description: 'Retrieves the collection of MaterialItem resources.'
+      operationId: api_camps_campIdmaterial_items_get_collection
+      parameters:
+        -
+          deprecated: false
+          description: ''
+          explode: false
+          in: query
+          name: camp
+          required: false
+          schema:
+            type: string
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: false
+          in: query
+          name: materialList
+          required: false
+          schema:
+            type: string
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: false
+          in: query
+          name: materialNode
+          required: false
+          schema:
+            type: string
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: false
+          in: query
+          name: period
+          required: false
+          schema:
+            type: string
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: true
+          in: query
+          name: 'camp[]'
+          required: false
+          schema:
+            items:
+              type: string
+            type: array
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: true
+          in: query
+          name: 'materialList[]'
+          required: false
+          schema:
+            items:
+              type: string
+            type: array
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: true
+          in: query
+          name: 'materialNode[]'
+          required: false
+          schema:
+            items:
+              type: string
+            type: array
+          style: form
+        -
+          deprecated: false
+          description: 'Camp identifier'
+          explode: false
+          in: path
+          name: campId
+          required: true
+          schema:
+            type: string
+          style: simple
+      responses:
+        200:
+          content:
+            application/hal+json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/HalCollectionBaseSchemaNoPagination' }
+                  - { properties: { _embedded: { additionalProperties: { items: { $ref: '#/components/schemas/MaterialItem.jsonhal-read' }, type: array } } }, type: object }
+                description: 'MaterialItem.jsonhal-read collection.'
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MaterialItem-read'
+                type: array
+            application/ld+json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchemaNoPagination' }
+                  - { properties: { member: { items: { $ref: '#/components/schemas/MaterialItem.jsonld-read' }, type: array } }, required: [member], type: object }
+                description: 'MaterialItem.jsonld-read collection.'
+                type: object
+            application/vnd.api+json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/JsonApiCollectionBaseSchemaNoPagination' }
+                  - { properties: { data: { items: { properties: { attributes: { properties: { _id: { description: 'An internal, unique, randomly generated identifier of this entity.', example: 1a2b3c4d, maxLength: 16, readOnly: true, type: string }, article: { description: 'The name of the item that is required.', example: Volleyball, maxLength: 64, type: string }, done: { default: false, description: 'Whether the item has been prepared and is ready to be brought to the camp.', example: true, type: boolean }, periodMaterialItems: { items: { $ref: '#/components/schemas/PeriodMaterialItem' }, type: array }, quantity: { description: 'The number of items or the amount in the unit of items that are required.', example: 1.5, exclusiveMinimum: 0, minimum: 0, type: ['null', number] }, unit: { description: 'An optional unit for measuring the amount of items required.', example: kg, maxLength: 32, type: ['null', string] } }, type: object }, id: { type: string }, relationships: { properties: { camp: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } }, materialList: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } }, materialNode: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } }, period: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } } }, type: object }, type: { type: string } }, required: [id, type], type: object }, type: array }, included: { description: 'Related resources requested via the "include" query parameter.', externalDocs: { url: 'https://jsonapi.org/format/#fetching-includes' }, items: { anyOf: [{ $ref: '#/components/schemas/Camp.jsonapi' }, { $ref: '#/components/schemas/MaterialList.jsonapi' }, { $ref: '#/components/schemas/MaterialNode.jsonapi' }, { $ref: '#/components/schemas/Period.jsonapi' }] }, readOnly: true, type: array } }, type: object }
+                description: 'MaterialItem.jsonapi collection.'
+            text/html:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MaterialItem.html-read'
+                type: array
+          description: 'MaterialItem collection'
+        403:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden
+          links: []
+      summary: 'Retrieves the collection of MaterialItem resources.'
+      tags:
+        - MaterialItem
+  '/camps/{campId}/material_lists':
+    get:
+      description: 'Retrieves the collection of MaterialList resources.'
+      operationId: api_camps_campIdmaterial_lists_get_collection
+      parameters:
+        -
+          deprecated: false
+          description: ''
+          explode: false
+          in: query
+          name: camp
+          required: false
+          schema:
+            type: string
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: true
+          in: query
+          name: 'camp[]'
+          required: false
+          schema:
+            items:
+              type: string
+            type: array
+          style: form
+        -
+          deprecated: false
+          description: 'Camp identifier'
+          explode: false
+          in: path
+          name: campId
+          required: true
+          schema:
+            type: string
+          style: simple
+      responses:
+        200:
+          content:
+            application/hal+json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/HalCollectionBaseSchemaNoPagination' }
+                  - { properties: { _embedded: { additionalProperties: { items: { $ref: '#/components/schemas/MaterialList.jsonhal-read' }, type: array } } }, type: object }
+                description: 'MaterialList.jsonhal-read collection.'
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MaterialList-read'
+                type: array
+            application/ld+json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchemaNoPagination' }
+                  - { properties: { member: { items: { $ref: '#/components/schemas/MaterialList.jsonld-read' }, type: array } }, required: [member], type: object }
+                description: 'MaterialList.jsonld-read collection.'
+                type: object
+            application/vnd.api+json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/JsonApiCollectionBaseSchemaNoPagination' }
+                  - { properties: { data: { items: { properties: { attributes: { properties: { _id: { description: 'An internal, unique, randomly generated identifier of this entity.', example: 1a2b3c4d, maxLength: 16, readOnly: true, type: string }, itemCount: { example: 3, readOnly: true, type: integer }, name: { description: 'The human readable name of the material list.', example: Lebensmittel, maxLength: 32, type: ['null', string] } }, type: object }, id: { type: string }, relationships: { properties: { camp: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } }, campCollaboration: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } }, materialItems: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } } }, type: object }, type: { type: string } }, required: [id, type], type: object }, type: array }, included: { description: 'Related resources requested via the "include" query parameter.', externalDocs: { url: 'https://jsonapi.org/format/#fetching-includes' }, items: { anyOf: [{ $ref: '#/components/schemas/Camp.jsonapi' }, { $ref: '#/components/schemas/CampCollaboration.jsonapi' }, { $ref: '#/components/schemas/MaterialItem.jsonapi' }] }, readOnly: true, type: array } }, type: object }
+                description: 'MaterialList.jsonapi collection.'
+            text/html:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MaterialList.html-read'
+                type: array
+          description: 'MaterialList collection'
+        403:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden
+          links: []
+      summary: 'Retrieves the collection of MaterialList resources.'
+      tags:
+        - MaterialList
+  '/camps/{campId}/periods':
+    get:
+      description: 'Retrieves the collection of Period resources.'
+      operationId: api_camps_campIdperiods_get_collection
+      parameters:
+        -
+          deprecated: false
+          description: ''
+          explode: false
+          in: query
+          name: camp
+          required: false
+          schema:
+            type: string
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: false
+          in: query
+          name: campCollaborator
+          required: false
+          schema:
+            type: string
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: true
+          in: query
+          name: 'camp[]'
+          required: false
+          schema:
+            items:
+              type: string
+            type: array
+          style: form
+        -
+          deprecated: false
+          description: 'Camp identifier'
+          explode: false
+          in: path
+          name: campId
+          required: true
+          schema:
+            type: string
+          style: simple
+      responses:
+        200:
+          content:
+            application/hal+json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/HalCollectionBaseSchemaNoPagination' }
+                  - { properties: { _embedded: { additionalProperties: { items: { $ref: '#/components/schemas/Period.jsonhal-read' }, type: array } } }, type: object }
+                description: 'Period.jsonhal-read collection.'
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Period-read'
+                type: array
+            application/ld+json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchemaNoPagination' }
+                  - { properties: { member: { items: { $ref: '#/components/schemas/Period.jsonld-read' }, type: array } }, required: [member], type: object }
+                description: 'Period.jsonld-read collection.'
+                type: object
+            application/vnd.api+json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/JsonApiCollectionBaseSchemaNoPagination' }
+                  - { properties: { data: { items: { properties: { attributes: { properties: { _id: { description: 'An internal, unique, randomly generated identifier of this entity.', example: 1a2b3c4d, maxLength: 16, readOnly: true, type: string }, daysSorted: { items: { type: ['null', string] }, readOnly: true, type: array }, description: { description: 'A free text name for the period. Useful to distinguish multiple periods in the same camp.', example: Hauptlager, maxLength: 32, type: ['null', string] }, end: { description: "The (inclusive) day at the end of which the period ends, as an ISO date string. Should\nnot be before \"start\".", example: '2022-01-08', format: date, type: string }, endOfLastDay: { description: 'returns the end time of the last day of the period.', format: date-time, readOnly: true, type: ['null', string] }, firstDayNumber: { description: 'The day number of the first Day in period.', readOnly: true, type: integer }, moveScheduleEntries: { default: true, description: "If the start date of the period is changing, moveScheduleEntries defines what happens\nwith the schedule entries in the period. true: The schedule entries will be moved\ntogether with the period (startOffset stays the same). false: The start date of each\nschedule entry remains the same (startOffset changes).", example: true, type: boolean }, periodLength: { description: "Returns the length of this period in days\n(based on start and end date).", readOnly: true, type: [integer, 'null'] }, periodMaterialItems: { items: { $ref: '#/components/schemas/PeriodMaterialItem' }, type: array }, start: { description: 'The day on which the period starts, as an ISO date string. Should not be after "end".', example: '2022-01-01', format: date, type: string } }, type: object }, id: { type: string }, relationships: { properties: { camp: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } }, contentNodes: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, dayResponsibles: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, days: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, materialItems: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, scheduleEntries: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } } }, type: object }, type: { type: string } }, required: [id, type], type: object }, type: array }, included: { description: 'Related resources requested via the "include" query parameter.', externalDocs: { url: 'https://jsonapi.org/format/#fetching-includes' }, items: { anyOf: [{ $ref: '#/components/schemas/Camp.jsonapi' }, { $ref: '#/components/schemas/Day.jsonapi' }, { $ref: '#/components/schemas/DayResponsible.jsonapi' }, { $ref: '#/components/schemas/MaterialItem.jsonapi' }, { $ref: '#/components/schemas/ScheduleEntry.jsonapi' }] }, readOnly: true, type: array } }, type: object }
+                description: 'Period.jsonapi collection.'
+            text/html:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Period.html-read'
+                type: array
+          description: 'Period collection'
+        403:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden
+          links: []
+      summary: 'Retrieves the collection of Period resources.'
+      tags:
+        - Period
   '/camps/{id}':
     delete:
       description: 'Removes the Camp resource.'
@@ -59585,6 +60281,146 @@ paths:
       summary: 'Updates the MaterialNode resource.'
       tags:
         - MaterialNode
+  '/content_node/material_nodes/{materialNodeId}/material_items':
+    get:
+      description: 'Retrieves the collection of MaterialItem resources.'
+      operationId: api_content_nodematerial_nodes_materialNodeIdmaterial_items_get_collection
+      parameters:
+        -
+          deprecated: false
+          description: ''
+          explode: false
+          in: query
+          name: camp
+          required: false
+          schema:
+            type: string
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: false
+          in: query
+          name: materialList
+          required: false
+          schema:
+            type: string
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: false
+          in: query
+          name: materialNode
+          required: false
+          schema:
+            type: string
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: false
+          in: query
+          name: period
+          required: false
+          schema:
+            type: string
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: true
+          in: query
+          name: 'camp[]'
+          required: false
+          schema:
+            items:
+              type: string
+            type: array
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: true
+          in: query
+          name: 'materialList[]'
+          required: false
+          schema:
+            items:
+              type: string
+            type: array
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: true
+          in: query
+          name: 'materialNode[]'
+          required: false
+          schema:
+            items:
+              type: string
+            type: array
+          style: form
+        -
+          deprecated: false
+          description: 'MaterialNode identifier'
+          explode: false
+          in: path
+          name: materialNodeId
+          required: true
+          schema:
+            type: string
+          style: simple
+      responses:
+        200:
+          content:
+            application/hal+json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/HalCollectionBaseSchemaNoPagination' }
+                  - { properties: { _embedded: { additionalProperties: { items: { $ref: '#/components/schemas/MaterialItem.jsonhal-read' }, type: array } } }, type: object }
+                description: 'MaterialItem.jsonhal-read collection.'
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MaterialItem-read'
+                type: array
+            application/ld+json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchemaNoPagination' }
+                  - { properties: { member: { items: { $ref: '#/components/schemas/MaterialItem.jsonld-read' }, type: array } }, required: [member], type: object }
+                description: 'MaterialItem.jsonld-read collection.'
+                type: object
+            application/vnd.api+json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/JsonApiCollectionBaseSchemaNoPagination' }
+                  - { properties: { data: { items: { properties: { attributes: { properties: { _id: { description: 'An internal, unique, randomly generated identifier of this entity.', example: 1a2b3c4d, maxLength: 16, readOnly: true, type: string }, article: { description: 'The name of the item that is required.', example: Volleyball, maxLength: 64, type: string }, done: { default: false, description: 'Whether the item has been prepared and is ready to be brought to the camp.', example: true, type: boolean }, periodMaterialItems: { items: { $ref: '#/components/schemas/PeriodMaterialItem' }, type: array }, quantity: { description: 'The number of items or the amount in the unit of items that are required.', example: 1.5, exclusiveMinimum: 0, minimum: 0, type: ['null', number] }, unit: { description: 'An optional unit for measuring the amount of items required.', example: kg, maxLength: 32, type: ['null', string] } }, type: object }, id: { type: string }, relationships: { properties: { camp: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } }, materialList: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } }, materialNode: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } }, period: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } } }, type: object }, type: { type: string } }, required: [id, type], type: object }, type: array }, included: { description: 'Related resources requested via the "include" query parameter.', externalDocs: { url: 'https://jsonapi.org/format/#fetching-includes' }, items: { anyOf: [{ $ref: '#/components/schemas/Camp.jsonapi' }, { $ref: '#/components/schemas/MaterialList.jsonapi' }, { $ref: '#/components/schemas/MaterialNode.jsonapi' }, { $ref: '#/components/schemas/Period.jsonapi' }] }, readOnly: true, type: array } }, type: object }
+                description: 'MaterialItem.jsonapi collection.'
+            text/html:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MaterialItem.html-read'
+                type: array
+          description: 'MaterialItem collection'
+        403:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden
+          links: []
+      summary: 'Retrieves the collection of MaterialItem resources.'
+      tags:
+        - MaterialItem
   /content_node/multi_selects:
     get:
       description: 'Retrieves the collection of MultiSelect resources.'
@@ -63018,6 +63854,146 @@ paths:
       summary: 'Updates the MaterialList resource.'
       tags:
         - MaterialList
+  '/material_lists/{materialListId}/material_items':
+    get:
+      description: 'Retrieves the collection of MaterialItem resources.'
+      operationId: api_material_lists_materialListIdmaterial_items_get_collection
+      parameters:
+        -
+          deprecated: false
+          description: ''
+          explode: false
+          in: query
+          name: camp
+          required: false
+          schema:
+            type: string
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: false
+          in: query
+          name: materialList
+          required: false
+          schema:
+            type: string
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: false
+          in: query
+          name: materialNode
+          required: false
+          schema:
+            type: string
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: false
+          in: query
+          name: period
+          required: false
+          schema:
+            type: string
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: true
+          in: query
+          name: 'camp[]'
+          required: false
+          schema:
+            items:
+              type: string
+            type: array
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: true
+          in: query
+          name: 'materialList[]'
+          required: false
+          schema:
+            items:
+              type: string
+            type: array
+          style: form
+        -
+          deprecated: false
+          description: ''
+          explode: true
+          in: query
+          name: 'materialNode[]'
+          required: false
+          schema:
+            items:
+              type: string
+            type: array
+          style: form
+        -
+          deprecated: false
+          description: 'MaterialList identifier'
+          explode: false
+          in: path
+          name: materialListId
+          required: true
+          schema:
+            type: string
+          style: simple
+      responses:
+        200:
+          content:
+            application/hal+json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/HalCollectionBaseSchemaNoPagination' }
+                  - { properties: { _embedded: { additionalProperties: { items: { $ref: '#/components/schemas/MaterialItem.jsonhal-read' }, type: array } } }, type: object }
+                description: 'MaterialItem.jsonhal-read collection.'
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MaterialItem-read'
+                type: array
+            application/ld+json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchemaNoPagination' }
+                  - { properties: { member: { items: { $ref: '#/components/schemas/MaterialItem.jsonld-read' }, type: array } }, required: [member], type: object }
+                description: 'MaterialItem.jsonld-read collection.'
+                type: object
+            application/vnd.api+json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/JsonApiCollectionBaseSchemaNoPagination' }
+                  - { properties: { data: { items: { properties: { attributes: { properties: { _id: { description: 'An internal, unique, randomly generated identifier of this entity.', example: 1a2b3c4d, maxLength: 16, readOnly: true, type: string }, article: { description: 'The name of the item that is required.', example: Volleyball, maxLength: 64, type: string }, done: { default: false, description: 'Whether the item has been prepared and is ready to be brought to the camp.', example: true, type: boolean }, periodMaterialItems: { items: { $ref: '#/components/schemas/PeriodMaterialItem' }, type: array }, quantity: { description: 'The number of items or the amount in the unit of items that are required.', example: 1.5, exclusiveMinimum: 0, minimum: 0, type: ['null', number] }, unit: { description: 'An optional unit for measuring the amount of items required.', example: kg, maxLength: 32, type: ['null', string] } }, type: object }, id: { type: string }, relationships: { properties: { camp: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } }, materialList: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } }, materialNode: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } }, period: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } } }, type: object }, type: { type: string } }, required: [id, type], type: object }, type: array }, included: { description: 'Related resources requested via the "include" query parameter.', externalDocs: { url: 'https://jsonapi.org/format/#fetching-includes' }, items: { anyOf: [{ $ref: '#/components/schemas/Camp.jsonapi' }, { $ref: '#/components/schemas/MaterialList.jsonapi' }, { $ref: '#/components/schemas/MaterialNode.jsonapi' }, { $ref: '#/components/schemas/Period.jsonapi' }] }, readOnly: true, type: array } }, type: object }
+                description: 'MaterialItem.jsonapi collection.'
+            text/html:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MaterialItem.html-read'
+                type: array
+          description: 'MaterialItem collection'
+        403:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden
+          links: []
+      summary: 'Retrieves the collection of MaterialItem resources.'
+      tags:
+        - MaterialItem
   /periods:
     get:
       description: 'Retrieves the collection of Period resources.'
