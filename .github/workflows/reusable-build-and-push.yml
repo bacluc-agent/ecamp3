@@ -48,13 +48,13 @@ jobs:
         id: add-nightly-tag
         if: startsWith(github.ref, 'refs/heads/devel')
         run: |
-          echo "nightly-tag=nightly" | tr -d "\n"  >> $GITHUB_OUTPUT
+          echo "nightly-tag=nightly" | tr -d "\n"  >> "$GITHUB_OUTPUT"
 
       - name: Set latest tag if its a tag
         id: add-latest-tag
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          echo "latest-tag=latest" | tr -d "\n"  >> $GITHUB_OUTPUT
+          echo "latest-tag=latest" | tr -d "\n"  >> "$GITHUB_OUTPUT"
 
       - uses: actions/github-script@v9
         id: get-tag
@@ -76,8 +76,8 @@ jobs:
               ]
           END
           )
-          TAGS=$(echo $TAGS | jq -c 'map(select(length > 0))')
-          echo "image-tags=$TAGS" | tr -d "\n"  >> $GITHUB_OUTPUT
+          TAGS=$(echo "$TAGS" | jq -c 'map(select(length > 0))')
+          echo "image-tags=$TAGS" | tr -d "\n"  >> "$GITHUB_OUTPUT"
 
       - name: Get build info
         id: build-info
@@ -85,11 +85,12 @@ jobs:
           set -x
           sudo snap install yq
 
-          export REPO_NAME=$(basename $(pwd))
+          REPO_NAME=$(basename "$PWD")
+          export REPO_NAME
           echo "services:" > /tmp/docker-compose.yml
-          for i in $(find . -name docker-compose.yml); do
-             docker compose -f $i config | yq '.services | select(.[].build != null and .[].image != null)' | sed 's/^/  /' >> /tmp/docker-compose.yml
-          done
+          while IFS= read -r i; do
+             docker compose -f "$i" config | yq '.services | select(.[].build != null and .[].image != null)' | sed 's/^/  /' >> /tmp/docker-compose.yml
+          done < <(find . -name docker-compose.yml)
 
           cat /tmp/docker-compose.yml
 
@@ -103,9 +104,9 @@ jobs:
           yq_pipe=$yq_pipe'| [.]'
           cat /tmp/docker-compose.yml | yq "$yq_pipe"
           BUILD_INFO=$(cat /tmp/docker-compose.yml | yq "$yq_pipe" -o=json)
-          BUILD_INFO=$(echo $BUILD_INFO | jq -c -s add | sed "s|:local||g")
-          echo $BUILD_INFO
-          echo "result=$BUILD_INFO" | tr -d "\n"  >> $GITHUB_OUTPUT
+          BUILD_INFO=$(echo "$BUILD_INFO" | jq -c -s add | sed "s|:local||g")
+          echo "$BUILD_INFO"
+          echo "result=$BUILD_INFO" | tr -d "\n"  >> "$GITHUB_OUTPUT"
         env:
           REPO_OWNER: ${{ vars.DOCKER_HUB_USERNAME || steps.repo-owner.outputs.result }}
           VERSION: local
@@ -150,7 +151,7 @@ jobs:
           ${{ env.repo-owner }}
           HEREDOC
 
-          if [ ! echo "${{ matrix.build-config.image }}" | grep -Eq '^[a-zA-Z0-9._/-]+$' ]; then
+          if ! echo "${{ matrix.build-config.image }}" | grep -Eq '^[a-zA-Z0-9._/-]+$'; then
             echo "Error: Invalid Docker image name '${{ matrix.build-config.image }}'."
             exit 1
           fi
@@ -168,28 +169,28 @@ jobs:
         id: get-latest-commit
         run: |
           set -x
-          context=$( echo '${{ toJSON(matrix.build-config) }}' | jq -r '.context' | sed "s|$PWD|.|g")
+          context=$(echo '${{ toJSON(matrix.build-config) }}' | jq -r '.context' | sed "s|$PWD|.|g")
           echo "context: $context"
-          dockerfile=$( echo '${{ toJSON(matrix.build-config) }}' | jq -r '.dockerfile' | sed "s|$PWD|.|g")
+          dockerfile=$(echo '${{ toJSON(matrix.build-config) }}' | jq -r '.dockerfile' | sed "s|$PWD|.|g")
           echo "dockerfile: $dockerfile"
-          git log --stat -n 1 $context $dockerfile
-          latest_commit=$(git log --pretty=format:"%H" -n 1 $context $dockerfile)
+          git log --stat -n 1 "$context" "$dockerfile"
+          latest_commit=$(git log --pretty=format:"%H" -n 1 "$context" "$dockerfile")
           echo "latest_commit: $latest_commit"
-          echo "result=$latest_commit" | tr -d "\n"  >> $GITHUB_OUTPUT
+          echo "result=$latest_commit" | tr -d "\n"  >> "$GITHUB_OUTPUT"
 
       - name: check if image already exists
         id: check-image
         run: |
           set +e
-          docker pull ${{ matrix.build-config.image }}:${{ steps.get-latest-commit.outputs.result }}
+          docker pull "${{ matrix.build-config.image }}:${{ steps.get-latest-commit.outputs.result }}"
           image_exists=$?
           set -e
-          if ([ $image_exists -eq 0 ]); then
+          if [ "$image_exists" -eq 0 ]; then
             echo "image already exists"
-            echo "result=true" | tr -d "\n"  >> $GITHUB_OUTPUT
+            echo "result=true" | tr -d "\n"  >> "$GITHUB_OUTPUT"
           else
             echo "image does not exist"
-            echo "result=false" | tr -d "\n"  >> $GITHUB_OUTPUT
+            echo "result=false" | tr -d "\n"  >> "$GITHUB_OUTPUT"
           fi
 
       - name: Add latest commit to image tag if image does not exist
@@ -222,10 +223,10 @@ jobs:
       - name: Retag and push images
         if: steps.check-image.outputs.result == 'true'
         run: |
-          for tag in $(echo '${{ env.tags }}' | jq -r '.[]'); do
-            docker tag ${{ matrix.build-config.image }}:${{ steps.get-latest-commit.outputs.result }} ${{ matrix.build-config.image }}:${tag}
-            docker push ${{ matrix.build-config.image }}:${tag}
-          done
+          while IFS= read -r tag; do
+            docker tag "${{ matrix.build-config.image }}:${{ steps.get-latest-commit.outputs.result }}" "${{ matrix.build-config.image }}:${tag}"
+            docker push "${{ matrix.build-config.image }}:${tag}"
+          done < <(echo '${{ env.tags }}' | jq -r '.[]')
 
   sentry-sourcemaps:
     runs-on: ubuntu-latest
