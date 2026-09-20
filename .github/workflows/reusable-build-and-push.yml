@@ -208,44 +208,6 @@ jobs:
           script: |
             return JSON.parse('${{ steps.add-latest-commit-to-tags-if-image-does-not-exist.outputs.result }}').map(tag => `${{ matrix.build-config.image }}:${ tag }`)
 
-      - name: populate build args from secrets/vars
-        if: steps.check-image.outputs.result == 'false'
-        id: populate-build-args
-        uses: actions/github-script@v9
-        with:
-          script: |
-            const buildArgValues = {
-              "SENTRY_AUTH_TOKEN" : "${{ secrets.SENTRY_AUTH_TOKEN }}",
-              "SENTRY_FRONTEND_PROJECT" : "${{ vars.SENTRY_FRONTEND_PROJECT }}",
-              "SENTRY_ORG" : "${{ vars.SENTRY_ORG }}",
-              "SENTRY_PRINT_PROJECT" : "${{ vars.SENTRY_PRINT_PROJECT }}",
-              "SENTRY_RELEASE_NAME" : "${{ inputs.sha }}",
-            }
-            const args = JSON.parse(`${{ toJSON(matrix.build-config.args) }}`)
-            let result = ""
-            for (const arg in args) {
-              if (buildArgValues[arg]) {
-                args[arg] = buildArgValues[arg]
-              }
-            }
-            return args
-
-      - name: transform build args
-        if: steps.check-image.outputs.result == 'false'
-        id: transform-build-args
-        run: |
-          set -x
-          echo 'result<<EOF' >> $GITHUB_OUTPUT
-          echo '${{ steps.populate-build-args.outputs.result }}' | yq -p json >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
-          cat $GITHUB_OUTPUT
-
-      - name: debug transform build args output
-        if: steps.check-image.outputs.result == 'false'
-        run: |
-          echo "result: ${{ steps.transform-build-args.outputs.result }}"
-          echo "result: ${{ toJSON(steps.transform-build-args.outputs) }}"
-
       - name: Build and push image
         uses: docker/build-push-action@v7
         if: steps.check-image.outputs.result == 'false'
@@ -254,8 +216,6 @@ jobs:
           file: ${{ matrix.build-config.dockerfile }}
           tags: ${{ join(fromJSON(steps.expand-tags.outputs.result)) }}
           context: ${{ matrix.build-config.context }}
-          build-args: |
-            ${{ steps.transform-build-args.outputs.result }}
           cache-from: type=gha,scope=${{ matrix.build-config.image }}
           cache-to: type=gha,scope=${{ matrix.build-config.image }},mode=max,ignore-error=true
 
@@ -266,3 +226,38 @@ jobs:
             docker tag ${{ matrix.build-config.image }}:${{ steps.get-latest-commit.outputs.result }} ${{ matrix.build-config.image }}:${tag}
             docker push ${{ matrix.build-config.image }}:${tag}
           done
+
+  sentry-sourcemaps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ inputs.sha }}
+          allow-unsafe-pr-checkout: true
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.21.0
+
+      - name: Build frontend and upload sourcemaps
+        working-directory: frontend
+        run: |
+          npm ci --no-audit
+          npm run build
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_FRONTEND_PROJECT: ${{ vars.SENTRY_FRONTEND_PROJECT }}
+          SENTRY_RELEASE_NAME: ${{ inputs.sha }}
+
+      - name: Build print and upload sourcemaps
+        working-directory: print
+        run: |
+          npm ci --no-audit
+          npm run build
+          SENTRY_AUTH_TOKEN="$NUXT_SENTRY_AUTH_TOKEN" npx --yes @sentry/cli sourcemaps upload .output --org "$NUXT_SENTRY_ORG" --project "$NUXT_SENTRY_PROJECT" --release "$NUXT_SENTRY_RELEASE_NAME"
+        env:
+          NUXT_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          NUXT_SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          NUXT_SENTRY_PROJECT: ${{ vars.SENTRY_PRINT_PROJECT }}
+          NUXT_SENTRY_RELEASE_NAME: ${{ inputs.sha }}
