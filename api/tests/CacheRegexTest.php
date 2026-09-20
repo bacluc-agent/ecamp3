@@ -27,6 +27,12 @@ class CacheRegexTest extends KernelTestCase {
     #[TestWith(data: ['/content_types'], name: '/content_types')]
     #[TestWith(data: ['/content_types/25a82375a0b6'], name: '/content_types/25a82375a0b6')]
     #[TestWith(data: ['/periods/25a82475e0b7/schedule_entries'], name: '/periods/25a82475e0b7/schedule_entries')]
+    #[TestWith(data: ['/camps/25a82475e0b7/periods'], name: '/camps/25a82475e0b7/periods')]
+    #[TestWith(data: ['/camps/25a82475e0b7/material_lists'], name: '/camps/25a82475e0b7/material_lists')]
+    #[TestWith(data: ['/camps/25a82475e0b7/material_items'], name: '/camps/25a82475e0b7/material_items')]
+    #[TestWith(data: ['/material_lists/25a82475e0b7/material_items'], name: '/material_lists/25a82475e0b7/material_items')]
+    #[TestWith(data: ['/content_node/material_nodes/25a82475e0b7/material_items'], name: '/content_node/material_nodes/25a82475e0b7/material_items')]
+    #[TestWith(data: ['/activities/25a82475e0b7/activity_responsibles'], name: '/activities/25a82475e0b7/activity_responsibles')]
     public function testIncludesUrls(string $url) {
         assertMatchesRegularExpression($this->cacheRegex, $url);
     }
@@ -58,6 +64,8 @@ class CacheRegexTest extends KernelTestCase {
     #[TestWith(data: ['/profiles'], name: '/profiles')]
     #[TestWith(data: ['/schedule_entries'], name: '/schedule_entries')]
     #[TestWith(data: ['/users'], name: '/users')]
+    #[TestWith(data: ['/periods/25a82475e0b7/material_items'], name: '/periods/25a82475e0b7/material_items')]
+    #[TestWith(data: ['/camps/25a82475e0b7/comments'], name: '/camps/25a82475e0b7/comments')]
     public function testDoesNotIncludeUrls(string $url) {
         assertDoesNotMatchRegularExpression($this->cacheRegex, $url);
     }
