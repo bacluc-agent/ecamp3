@@ -1,0 +1,25 @@
+{{- if .Values.fluentd.output.loki.enable -}}
+apiVersion: fluentd.fluent.io/v1alpha1
+kind: ClusterOutput
+metadata:
+  name: fluentd-output-loki
+  labels:
+    output.fluentd.fluent.io/enabled: "true"
+    {{- include "app.commonLabels" . | nindent 4 }}
+    {{- include "app.commonSelectorLabels" . | nindent 4 }}
+spec:
+  outputs:
+    - loki:
+        url: {{ .Values.fluentd.output.loki.url }}
+        lineFormat: json
+        labels:
+          - job=fluentd
+        labelKeys:
+          - method
+          - escapedUrlWithoutQuery
+          - status_string
+      # ponytail: single Loki instance, not HA; upgrade when throughput matters
+      buffer:
+        type: memory
+        flushInterval: 5s
+{{- end }}
