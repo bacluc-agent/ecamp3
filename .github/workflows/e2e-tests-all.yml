@@ -1,6 +1,11 @@
 name: 'Tests: All End-to-End (including non-mature)'
 
 on:
+  workflow_call:
+    inputs:
+      force:
+        type: boolean
+        default: false
   workflow_dispatch:
   schedule:
     - cron: '0 2 * * *'
@@ -25,21 +30,26 @@ jobs:
     steps:
       - id: check
         run: |
+          if [ "${{ inputs.force }}" = "true" ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             if [ "$BASE_REF" = "staging" ] || [ "$BASE_REF" = "prod" ]; then
-              echo "should_run=true" >> $GITHUB_OUTPUT
+              echo "should_run=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
-            if [ "$LABEL_NAME" = "run-all-e2e-tests!" ]; then
-              echo "should_run=true" >> $GITHUB_OUTPUT
+            if [ "$HAS_RUN_ALL_LABEL" = "true" ]; then
+              echo "should_run=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
-            echo "should_run=false" >> $GITHUB_OUTPUT
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
           else
-            echo "should_run=true" >> $GITHUB_OUTPUT
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
           fi
         env:
-          LABEL_NAME: ${{ github.event.label.name }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          HAS_RUN_ALL_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'run-all-e2e-tests!') }}
 
   e2e-tests-build:
     name: 'Tests: All e2e build'
