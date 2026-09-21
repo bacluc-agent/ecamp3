@@ -11,14 +11,15 @@ spec:
   outputs:
     - loki:
         url: {{ .Values.fluentd.output.loki.url }}
-        extra_labels:
-          job: fluentd
-        label_keys:
+        lineFormat: json
+        labels:
+          - job=fluentd
+        labelKeys:
           - method
-          - path
-          - status
-        # ponytail: single Loki instance, not HA; upgrade when throughput matters
-        buffer:
-          type: memory
-          flush_interval: 5s
+          - escapedUrlWithoutQuery
+          - status_string
+      # ponytail: single Loki instance, not HA; upgrade when throughput matters
+      buffer:
+        type: memory
+        flushInterval: 5s
 {{- end }}
