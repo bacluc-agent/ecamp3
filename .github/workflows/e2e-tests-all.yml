@@ -1,11 +1,16 @@
 name: 'Tests: All End-to-End (including non-mature)'
 
 on:
+  workflow_call:
+    inputs:
+      force:
+        type: boolean
+        default: false
   workflow_dispatch:
   schedule:
     - cron: '0 2 * * *'
   pull_request:
-    types: [opened, labeled, unlabeled, synchronize]
+    types: [labeled]
     branches:
       - '**'
   push:
@@ -25,6 +30,10 @@ jobs:
     steps:
       - id: check
         run: |
+          if [ "${{ inputs.force }}" = "true" ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             if [ "$BASE_REF" = "staging" ] || [ "$BASE_REF" = "prod" ]; then
               echo "should_run=true" >> "$GITHUB_OUTPUT"
@@ -34,18 +43,11 @@ jobs:
               echo "should_run=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
-            if [ -n "$(gh api "repos/$REPOSITORY/pulls/$PR_NUMBER/files" --paginate --jq '.[] | select(.filename == "e2e/playwright.version") | .filename')" ]; then
-              echo "should_run=true" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
             echo "should_run=false" >> "$GITHUB_OUTPUT"
           else
             echo "should_run=true" >> "$GITHUB_OUTPUT"
           fi
         env:
-          GH_TOKEN: ${{ github.token }}
-          REPOSITORY: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
           BASE_REF: ${{ github.event.pull_request.base.ref }}
           HAS_RUN_ALL_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'run-all-e2e-tests!') }}
 
