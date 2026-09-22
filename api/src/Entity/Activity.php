@@ -195,7 +195,7 @@ class Activity extends BaseEntity implements BelongsToCampInterface {
     /**
      * The list of people that are responsible for planning or carrying out this activity.
      */
-    #[ApiProperty(writable: false)]
+    #[ApiProperty(writable: false, uriTemplate: ActivityResponsible::ACTIVITY_SUBRESOURCE_URI_TEMPLATE)]
     #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: ActivityResponsible::class, mappedBy: 'activity', orphanRemoval: true)]
     #[ORM\OrderBy(['createTime' => 'ASC'])]

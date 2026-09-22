@@ -153,7 +153,7 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
      * Lists for collecting the required materials needed for carrying out the programme. Each collaborator
      * has a material list, and there may be more, such as shopping lists.
      */
-    #[ApiProperty(writable: false, example: '["/material_lists/1a2b3c4d"]')]
+    #[ApiProperty(writable: false, example: '["/material_lists/1a2b3c4d"]', uriTemplate: MaterialList::CAMP_SUBRESOURCE_URI_TEMPLATE)]
     #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: MaterialList::class, mappedBy: 'camp', cascade: ['persist'], orphanRemoval: true)]
     #[ORM\OrderBy(['name' => 'ASC', 'createTime' => 'ASC'])]
@@ -162,6 +162,8 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
     /**
      * List of MaterialItems that belong to this Camp.
      */
+    #[ApiProperty(writable: false, uriTemplate: MaterialItem::CAMP_SUBRESOURCE_URI_TEMPLATE)]
+    #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: MaterialItem::class, mappedBy: 'camp', cascade: ['persist'], orphanRemoval: true)]
     #[ORM\OrderBy(['article' => 'ASC', 'createTime' => 'ASC'])]
     public Collection $materialItems;
@@ -446,7 +448,8 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
     /**
      * All comments of the camp.
      */
-    #[ApiProperty(readable: false, writable: false)]
+    #[ApiProperty(writable: false, uriTemplate: Comment::CAMP_SUBRESOURCE_URI_TEMPLATE)]
+    #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'camp', cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\OrderBy(['createTime' => 'ASC'])]
     public Collection $comments;

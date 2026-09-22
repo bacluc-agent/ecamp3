@@ -123,6 +123,8 @@ class Period extends BaseEntity implements BelongsToCampInterface {
      * Material items that are assigned directly to the period, as opposed to individual
      * activities.
      */
+    #[ApiProperty(writable: false, uriTemplate: MaterialItem::PERIOD_SUBRESOURCE_URI_TEMPLATE)]
+    #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: MaterialItem::class, mappedBy: 'period')]
     #[ORM\OrderBy(['article' => 'ASC', 'createTime' => 'ASC'])]
     public Collection $materialItems;
