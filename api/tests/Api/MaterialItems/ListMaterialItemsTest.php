@@ -276,4 +276,114 @@ class ListMaterialItemsTest extends ECampApiTestCase {
             ['href' => $this->getIriFor('materialItem1period1campShared')],
         ], $response->toArray()['_links']['items']);
     }
+
+    public function testListMaterialItemsAsCampSubresourceIsAllowedForCollaborator() {
+        $camp = static::getFixture('camp1');
+        $response = static::createClientWithCredentials()->request('GET', "/camps/{$camp->getId()}/material_items");
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains([
+            'totalItems' => 2,
+            '_links' => [
+                'items' => [],
+            ],
+            '_embedded' => [
+                'items' => [],
+            ],
+        ]);
+        $this->assertEqualsCanonicalizing([
+            ['href' => $this->getIriFor('materialItem1')],
+            ['href' => $this->getIriFor('materialItem1period1')],
+        ], $response->toArray()['_links']['items']);
+    }
+
+    public function testListMaterialItemsAsCampSubresourceIsDeniedForUnrelatedUser() {
+        $camp = static::getFixture('camp1');
+        static::createClientWithCredentials(['email' => static::$fixtures['user4unrelated']->getEmail()])
+            ->request('GET', "/camps/{$camp->getId()}/material_items")
+        ;
+
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testListMaterialItemsAsMaterialListSubresourceIsAllowedForCollaborator() {
+        $materialList = static::getFixture('materialList1');
+        $response = static::createClientWithCredentials()->request('GET', "/material_lists/{$materialList->getId()}/material_items");
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains([
+            'totalItems' => 2,
+            '_links' => [
+                'items' => [],
+            ],
+            '_embedded' => [
+                'items' => [],
+            ],
+        ]);
+        $this->assertEqualsCanonicalizing([
+            ['href' => $this->getIriFor('materialItem1')],
+            ['href' => $this->getIriFor('materialItem1period1')],
+        ], $response->toArray()['_links']['items']);
+    }
+
+    public function testListMaterialItemsAsMaterialListSubresourceIsDeniedForUnrelatedUser() {
+        $materialList = static::getFixture('materialList1');
+        static::createClientWithCredentials(['email' => static::$fixtures['user4unrelated']->getEmail()])
+            ->request('GET', "/material_lists/{$materialList->getId()}/material_items")
+        ;
+
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testListMaterialItemsAsMaterialNodeSubresourceIsAllowedForCollaborator() {
+        $materialNode = static::getFixture('materialNode1');
+        $response = static::createClientWithCredentials()->request('GET', "/content_node/material_nodes/{$materialNode->getId()}/material_items");
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains([
+            'totalItems' => 1,
+            '_links' => [
+                'items' => [],
+            ],
+            '_embedded' => [
+                'items' => [],
+            ],
+        ]);
+        $this->assertEqualsCanonicalizing([
+            ['href' => $this->getIriFor('materialItem1')],
+        ], $response->toArray()['_links']['items']);
+    }
+
+    public function testListMaterialItemsAsMaterialNodeSubresourceIsDeniedForUnrelatedUser() {
+        $materialNode = static::getFixture('materialNode1');
+        static::createClientWithCredentials(['email' => static::$fixtures['user4unrelated']->getEmail()])
+            ->request('GET', "/content_node/material_nodes/{$materialNode->getId()}/material_items")
+        ;
+
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testListMaterialItemsAsPeriodSubresourceIsAllowedForCollaborator() {
+        $period = static::getFixture('period1');
+        $response = static::createClientWithCredentials()->request('GET', "/periods/{$period->getId()}/material_items");
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains([
+            'totalItems' => 1,
+            '_links' => [
+                'items' => [],
+            ],
+            '_embedded' => [
+                'items' => [],
+            ],
+        ]);
+        $this->assertEqualsCanonicalizing([
+            ['href' => $this->getIriFor('materialItem1period1')],
+        ], $response->toArray()['_links']['items']);
+    }
+
+    public function testListMaterialItemsAsPeriodSubresourceIsDeniedForUnrelatedUser() {
+        $period = static::getFixture('period1');
+        static::createClientWithCredentials(['email' => static::$fixtures['user4unrelated']->getEmail()])
+            ->request('GET', "/periods/{$period->getId()}/material_items")
+        ;
+
+        $this->assertResponseStatusCodeSame(404);
+    }
 }

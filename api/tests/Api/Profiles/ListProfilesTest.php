@@ -227,4 +227,29 @@ class ListProfilesTest extends ECampApiTestCase {
             'emoji' => ['%F0%9F%98%80'],
         ];
     }
+
+    public function testListProfilesAsUserSubresourceIsAllowedForCollaborator() {
+        $user = static::getFixture('user1manager');
+        $response = static::createClientWithCredentials()->request('GET', '/users/'.$user->getId().'/profiles');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains([
+            'totalItems' => 1,
+            '_links' => [
+                'items' => [],
+            ],
+            '_embedded' => [
+                'items' => [],
+            ],
+        ]);
+        $this->assertEqualsCanonicalizing([
+            ['href' => $this->getIriFor('profile1manager')],
+        ], $response->toArray()['_links']['items']);
+    }
+
+    public function testListProfilesAsUserSubresourceIsDeniedForAnonymousUser() {
+        $user = static::getFixture('user1manager');
+        static::createBasicClient()->request('GET', '/users/'.$user->getId().'/profiles');
+
+        $this->assertResponseStatusCodeSame(401);
+    }
 }

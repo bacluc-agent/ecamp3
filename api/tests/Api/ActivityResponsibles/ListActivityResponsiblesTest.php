@@ -176,4 +176,42 @@ class ListActivityResponsiblesTest extends ECampApiTestCase {
             ['href' => $this->getIriFor('activityResponsible1campPrototype')],
         ], $response->toArray()['_links']['items']);
     }
+
+    public function testListActivityResponsiblesAsActivitySubresourceIsAllowedForCollaborator() {
+        $activity = static::getFixture('activity1');
+        $response = static::createClientWithCredentials()->request('GET', '/activities/'.$activity->getId().'/activity_responsibles');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains([
+            'totalItems' => 1,
+            '_links' => [
+                'items' => [],
+            ],
+            '_embedded' => [
+                'items' => [],
+            ],
+        ]);
+        $this->assertEqualsCanonicalizing([
+            ['href' => $this->getIriFor('activityResponsible1')],
+        ], $response->toArray()['_links']['items']);
+    }
+
+    public function testListActivityResponsiblesAsActivitySubresourceIsDeniedForUnrelatedUser() {
+        $activity = static::getFixture('activity1');
+        static::createClientWithCredentials(['email' => static::$fixtures['user4unrelated']->getEmail()])
+            ->request('GET', '/activities/'.$activity->getId().'/activity_responsibles')
+        ;
+
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testListActivityResponsiblesAsActivitySubresourceInCampPrototypeIsAllowedForUnrelatedUser() {
+        $activity = static::getFixture('activity1campPrototype');
+        $response = static::createClientWithCredentials()->request('GET', '/activities/'.$activity->getId().'/activity_responsibles');
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains(['totalItems' => 1]);
+        $this->assertEqualsCanonicalizing([
+            ['href' => $this->getIriFor('activityResponsible1campPrototype')],
+        ], $response->toArray()['_links']['items']);
+    }
 }

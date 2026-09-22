@@ -540,4 +540,31 @@ class ListScheduleEntriesTest extends ECampApiTestCase {
 
         $this->assertResponseStatusCodeSame(404);
     }
+
+    public function testListScheduleEntriesAsActivitySubresourceIsAllowedForCollaborator() {
+        $activity = static::getFixture('activity2');
+        $response = static::createClientWithCredentials()->request('GET', '/activities/'.$activity->getId().'/schedule_entries');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains([
+            'totalItems' => 1,
+            '_links' => [
+                'items' => [],
+            ],
+            '_embedded' => [
+                'items' => [],
+            ],
+        ]);
+        $this->assertEqualsCanonicalizing([
+            ['href' => $this->getIriFor('scheduleEntry1period1camp1')],
+        ], $response->toArray()['_links']['items']);
+    }
+
+    public function testListScheduleEntriesAsActivitySubresourceIsDeniedForUnrelatedUser() {
+        $activity = static::getFixture('activity2');
+        static::createClientWithCredentials(['email' => static::$fixtures['user4unrelated']->getEmail()])
+            ->request('GET', '/activities/'.$activity->getId().'/schedule_entries')
+        ;
+
+        $this->assertResponseStatusCodeSame(404);
+    }
 }
