@@ -98,6 +98,22 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'filter_by_current_user' => false,
             ]
         ),
+        new GetCollection(
+            uriTemplate: self::PERIOD_SUBRESOURCE_URI_TEMPLATE,
+            uriVariables: [
+                'periodId' => new Link(
+                    toProperty: 'period',
+                    fromClass: Period::class,
+                    security: 'is_granted("CAMP_COLLABORATOR", period) or is_granted("CAMP_IS_PUBLIC", period)'
+                ),
+            ],
+            normalizationContext: ['groups' => ['read']],
+            security: 'is_fully_authenticated()',
+            provider: MaterialItemCollectionProvider::class,
+            extraProperties: [
+                'filter_by_current_user' => false,
+            ]
+        ),
         new Post(
             denormalizationContext: ['groups' => ['write', 'create']],
             securityPostDenormalize: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object) or (object.period === null and object.materialNode === null)',
@@ -114,6 +130,7 @@ class MaterialItem extends BaseEntity implements BelongsToCampInterface, CopyFro
     public const CAMP_SUBRESOURCE_URI_TEMPLATE = '/camps/{campId}/material_items{._format}'; // ponytail: no custom controller needed; API Platform subresource handles filtering via Doctrine relation.
     public const MATERIALLIST_SUBRESOURCE_URI_TEMPLATE = '/material_lists/{materialListId}/material_items{._format}';
     public const MATERIALNODE_SUBRESOURCE_URI_TEMPLATE = '/content_node/material_nodes/{materialNodeId}/material_items{._format}';
+    public const PERIOD_SUBRESOURCE_URI_TEMPLATE = '/periods/{periodId}/material_items{._format}';
 
     /**
      * The Camp to which this item belongs.

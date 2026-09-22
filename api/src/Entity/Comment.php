@@ -50,6 +50,17 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
             security: 'is_fully_authenticated()',
         ),
+        new GetCollection(
+            uriTemplate: self::CAMP_SUBRESOURCE_URI_TEMPLATE,
+            uriVariables: [
+                'campId' => new Link(
+                    toProperty: 'camp',
+                    fromClass: Camp::class,
+                    security: 'is_granted("CAMP_COLLABORATOR", camp)',
+                ),
+            ],
+            security: 'is_fully_authenticated()',
+        ),
     ],
     normalizationContext: ['groups' => ['read']],
     denormalizationContext: ['groups' => ['write']],
@@ -59,6 +70,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
 class Comment extends BaseEntity implements BelongsToCampInterface {
     public const ACTIVITY_SUBRESOURCE_URI_TEMPLATE = '/activities/{activityId}/comments{._format}';
+    public const CAMP_SUBRESOURCE_URI_TEMPLATE = '/camps/{campId}/comments{._format}';
 
     /**
      * The camp this comment belongs to.
