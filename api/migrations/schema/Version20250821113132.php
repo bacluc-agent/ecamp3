@@ -13,6 +13,11 @@ final class Version20250821113132 extends AbstractMigration {
         return 'Add isShared flag on camps';
     }
 
+    #[\Override]
+    public function isTransactional(): bool {
+        return false;
+    }
+
     public function up(Schema $schema): void {
         $this->addSql('ALTER TABLE camp ADD isShared BOOLEAN DEFAULT FALSE NOT NULL');
         $this->addSql('CREATE INDEX IDX_C1944230D2E4FE61 ON camp (isShared)');

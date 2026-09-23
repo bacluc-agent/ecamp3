@@ -16,6 +16,11 @@ final class Version20250903125914 extends AbstractMigration {
         return 'Add sharedSince and sharedBy to camp';
     }
 
+    #[\Override]
+    public function isTransactional(): bool {
+        return false;
+    }
+
     public function up(Schema $schema): void {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql('ALTER TABLE camp ADD sharedSince TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL');
