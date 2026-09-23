@@ -78,10 +78,10 @@ jobs:
             PARTITION y2024    VALUES FROM ('2024-01-01') TO ('2025-01-01'),
             PARTITION y_ge2025 VALUES FROM ('2025-01-01') TO (MAXVALUE)
           );
-          ALTER PARTITION y_le2022 OF INDEX period@period_start CONFIGURE ZONE USING lease_preferences='[[+node=n1]]';
-          ALTER PARTITION y2023    OF INDEX period@period_start CONFIGURE ZONE USING lease_preferences='[[+node=n2]]';
-          ALTER PARTITION y2024    OF INDEX period@period_start CONFIGURE ZONE USING lease_preferences='[[+node=n3]]';
-          ALTER PARTITION y_ge2025 OF INDEX period@period_start CONFIGURE ZONE USING lease_preferences='[[+node=n1]]';
+          ALTER PARTITION y_le2022 OF INDEX period@period_start CONFIGURE ZONE USING constraints='[]', lease_preferences='[[+node=n1]]';
+          ALTER PARTITION y2023    OF INDEX period@period_start CONFIGURE ZONE USING constraints='[]', lease_preferences='[[+node=n2]]';
+          ALTER PARTITION y2024    OF INDEX period@period_start CONFIGURE ZONE USING constraints='[]', lease_preferences='[[+node=n3]]';
+          ALTER PARTITION y_ge2025 OF INDEX period@period_start CONFIGURE ZONE USING constraints='[]', lease_preferences='[[+node=n1]]';
           SQL
       - name: Show partition and lease evidence
         run: |
@@ -99,6 +99,7 @@ jobs:
         working-directory: api
       - name: Show distributed camp years
         run: |
+          sleep 150
           docker exec -i n1 cockroach sql --insecure --database=ecamp3test <<'SQL'
           SELECT start FROM period ORDER BY start;
           SHOW RANGES FROM TABLE period WITH DETAILS;
