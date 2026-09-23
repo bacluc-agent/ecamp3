@@ -4980,6 +4980,11 @@ components:
           type:
             - 'null'
             - string
+        comments:
+          items:
+            $ref: '#/components/schemas/Comment-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+          readOnly: true
+          type: array
         courseKind:
           description: |-
             The official name for the type of this course, required on picassos of youth
@@ -5034,6 +5039,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
@@ -5123,6 +5133,8 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - comments
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -7796,6 +7808,11 @@ components:
           type:
             - 'null'
             - string
+        comments:
+          items:
+            $ref: '#/components/schemas/Comment.html-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+          readOnly: true
+          type: array
         courseKind:
           description: |-
             The official name for the type of this course, required on picassos of youth
@@ -7850,6 +7867,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.html-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.html-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
@@ -7939,6 +7961,8 @@ components:
         - campCollaborations
         - categories
         - checklists
+        - comments
+        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -10401,6 +10425,8 @@ components:
             - campCollaborations
             - categories
             - checklists
+            - comments
+            - materialItems
             - materialLists
             - periods
             - printYSLogoOnPicasso
@@ -10468,6 +10494,11 @@ components:
           type:
             - 'null'
             - string
+        comments:
+          items:
+            $ref: '#/components/schemas/Comment.jsonld-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+          readOnly: true
+          type: array
         courseKind:
           description: |-
             The official name for the type of this course, required on picassos of youth
@@ -10522,6 +10553,11 @@ components:
           type:
             - 'null'
             - string
+        materialItems:
+          items:
+            $ref: '#/components/schemas/MaterialItem.jsonld-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+          readOnly: true
+          type: array
         materialLists:
           items:
             $ref: '#/components/schemas/MaterialList.jsonld-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
