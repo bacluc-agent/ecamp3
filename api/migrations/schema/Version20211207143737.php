@@ -18,6 +18,7 @@ final class Version20211207143737 extends AbstractMigration {
     }
 
     public function up(Schema $schema): void {
+        $profileId = CockroachDb::is($this->connection) ? '"profileId"' : 'profileId';
         $this->addSql('
                             CREATE TABLE "profile"
                             (
@@ -46,14 +47,11 @@ final class Version20211207143737 extends AbstractMigration {
                             ');
         $this->addSql('DROP INDEX uniq_8d93d649f85e0677');
         $this->addSql('DROP INDEX uniq_8d93d649e7927c74');
-        $this->addSql('ALTER TABLE "user" ADD profileId VARCHAR(16)');
-        if (CockroachDb::is($this->connection)) {
-            $this->addSql('ALTER TABLE "user" RENAME COLUMN "profileId" TO profileid');
-        }
-        $this->addSql('ALTER TABLE "user" ADD CONSTRAINT FK_8D93D6499B26949C FOREIGN KEY (profileId) REFERENCES "profile" (id) ON DELETE RESTRICT');
-        $this->addSql('CREATE UNIQUE INDEX UNIQ_8D93D6499B26949C ON "user" (profileId)');
-        $this->addSql('UPDATE "user" u SET profileId = u.id');
-        $this->addSql('ALTER TABLE "user" ALTER COLUMN profileId SET NOT NULL');
+        $this->addSql(sprintf('ALTER TABLE "user" ADD %s VARCHAR(16)', $profileId));
+        $this->addSql(sprintf('ALTER TABLE "user" ADD CONSTRAINT FK_8D93D6499B26949C FOREIGN KEY (%s) REFERENCES "profile" (id) ON DELETE RESTRICT', $profileId));
+        $this->addSql(sprintf('CREATE UNIQUE INDEX UNIQ_8D93D6499B26949C ON "user" (%s)', $profileId));
+        $this->addSql(sprintf('UPDATE "user" u SET %s = u.id', $profileId));
+        $this->addSql(sprintf('ALTER TABLE "user" ALTER COLUMN %s SET NOT NULL', $profileId));
         $this->addSql('ALTER TABLE "user" DROP email');
         $this->addSql('ALTER TABLE "user" DROP username');
         $this->addSql('ALTER TABLE "user" DROP firstname');
@@ -65,6 +63,7 @@ final class Version20211207143737 extends AbstractMigration {
 
     #[\Override]
     public function down(Schema $schema): void {
+        $profileId = CockroachDb::is($this->connection) ? '"profileId"' : 'profileId';
         $this->addSql('ALTER TABLE "user" ADD email VARCHAR(64)');
         $this->addSql('ALTER TABLE "user" ADD username VARCHAR(32)');
         $this->addSql('ALTER TABLE "user" ADD firstname TEXT DEFAULT NULL');
@@ -75,17 +74,17 @@ final class Version20211207143737 extends AbstractMigration {
         $this->addSql('CREATE UNIQUE INDEX uniq_8d93d649f85e0677 ON "user" (username)');
         $this->addSql('CREATE UNIQUE INDEX uniq_8d93d649e7927c74 ON "user" (email)');
 
-        $this->addSql('
+        $this->addSql(sprintf('
                             UPDATE "user" u
-                            SET 
-                                email=(SELECT email FROM "profile" where id = u.profileId),
-                                username=(SELECT username FROM "profile" where id = u.profileId),
-                                firstname=(SELECT firstname FROM "profile" where id = u.profileId),
-                                surname=(SELECT surname FROM "profile" where id = u.profileId),
-                                nickname=(SELECT nickname FROM "profile" where id = u.profileId),
-                                language=(SELECT language FROM "profile" where id = u.profileId),
-                                roles=(SELECT roles FROM "profile" where id = u.profileId)
-        ');
+                            SET
+                                email=(SELECT email FROM "profile" where id = u.%s),
+                                username=(SELECT username FROM "profile" where id = u.%s),
+                                firstname=(SELECT firstname FROM "profile" where id = u.%s),
+                                surname=(SELECT surname FROM "profile" where id = u.%s),
+                                nickname=(SELECT nickname FROM "profile" where id = u.%s),
+                                language=(SELECT language FROM "profile" where id = u.%s),
+                                roles=(SELECT roles FROM "profile" where id = u.%s)
+        ', $profileId, $profileId, $profileId, $profileId, $profileId, $profileId, $profileId));
 
         $this->addSql('ALTER TABLE "user" ALTER COLUMN email SET NOT NULL');
         $this->addSql('ALTER TABLE "user" ALTER COLUMN username SET NOT NULL');
@@ -94,6 +93,6 @@ final class Version20211207143737 extends AbstractMigration {
         $this->addSql('ALTER TABLE "user" DROP CONSTRAINT FK_8D93D6499B26949C');
         $this->addSql('DROP INDEX UNIQ_8D93D6499B26949C');
         $this->addSql('DROP TABLE "profile"');
-        $this->addSql('ALTER TABLE "user" DROP profileId');
+        $this->addSql(sprintf('ALTER TABLE "user" DROP %s', $profileId));
     }
 }
