@@ -16,6 +16,11 @@ final class Version20250520220800 extends AbstractMigration {
         return 'MaterialItem.MaterialList is nullable';
     }
 
+    #[\Override]
+    public function isTransactional(): bool {
+        return false;
+    }
+
     public function up(Schema $schema): void {
         // Add Column CampId
         $this->addSql(<<<'SQL'
