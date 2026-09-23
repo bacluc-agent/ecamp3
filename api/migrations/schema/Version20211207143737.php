@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
-use App\Doctrine\DBAL\CockroachDb;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -23,7 +22,7 @@ final class Version20211207143737 extends AbstractMigration {
     }
 
     public function up(Schema $schema): void {
-        $profileId = CockroachDb::is($this->connection) ? '"profileId"' : 'profileId';
+        $profileId = 'profileId';
         $this->addSql('
                             CREATE TABLE "profile"
                             (
@@ -68,7 +67,7 @@ final class Version20211207143737 extends AbstractMigration {
 
     #[\Override]
     public function down(Schema $schema): void {
-        $profileId = CockroachDb::is($this->connection) ? '"profileId"' : 'profileId';
+        $profileId = 'profileId';
         $this->addSql('ALTER TABLE "user" ADD email VARCHAR(64)');
         $this->addSql('ALTER TABLE "user" ADD username VARCHAR(32)');
         $this->addSql('ALTER TABLE "user" ADD firstname TEXT DEFAULT NULL');
