@@ -21,7 +21,7 @@ final class Version20220501060227 extends AbstractMigration {
 
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql('ALTER TABLE abstract_content_node_owner DROP CONSTRAINT FK_8E710AB4F886581C');
-        $this->addSql('ALTER TABLE abstract_content_node_owner ADD CONSTRAINT FK_8E710AB4F886581C FOREIGN KEY (rootContentNodeId) REFERENCES content_node_columnlayout (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE abstract_content_node_owner ADD CONSTRAINT FK_8E710AB4F886581C2 FOREIGN KEY (rootContentNodeId) REFERENCES content_node_columnlayout (id) ON DELETE CASCADE');
         $this->addSql('DROP INDEX idx_c19442309d468a55');
         $this->addSql('DROP INDEX idx_c93898a9d468a55');
         $this->addSql('ALTER TABLE content_node DROP CONSTRAINT FK_481D0580B7939B21');
@@ -36,7 +36,7 @@ final class Version20220501060227 extends AbstractMigration {
         $this->addSql('CREATE INDEX idx_c93898a9d468a55 ON camp_collaboration (createtime)');
         $this->addSql('ALTER TABLE content_node DROP CONSTRAINT fk_481d0580b7939b21');
         $this->addSql('ALTER TABLE content_node ADD CONSTRAINT fk_481d0580b7939b21 FOREIGN KEY (rootid) REFERENCES content_node (id)');
-        $this->addSql('ALTER TABLE abstract_content_node_owner DROP CONSTRAINT fk_8e710ab4f886581c');
+        $this->addSql('ALTER TABLE abstract_content_node_owner DROP CONSTRAINT fk_8e710ab4f886581c2');
         $this->addSql('ALTER TABLE abstract_content_node_owner ADD CONSTRAINT fk_8e710ab4f886581c FOREIGN KEY (rootcontentnodeid) REFERENCES content_node (id) ON DELETE CASCADE');
         $this->addSql('CREATE INDEX idx_c19442309d468a55 ON camp (createtime)');
         $this->addSql('CREATE INDEX idx_d7785d2c55aa53e2 ON schedule_entry (updatetime)');
