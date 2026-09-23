@@ -1,0 +1,70 @@
+services:
+  n1:
+    image: cockroachdb/cockroach:v24.3.0
+    container_name: crdb-n1
+    command: >-
+      start --insecure
+      --listen-addr=:26257 --http-addr=:8080
+      --advertise-addr=n1:26257
+      --join=n1:26257,n2:26257,n3:26257
+      --locality=node=n1
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+    networks:
+      - crdb
+    volumes:
+      - crdb-n1-data:/cockroach/cockroach-data
+
+  n2:
+    image: cockroachdb/cockroach:v24.3.0
+    container_name: crdb-n2
+    command: >-
+      start --insecure
+      --listen-addr=:26257 --http-addr=:8080
+      --advertise-addr=n2:26257
+      --join=n1:26257,n2:26257,n3:26257
+      --locality=node=n2
+    ports:
+      - "26258:26257"
+      - "8081:8080"
+    networks:
+      - crdb
+    volumes:
+      - crdb-n2-data:/cockroach/cockroach-data
+
+  n3:
+    image: cockroachdb/cockroach:v24.3.0
+    container_name: crdb-n3
+    command: >-
+      start --insecure
+      --listen-addr=:26257 --http-addr=:8080
+      --advertise-addr=n3:26257
+      --join=n1:26257,n2:26257,n3:26257
+      --locality=node=n3
+    ports:
+      - "26259:26257"
+      - "8082:8080"
+    networks:
+      - crdb
+    volumes:
+      - crdb-n3-data:/cockroach/cockroach-data
+
+  init:
+    image: cockroachdb/cockroach:v24.3.0
+    depends_on:
+      - n1
+      - n2
+      - n3
+    restart: "on-failure"
+    command: init --host=n1:26257 --insecure
+    networks:
+      - crdb
+
+networks:
+  crdb:
+
+volumes:
+  crdb-n1-data:
+  crdb-n2-data:
+  crdb-n3-data:
