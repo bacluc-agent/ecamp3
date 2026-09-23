@@ -16,6 +16,11 @@ final class Version20220501101420 extends AbstractMigration {
         return '';
     }
 
+    #[\Override]
+    public function isTransactional(): bool {
+        return false;
+    }
+
     public function up(Schema $schema): void {
         // add rootContentNodeId on activity/category
         $this->addSql('ALTER TABLE activity DROP CONSTRAINT fk_ac74095abf396750');
