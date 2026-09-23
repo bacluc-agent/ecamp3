@@ -146,17 +146,17 @@ license grace window (7 days) applies to long-lived clusters.
 ### Test results
 
 Additional-Test run
-https://github.com/bacluc-agent/ecamp3/actions/runs/35846010169/job/107132229081
+https://github.com/bacluc-agent/ecamp3/actions/runs/35846663297/job/107134362286
 (all steps green, branch `issue-225`):
 
-- [3-node cluster start / init / wait for 3 live nodes](https://github.com/bacluc-agent/ecamp3/actions/runs/35846010169/job/107132229081#step:2)
-- [cluster compose file validated](https://github.com/bacluc-agent/ecamp3/actions/runs/35846010169/job/107132229081#step:6)
-- [full migrations](https://github.com/bacluc-agent/ecamp3/actions/runs/35846010169/job/107132229081#step:11)
-- [year partitions + lease_preferences applied](https://github.com/bacluc-agent/ecamp3/actions/runs/35846010169/job/107132229081#step:12)
-- [partition/range/gossip evidence](https://github.com/bacluc-agent/ecamp3/actions/runs/35846010169/job/107132229081#step:13)
-- [bin/console about](https://github.com/bacluc-agent/ecamp3/actions/runs/35846010169/job/107132229081#step:14)
-- [ListCampsTest + CreateCampTest: `OK (63 tests, 145 assertions)`](https://github.com/bacluc-agent/ecamp3/actions/runs/35846010169/job/107132229081#step:15)
-- [fixture years and per-year leaseholders after convergence](https://github.com/bacluc-agent/ecamp3/actions/runs/35846010169/job/107132229081#step:16)
+- [3-node cluster start / init / wait for 3 live nodes](https://github.com/bacluc-agent/ecamp3/actions/runs/35846663297/job/107134362286#step:2)
+- [cluster compose file validated](https://github.com/bacluc-agent/ecamp3/actions/runs/35846663297/job/107134362286#step:6)
+- [full migrations](https://github.com/bacluc-agent/ecamp3/actions/runs/35846663297/job/107134362286#step:11)
+- [year partitions + lease_preferences applied](https://github.com/bacluc-agent/ecamp3/actions/runs/35846663297/job/107134362286#step:12)
+- [partition/range/gossip evidence](https://github.com/bacluc-agent/ecamp3/actions/runs/35846663297/job/107134362286#step:13)
+- [bin/console about](https://github.com/bacluc-agent/ecamp3/actions/runs/35846663297/job/107134362286#step:14)
+- [ListCampsTest + CreateCampTest: `OK (63 tests, 145 assertions)`](https://github.com/bacluc-agent/ecamp3/actions/runs/35846663297/job/107134362286#step:15)
+- [fixture years and per-year leaseholders after convergence](https://github.com/bacluc-agent/ecamp3/actions/runs/35846663297/job/107134362286#step:16)
 
 Evidence excerpt from the final step (`SHOW RANGES FROM TABLE period WITH DETAILS`,
 `period_start` ranges; every range has `replicas {1,2,3}`):
