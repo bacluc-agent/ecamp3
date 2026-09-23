@@ -16,6 +16,11 @@ final class Version20220611193723 extends AbstractMigration {
         return 'ContentNode: Change inheritance type from JOINED to SINGLE_TABLE';
     }
 
+    #[\Override]
+    public function isTransactional(): bool {
+        return false;
+    }
+
     public function up(Schema $schema): void {
         $this->addSql('ALTER TABLE content_node ADD data JSONB DEFAULT NULL');
 
