@@ -17,8 +17,7 @@ final readonly class CustomSchemaManagerFactory implements SchemaManagerFactory 
         $platform = $connection->getDatabasePlatform();
 
         if ($platform instanceof PostgreSQLPlatform) {
-            $customPlatform = new CustomPostgreSQLPlatform();
-            return new CustomPostgreSQLSchemaManager($connection, $customPlatform);
+            return new CustomPostgreSQLSchemaManager($connection, $platform);
         }
 
         return $this->defaultFactory->createSchemaManager($connection);

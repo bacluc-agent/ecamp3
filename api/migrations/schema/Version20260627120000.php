@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use App\Doctrine\DBAL\CockroachDb;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -14,6 +15,10 @@ final class Version20260627120000 extends AbstractMigration {
     }
 
     public function up(Schema $schema): void {
+        if (CockroachDb::is($this->connection)) {
+            return;
+        }
+
         $this->addSql('CREATE EXTENSION IF NOT EXISTS pg_trgm');
         $this->addSql('CREATE INDEX unmanaged_idx_profile_firstname_trgm ON profile USING gin (LOWER(firstname) gin_trgm_ops)');
         $this->addSql('CREATE INDEX unmanaged_idx_profile_surname_trgm ON profile USING gin (LOWER(surname) gin_trgm_ops)');
@@ -23,6 +28,10 @@ final class Version20260627120000 extends AbstractMigration {
 
     #[\Override]
     public function down(Schema $schema): void {
+        if (CockroachDb::is($this->connection)) {
+            return;
+        }
+
         $this->addSql('DROP INDEX unmanaged_idx_profile_firstname_trgm');
         $this->addSql('DROP INDEX unmanaged_idx_profile_surname_trgm');
         $this->addSql('DROP INDEX unmanaged_idx_profile_nickname_trgm');

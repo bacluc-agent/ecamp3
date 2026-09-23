@@ -1,118 +1,98 @@
-# CockroachDB Evaluation for ecamp3
+# CockroachDB evaluation for ecamp3
 
-## Setup Steps
+## Scope
 
-```bash
-# 1. Create single-node CockroachDB container (insecure, for evaluation only)
+This evaluation keeps the default PostgreSQL service and `DATABASE_URL` unchanged.
+CockroachDB is an optional, insecure single-node test service only. Doctrine continues to
+use the PostgreSQL wire protocol with `server_version: 15.0`.
+
+## Reproducible setup
+
+```sh
+docker compose -f docker-compose.cockroachdb.yml config
 docker compose -f docker-compose.cockroachdb.yml up -d
-
-# 2. Configure Doctrine DBAL for CockroachDB
-# Note: Doctrine DBAL 4.4.4 does not support `cockroachdb://` URL scheme directly.
-# Use `postgresql://` with `serverVersion=15.0` (PostgreSQL-compatible).
-# The `database_server_version` env var approach was removed due to Symfony env syntax issues.
-
-# 3. Apply schema/migrations (requires minimal patches for CockroachDB compatibility)
-DATABASE_URL="postgresql://ecamp3@ecamp3-cockroachdb:26258/ecamp3?serverVersion=15.0&charset=utf8" \
-  docker compose exec api bin/console doctrine:migrations:migrate --no-interaction
+docker compose -f docker-compose.cockroachdb.yml ps
+docker compose -f docker-compose.cockroachdb.yml exec -T cockroachdb \
+  cockroach sql --insecure --host=localhost:26256 --execute='SHOW DATABASES; SHOW USERS;'
 ```
 
-## Compatibility Findings
+The commands were run on 2026-09-23. `config` succeeded. The service became healthy and
+reported CockroachDB v24.3.0, database `ecamp3`, and user `ecamp3`. The full application
+stack was not started because the default compose file requests more CPUs than this runner
+provides.
 
-### What Worked
-- Single-node CockroachDB `v24.3.0` starts successfully with `--insecure`.
-- Database `ecamp3` and user `ecamp3` created without issues.
-- `JSONB` column type (`content_node.data`) is supported by CockroachDB.
-- `pgcrypto` extension (`CREATE EXTENSION IF NOT EXISTS pgcrypto`) works.
-- UUID generation (`gen_random_uuid()`) works.
+CockroachDB v24.3 requires the node listener to use port 26257. Its SQL listener uses
+port 26256 inside the container and is published as `localhost:26257`; the HTTP admin UI is
+reachable at `localhost:8080`. Keeping the listeners on separate ports avoids the bind error
+from the previous compose file. The healthcheck creates the `ecamp3` database and user idempotently.
 
-### What Failed / Blocked
-- **DEFERRABLE syntax**: 15 migration files contain `NOT DEFERRABLE INITIALLY IMMEDIATE` which CockroachDB does not support. Fixed by patching `AbstractPlatform.php` in vendor (temporary) and removing clauses from `Version20211002102059.php`.
-- **ALTER COLUMN TYPE**: Migration `Version20211010091358` fails with `ALTER COLUMN TYPE from varchar to varchar is only supported experimentally`. Requires `SET enable_experimental_alter_column_type_general = true`.
-- **Partial indexes / `pg_trgm`**: Migration `Version20260627120000` uses `pg_trgm` GIN indexes (`gin_trgm_ops`) which are not supported in CockroachDB.
-- **UUID / `gen_random_bytes`**: Migration `Version20230409164830` uses `encode(gen_random_bytes(6), 'hex')` which may have compatibility differences.
-- **Doctrine DBAL driver**: `cockroachdb://` URL scheme is not recognized by Doctrine DBAL 4.4.4. Must use `postgresql://` with `serverVersion=15.0`.
+## Compatibility changes
 
-### Performance Note
-- Single-node insecure mode is not representative of production CockroachDB performance.
-- No benchmark tests were run due to time constraints.
-- CockroachDB's distributed architecture introduces overhead compared to single-node PostgreSQL; year-based partitioning (see proposal below) is recommended for large tables.
+- Removed the ineffective custom Doctrine PostgreSQL platform and restored the normal schema
+  manager platform. No vendor files are tracked or modified.
+- Removed ordinary `NOT DEFERRABLE INITIALLY IMMEDIATE`/`NOT DEFERRABLE` clauses from schema
+  foreign-key migrations. PostgreSQL's default remains immediate enforcement; no deferred
+  unique constraints existed in these migrations.
+- Added `App\Doctrine\DBAL\CockroachDb` to detect CockroachDB from `SELECT version()`.
+  Type-changing migrations use CockroachDB's `STRING` type while preserving the original
+  PostgreSQL `VARCHAR`/`TEXT` statements.
+- The `pg_trgm` extension and GIN indexes are skipped only on CockroachDB; PostgreSQL keeps
+  the original migration behavior.
+- `server_version: '15.0'` remains unchanged.
 
-## Concrete Year-Based Partitioning Proposal
+A clean full migration and API test run requires the API image and application services.
+They were not claimed here because the runner could not start the default stack.
+
+## Range partitioning implications
+
+CockroachDB partitioning is declared on the parent table; PostgreSQL's `PARTITION OF`
+syntax is not valid CockroachDB DDL. A valid year-based example is:
 
 ```sql
--- Example: partition `content_node` by year of `createTime`
-CREATE TABLE content_node_2024 (
-    LIKE content_node INCLUDING ALL
-) PARTITION OF content_node
-FOR VALUES FROM ('2024-01-01') TO ('2025-01-01');
-
-CREATE TABLE content_node_2025 (
-    LIKE content_node INCLUDING ALL
-) PARTITION OF content_node
-FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
+CREATE TABLE content_node (
+    id STRING NOT NULL,
+    createTime TIMESTAMP NOT NULL,
+    PRIMARY KEY (id)
+) PARTITION BY RANGE (createTime) (
+    PARTITION content_node_2024 VALUES FROM ('2024-01-01') TO ('2025-01-01'),
+    PARTITION content_node_2025 VALUES FROM ('2025-01-01') TO ('2026-01-01'),
+    PARTITION content_node_future VALUES FROM ('2026-01-01') TO (MAXVALUE)
+);
 ```
 
-Note: CockroachDB supports range partitioning but requires `PARTITION BY RANGE` syntax. The above is a conceptual DDL example; actual implementation requires CockroachDB-specific syntax (`PARTITION BY RANGE (createTime)`).
+A production design must include every parent column, primary/unique-key implications,
+foreign keys, indexes, retention boundaries, and a default/future partition. Partitioning
+only `content_node` is not an application change and was not introduced by this evaluation.
+One replica per shard is explicitly rejected: CockroachDB replication is a range-level
+cluster concern, not a recommendation to run one replica per application shard.
+
+## Performance conclusions
+
+`.ops/performance-test/` contains HTTP-level k6-style scripts and measurements; it does not
+contain query plans or measurements attributable to issues ecamp3 #8123 or #8668. Therefore
+this evaluation makes no query-bound conclusion for either issue. Those conclusions require
+reproducible workloads for the affected endpoints plus `EXPLAIN ANALYZE`/statement metrics
+on PostgreSQL and a representative multi-node CockroachDB cluster. A single insecure node
+cannot establish distributed-performance behavior.
 
 ## Recommendation
 
-**Do not migrate to CockroachDB for production ecamp3 at this time.**
+Do not migrate production ecamp3 to CockroachDB based on this evaluation. The migrations now
+cover the identified syntax differences, but full application migration/API evidence and
+issue-specific query measurements remain outstanding.
 
-Reasons:
-1. Doctrine DBAL lacks native `cockroachdb://` driver support.
-2. 15+ migration files contain PostgreSQL-specific syntax (`DEFERRABLE`, `ALTER COLUMN TYPE`) that requires significant patching.
-3. `pg_trgm` partial indexes are unsupported.
-4. The evaluation was conducted with an insecure single-node instance (`--insecure`), which is not production-ready.
+## Commands and results
 
-If CockroachDB adoption is pursued in the future:
-- Upgrade Doctrine DBAL to a version with CockroachDB support (if available).
-- Patch all 15 migration files to remove `DEFERRABLE` clauses.
-- Enable `enable_experimental_alter_column_type_general` or rewrite `ALTER COLUMN TYPE` migrations.
-- Replace `pg_trgm` indexes with CockroachDB-compatible full-text search alternatives.
-- Implement year-based partitioning for large tables (`content_node`, `activity`).
+| Command | Result |
+| --- | --- |
+| `docker compose -f docker-compose.cockroachdb.yml config` | Passed |
+| `docker compose -f docker-compose.cockroachdb.yml up -d` | Passed; service healthy |
+| `... exec ... SHOW DATABASES; SHOW USERS;` | Passed; `ecamp3` database and user present |
+| `docker compose up -d` | Blocked: runner exposes 4 CPUs but compose requests a larger CPU range |
+| Full migrations/API tests | Not run; API stack startup was blocked |
 
-## Ponytail Comments (Corners Cut)
+## References
 
-```markdown
-# ponytail: insecure single-node (`--insecure`) used for evaluation; never use in production.
-# ponytail: limited test subset (10-20 tests) not fully executed due to migration blocking issues.
-# ponytail: `database_server_version` env syntax removed; `DATABASE_URL` relies on `?serverVersion=15.0`.
-# ponytail: vendor file `AbstractPlatform.php` patched temporarily; not a permanent solution.
-# ponytail: only 1 of 15 DEFERRABLE migration files fixed (`Version20211002102059.php`).
-```
-
-## PR Hygiene & Evidence
-
-- **Branch:** `issue-225` on `bacluc-agent/ecamp3` (fork of `ecamp/ecamp3`).
-- **Additional-test action run:** `https://github.com/bacluc-agent/ecamp3/actions/runs/<run_id>` (to be updated after push; command: `docker-compose -f docker-compose.cockroachdb.yml up -d && DATABASE_URL=postgresql://ecamp3:ecamp3@localhost:26257/ecamp3?serverVersion=15.0 bin/console doctrine:migrations:migrate`)
-- **Ponytail annotations:** `# ponytail: insecure single-node`, `# ponytail: limited test subset`, `# ponytail: temporary vendor patch`, `# ponytail: only 1 of 15 DEFERRABLE files fixed`.
-- **No new PHP dependencies added.** Doctrine DBAL 4.4.4 covers `PostgreSQLPlatform`; `CustomPostgreSQLPlatform` extends it.
-
-## Commands Run
-
-```bash
-# Start CockroachDB
-docker compose -f docker-compose.cockroachdb.yml up -d
-
-# Configure Doctrine (modified `api/config/packages/doctrine.yaml` and `api/.env`)
-# Note: `database_server_version` env approach removed due to Symfony syntax errors.
-
-# Apply migrations (blocked at Version20211010091358 due to ALTER COLUMN TYPE)
-DATABASE_URL="postgresql://ecamp3:ecamp3@localhost:26257/ecamp3?serverVersion=15.0&charset=utf8" \
-  docker compose exec api bin/console doctrine:migrations:migrate --no-interaction
-
-# Test command (not fully executed due to blocking migration errors)
-# docker compose exec api composer test tests/Api/...
-```
-
-## Files Changed
-
-1. `docker-compose.cockroachdb.yml` (new)
-2. `api/config/packages/doctrine.yaml` (modified `server_version` to env-based, then reverted)
-3. `api/.env` (added CockroachDB URL comment, then reverted `database_server_version`)
-4. `api/src/Doctrine/DBAL/Schema/CustomPostgreSQLPlatform.php` (new)
-5. `api/src/Doctrine/DBAL/Schema/CustomSchemaManagerFactory.php` (modified)
-6. `api/migrations/schema/Version20211002102059.php` (modified - removed DEFERRABLE clause)
-7. `docs/cockroachdb-evaluation.md` (new)
-
-Note: The `CustomPostgreSQLPlatform.php` and `CustomSchemaManagerFactory.php` changes are minimal compatibility fixes but do not fully resolve all blocking issues (DEFERRABLE in 14 remaining files, ALTER COLUMN TYPE, pg_trgm).
+- Issue: https://github.com/bacluc-agent/agent-todo/issues/225
+- Prior PR: https://github.com/bacluc-agent/ecamp3/pull/21
+- Performance tooling: `.ops/performance-test/`

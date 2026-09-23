@@ -1,0 +1,48 @@
+name: Additional Test - CockroachDB
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [issue-225]
+
+permissions:
+  contents: read
+
+jobs:
+  cockroachdb:
+    name: CockroachDB migrations and API tests
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://ecamp3:ecamp3@localhost:26257/ecamp3?serverVersion=15.0&charset=utf8
+      APP_ENV: test
+    steps:
+      - name: Start CockroachDB
+        run: >-
+          docker run --detach --name cockroachdb --publish 26257:26257
+          cockroachdb/cockroach:v24.3.0 start-single-node --insecure --listen-addr=:26257
+      - name: Wait for CockroachDB
+        run: >-
+          timeout 60 sh -c 'until docker exec cockroachdb cockroach sql --insecure
+          --host=localhost:26257 --execute="SELECT 1"; do sleep 2; done'
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5.9'
+          extensions: intl,pgsql
+          tools: composer:2.10.3
+      - name: Install API dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+        working-directory: api
+      - name: Bootstrap database
+        run: >-
+          psql 'postgresql://root@localhost:26257/defaultdb?sslmode=disable'
+          -c "CREATE USER IF NOT EXISTS ecamp3; CREATE DATABASE IF NOT EXISTS ecamp3; GRANT ALL ON DATABASE ecamp3 TO ecamp3"
+      - name: Run full migrations
+        run: bin/console doctrine:migrations:migrate --no-interaction
+        working-directory: api
+      - name: Boot API
+        run: bin/console about
+        working-directory: api
+      - name: Run representative API tests
+        run: composer test tests/Api/Login/LoginTest.php tests/Api/Camps/ListCampsTest.php
+        working-directory: api
