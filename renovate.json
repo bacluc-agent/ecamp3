@@ -68,6 +68,11 @@
       "matchPackageNames": ["@react-pdf/**", "pdfkit"]
     },
     {
+      "description": "@react-pdf/font 4.1.2 pins pdfkit to exactly 0.20.1; do not bump until @react-pdf/font updates its pin",
+      "matchPackageNames": ["pdfkit"],
+      "allowedVersions": "0.20.1"
+    },
+    {
       "matchDepNames": [
         "browserless/chromium",
         "caddy",
