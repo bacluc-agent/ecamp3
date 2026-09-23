@@ -127,6 +127,36 @@ jobs:
           fi
           ./.helm/ecamp3/deploy.sh deploy
 
+      - name: Tag deployed commit for prod
+        if: ${{ success() && inputs.env == 'prod' && inputs.action == 'deploy' }}
+        continue-on-error: true
+        env:
+          REPO_ACCESS_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          BASE_TAG="PROD-$(date -u +%Y-%m-%d)"
+          COUNT=$(git ls-remote --tags origin "${BASE_TAG}*" | wc -l)
+          if [ "$COUNT" -eq 0 ]; then
+            TAG="$BASE_TAG"
+          else
+            N=$((COUNT + 1))
+            roman() {
+              local n=$1 out="" i
+              local -a vals=(1000 900 500 400 100 90 50 40 10 9 5 4 1)
+              local -a syms=(M CM D CD C XC L XL X IX V IV I)
+              for i in "${!vals[@]}"; do
+                while [ "$n" -ge "${vals[$i]}" ]; do
+                  out+="${syms[$i]}"
+                  n=$((n - vals[i]))
+                done
+              done
+              echo "$out"
+            }
+            TAG="${BASE_TAG}-$(roman "$N")"
+          fi
+          git tag "$TAG"
+          git push "https://x-access-token:${REPO_ACCESS_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TAG"
+
       - name: Finish the GitHub deployment
         uses: bobheadxi/deployments@v1.5.0
         if: always()
