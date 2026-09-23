@@ -17,6 +17,11 @@ final class Version20211207143737 extends AbstractMigration {
         return '';
     }
 
+    #[\Override]
+    public function isTransactional(): bool {
+        return false;
+    }
+
     public function up(Schema $schema): void {
         $profileId = CockroachDb::is($this->connection) ? '"profileId"' : 'profileId';
         $this->addSql('
