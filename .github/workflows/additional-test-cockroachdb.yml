@@ -70,7 +70,7 @@ jobs:
         working-directory: api
       - name: Distribute camp years across nodes
         run: |
-          docker exec -i n1 cockroach sql --insecure --database=ecamp3 <<'SQL'
+          docker exec -i n1 cockroach sql --insecure --database=ecamp3test <<'SQL'
           CREATE INDEX IF NOT EXISTS period_start ON period(start);
           ALTER INDEX period@period_start PARTITION BY RANGE (start) (
             PARTITION y_le2022 VALUES FROM (MINVALUE) TO ('2023-01-01'),
@@ -86,7 +86,7 @@ jobs:
       - name: Show partition and lease evidence
         run: |
           sleep 15
-          docker exec -i n1 cockroach sql --insecure --database=ecamp3 <<'SQL'
+          docker exec -i n1 cockroach sql --insecure --database=ecamp3test <<'SQL'
           SHOW PARTITIONS FROM TABLE period;
           SHOW RANGES FROM TABLE period WITH DETAILS;
           SELECT node_id, locality, is_live FROM crdb_internal.gossip_nodes;
@@ -99,7 +99,7 @@ jobs:
         working-directory: api
       - name: Show distributed camp years
         run: |
-          docker exec -i n1 cockroach sql --insecure --database=ecamp3 <<'SQL'
+          docker exec -i n1 cockroach sql --insecure --database=ecamp3test <<'SQL'
           SELECT start FROM period ORDER BY start;
           SHOW RANGES FROM TABLE period WITH DETAILS;
           SQL
