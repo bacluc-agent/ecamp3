@@ -18,6 +18,10 @@ final class Version20230204135941 extends AbstractMigration {
     }
 
     public function up(Schema $schema): void {
+        if (CockroachDb::is($this->connection)) {
+            return;
+        }
+
         $this->addSql('DROP INDEX offset_period_idx');
         $deferrable = CockroachDb::is($this->connection) ? '' : ' deferrable initially deferred';
         $this->addSql(
@@ -32,6 +36,10 @@ final class Version20230204135941 extends AbstractMigration {
 
     #[\Override]
     public function down(Schema $schema): void {
+        if (CockroachDb::is($this->connection)) {
+            return;
+        }
+
         $this->addSql(
             <<<'EOF'
                         alter table day 
