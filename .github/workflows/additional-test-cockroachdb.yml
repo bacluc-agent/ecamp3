@@ -36,7 +36,7 @@ jobs:
       - name: Bootstrap database
         run: >-
           psql 'postgresql://root@localhost:26257/defaultdb?sslmode=disable'
-          -c "CREATE USER IF NOT EXISTS ecamp3; CREATE DATABASE IF NOT EXISTS ecamp3; GRANT ALL ON DATABASE ecamp3 TO ecamp3"
+          -c "CREATE USER IF NOT EXISTS ecamp3; CREATE DATABASE IF NOT EXISTS ecamp3; CREATE DATABASE IF NOT EXISTS ecamp3test; GRANT ALL ON DATABASE ecamp3 TO ecamp3; GRANT ALL ON DATABASE ecamp3test TO ecamp3"
       - name: Run full migrations
         run: bin/console doctrine:migrations:migrate --no-interaction
         working-directory: api
