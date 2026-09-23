@@ -134,12 +134,21 @@ jobs:
         run: |
           set -euo pipefail
           BASE_TAG="PROD-$(date -u +%Y-%m-%d)"
-          if git ls-remote --tags origin "$BASE_TAG" | grep -q "refs/tags/${BASE_TAG}$"; then
-            TAG="${BASE_TAG}-${GITHUB_RUN_NUMBER}"
-          else
+          # Get all remote tags matching the base pattern
+          MATCHES=$(git ls-remote --tags origin "refs/tags/${BASE_TAG}*" || true)
+          # Count existing tags for this base (base + any Roman suffixes)
+          TOTAL=$(echo "$MATCHES" | grep -cE "refs/tags/${BASE_TAG}(\$|-[IVXLC]+)" || true)
+          if [ "$TOTAL" -eq 0 ]; then
             TAG="$BASE_TAG"
+          else
+            # Compute next Roman numeral: 1→I, 2→II, 3→III, 4→IV, 5→V, ...
+            # But per convention: first deploy = base (no numeral), second = -II, third = -III
+            # So if TOTAL=1 (base exists), next is II; TOTAL=2 (base+II), next is III
+            NEXT_NUM=$((TOTAL + 1))
+            ROMAN=$(python3 -c 'import sys; n=int(sys.argv[1]); vals=[(1000,"M"),(900,"CM"),(500,"D"),(400,"CD"),(100,"C"),(90,"XC"),(50,"L"),(40,"XL"),(10,"X"),(9,"IX"),(5,"V"),(4,"IV"),(1,"I")]; res=""; [res:=res+s for v,s in vals for _ in range(n//v) if (n:=n-v*(n//v)) or True]; print(res)' "$NEXT_NUM")
+            TAG="${BASE_TAG}-${ROMAN}"
           fi
-          git tag "$TAG"
+          git tag "$TAG" ${{ inputs.sha }}
           git push origin "$TAG"
 
       - name: Finish the GitHub deployment
