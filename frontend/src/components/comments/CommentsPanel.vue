@@ -100,7 +100,7 @@ export default {
       return activityFromRoute(this.$route) ?? commentsState.activityFilter
     },
     comments() {
-      return this.api.get().comments({ camp: this.camp._meta.self })
+      return this.camp.comments()
     },
     mobile() {
       return this.$vuetify.display.smAndDown

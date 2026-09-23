@@ -40,7 +40,7 @@ export default {
       return activityFromRoute(this.$route)
     },
     comments() {
-      return this.api.get().comments({ camp: this.camp._meta.self })
+      return this.camp.comments()
     },
     commentCount() {
       return scopedComments(this.comments, this.activity, this.$vuetify.display.smAndDown)
