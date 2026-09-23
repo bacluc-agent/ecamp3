@@ -58,7 +58,7 @@ final class Version20220611193723 extends AbstractMigration {
             SET data = jsonb_build_object('sections', storyboard.sections)
             FROM
                 ( 
-                    SELECT sb.id, jsonb_object_agg(gen_random_uuid(), json_build_object('column1', coalesce(sbs.column1,''), 'column2', coalesce(sbs.column2,''), 'column3', coalesce(sbs.column3,''), 'position', coalesce(sbs.position,0))) as sections
+                    SELECT sb.id, jsonb_object_agg(gen_random_uuid()::text, json_build_object('column1', coalesce(sbs.column1,''), 'column2', coalesce(sbs.column2,''), 'column3', coalesce(sbs.column3,''), 'position', coalesce(sbs.position,0))) as sections
                     FROM content_node_storyboard sb
                     INNER join content_node_storyboard_section sbs
                     ON sb.id=sbs.storyboardid
