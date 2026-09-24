@@ -275,7 +275,11 @@ class Activity extends BaseEntity implements BelongsToCampInterface {
     /**
      * @return ActivityResponsible[]
      */
-    #[ApiProperty(readableLink: true, uriTemplate: ActivityResponsible::ACTIVITY_SUBRESOURCE_URI_TEMPLATE)]
+    #[ApiProperty(
+        readableLink: true,
+        uriTemplate: ActivityResponsible::ACTIVITY_SUBRESOURCE_URI_TEMPLATE,
+        extraProperties: ['cacheDependencies' => ['activityResponsibles']]
+    )]
     #[SerializedName('activityResponsibles')]
     #[Groups(['Activity:ActivityResponsibles'])]
     public function getEmbeddedActivityResponsibles(): array {

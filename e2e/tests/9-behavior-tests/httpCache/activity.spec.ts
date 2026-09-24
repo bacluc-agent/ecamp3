@@ -41,7 +41,7 @@ const collectionXKeys =
   /* activityResponsible */
   '06743ccfeedd 06743ccfeedd#activity 06743ccfeedd#campCollaboration ' +
   '21bc6661c569 21bc6661c569#activity 21bc6661c569#campCollaboration ' +
-  'a13fadc97610#embeddedActivityResponsibles'
+  'a13fadc97610#activityResponsibles'
 
 test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () => {
   test.describe.configure({ mode: 'serial' })
