@@ -323,16 +323,17 @@ jobs:
         env:
           PERFORMANCE_TEST_DEBUG_OUTPUT: ${{ vars.PERFORMANCE_TEST_DEBUG_OUTPUT }}
 
-      - name: send coveralls report
+      - name: replace paths in clover.xml that they reflect repo path
         run: |
           sed -i "s|$(pwd)/api/|api/|g" api/build/logs/clover.xml
-          api/vendor/bin/php-coveralls -v \
-                                  --coverage_clover api/build/logs/clover.xml \
-                                  --json_path api/build/logs/coveralls-upload.json || true
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_PARALLEL: true
-          COVERALLS_FLAG_NAME: api
+
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@v2
+        with:
+          file: api/build/logs/clover.xml
+          flag-name: api
+          parallel: true
+          fail-on-error: false
 
   frontend-tests:
     name: 'Tests: Frontend'
