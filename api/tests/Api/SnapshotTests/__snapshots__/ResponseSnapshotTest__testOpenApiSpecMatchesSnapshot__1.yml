@@ -4411,6 +4411,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -4629,6 +4630,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -4847,6 +4849,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -5288,6 +5291,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read_CampCollaboration.Camp_CampCollaboration.User'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -5506,6 +5510,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read_CampCollaboration.User'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -5724,6 +5729,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read_Category.PreferredContentTypes'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -5942,6 +5948,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read_Category.PreferredContentTypes_Category.ContentNodes'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -6160,6 +6167,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read_Day.DayResponsibles'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -6378,6 +6386,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read_Period.Camp_Period.Days'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -6596,6 +6605,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period-read_ScheduleEntry.Activity'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -7239,6 +7249,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -7457,6 +7468,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -7675,6 +7687,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -8116,6 +8129,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read_CampCollaboration.Camp_CampCollaboration.User'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -8334,6 +8348,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read_CampCollaboration.User'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -8552,6 +8567,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read_Category.PreferredContentTypes'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -8770,6 +8786,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read_Category.PreferredContentTypes_Category.ContentNodes'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -8988,6 +9005,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read_Day.DayResponsibles'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -9206,6 +9224,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read_Period.Camp_Period.Days'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -9424,6 +9443,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.html-read_ScheduleEntry.Activity'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -9909,6 +9929,11 @@ components:
           type:
             - 'null'
             - string
+        periods:
+          items:
+            $ref: '#/components/schemas/Period.jsonld-read'
+          readOnly: true
+          type: array
         printYSLogoOnPicasso:
           default: false
           description: |-
@@ -10134,6 +10159,11 @@ components:
           type:
             - 'null'
             - string
+        periods:
+          items:
+            $ref: '#/components/schemas/Period.jsonld-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
+          readOnly: true
+          type: array
         printYSLogoOnPicasso:
           default: false
           description: |-
@@ -10359,6 +10389,11 @@ components:
           type:
             - 'null'
             - string
+        periods:
+          items:
+            $ref: '#/components/schemas/Period.jsonld-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
+          readOnly: true
+          type: array
         printYSLogoOnPicasso:
           default: false
           description: |-
@@ -10809,6 +10844,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.jsonld-read_CampCollaboration.Camp_CampCollaboration.User'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -11034,6 +11070,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.jsonld-read_CampCollaboration.User'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -11258,6 +11295,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.jsonld-read_Category.PreferredContentTypes'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -11482,6 +11520,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.jsonld-read_Category.PreferredContentTypes_Category.ContentNodes'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -11707,6 +11746,7 @@ components:
         periods:
           items:
             $ref: '#/components/schemas/Period.jsonld-read_Day.DayResponsibles'
+          readOnly: true
           type: array
         printYSLogoOnPicasso:
           default: false
@@ -11933,6 +11973,11 @@ components:
           type:
             - 'null'
             - string
+        periods:
+          items:
+            $ref: '#/components/schemas/Period.jsonld-read_Period.Camp_Period.Days'
+          readOnly: true
+          type: array
         printYSLogoOnPicasso:
           default: false
           description: |-
@@ -12158,6 +12203,11 @@ components:
           type:
             - 'null'
             - string
+        periods:
+          items:
+            $ref: '#/components/schemas/Period.jsonld-read_ScheduleEntry.Activity'
+          readOnly: true
+          type: array
         printYSLogoOnPicasso:
           default: false
           description: |-

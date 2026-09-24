@@ -101,6 +101,7 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
     #[Assert\Count(min: 1, groups: ['create'])]
     #[Assert\Count(min: 2, minMessage: 'A camp must have at least one period.', groups: ['Period:delete'])]
     #[ApiProperty(
+        readable: false,
         writableLink: true,
         example: [['description' => 'Hauptlager', 'start' => '2022-01-01', 'end' => '2022-01-08']]
     )]
@@ -472,11 +473,21 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
     /**
      * @return Period[]
      */
-    #[ApiProperty(readableLink: true)]
+    #[ApiProperty(readableLink: true, uriTemplate: Period::CAMP_SUBRESOURCE_URI_TEMPLATE)]
     #[SerializedName('periods')]
     #[Groups(['Camp:Periods'])]
     public function getEmbeddedPeriods(): array {
         return $this->periods->getValues();
+    }
+
+    /**
+     * @return Period[]
+     */
+    #[ApiProperty(writable: false, uriTemplate: Period::CAMP_SUBRESOURCE_URI_TEMPLATE)]
+    #[SerializedName('periods')]
+    #[Groups(['read'])]
+    public function getPeriodsLink(): array {
+        return [];
     }
 
     #[ApiProperty(readable: false)]
