@@ -12,11 +12,6 @@ final class Version20260503120000 extends AbstractMigration {
         return 'Add randomlyGenerated flag to camp table for identifying generated data';
     }
 
-    #[\Override]
-    public function isTransactional(): bool {
-        return false;
-    }
-
     public function up(Schema $schema): void {
         $this->addSql('ALTER TABLE camp ADD randomlyGenerated BOOLEAN DEFAULT false NOT NULL');
         $this->addSql('CREATE INDEX IDX_C1944230BBF3963D ON camp (randomlyGenerated)');
