@@ -1,7 +1,9 @@
 name: 'Additional test: prettier service (node v26 npm cache)'
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - fix/issue-78-node-v26
 
 jobs:
   prettier-service:
