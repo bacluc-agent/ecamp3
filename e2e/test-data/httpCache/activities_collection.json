@@ -33,7 +33,7 @@
             "href": "/api/activity_progress_labels/af92782262d7"
           },
           "activityResponsibles": {
-            "href": "/api/activity_responsibles?activity=%2Fapi%2Factivities%2Fa13fadc97610"
+            "href": "/api/activities/a13fadc97610/activity_responsibles"
           },
           "comments": {
             "href": "/api/activities/a13fadc97610/comments"
@@ -189,7 +189,7 @@
             "href": "/api/activities/b29d387cc403/comments"
           },
           "activityResponsibles": {
-            "href": "/api/activity_responsibles?activity=%2Fapi%2Factivities%2Fb29d387cc403"
+            "href": "/api/activities/b29d387cc403/activity_responsibles"
           },
           "rootContentNode": {
             "href": "/api/content_node/column_layouts/335448226d2a"
