@@ -20,7 +20,8 @@ final class Version20211010091358 extends AbstractMigration {
     public function up(Schema $schema): void {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql('ALTER TABLE "user" ALTER state SET NOT NULL');
-        $this->addSql(CockroachDb::is($this->connection)
+        $this->addSql(
+            CockroachDb::is($this->connection)
             ? 'ALTER TABLE "user" ALTER state TYPE STRING'
             : 'ALTER TABLE "user" ALTER state TYPE VARCHAR(16)'
         );
@@ -30,7 +31,8 @@ final class Version20211010091358 extends AbstractMigration {
     public function down(Schema $schema): void {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('ALTER TABLE "user" ALTER state DROP NOT NULL');
-        $this->addSql(CockroachDb::is($this->connection)
+        $this->addSql(
+            CockroachDb::is($this->connection)
             ? 'ALTER TABLE "user" ALTER state TYPE STRING'
             : 'ALTER TABLE "user" ALTER state TYPE VARCHAR(255)'
         );

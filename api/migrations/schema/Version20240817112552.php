@@ -20,7 +20,8 @@ final class Version20240817112552 extends AbstractMigration {
     public function up(Schema $schema): void {
         $this->addSql('ALTER TABLE camp RENAME COLUMN name TO shortTitle');
         $this->addSql('ALTER TABLE camp ALTER shortTitle DROP NOT NULL');
-        $this->addSql(CockroachDb::is($this->connection)
+        $this->addSql(
+            CockroachDb::is($this->connection)
             ? 'ALTER TABLE camp ALTER shortTitle TYPE STRING'
             : 'ALTER TABLE camp ALTER shortTitle TYPE TEXT'
         );
@@ -32,7 +33,8 @@ final class Version20240817112552 extends AbstractMigration {
     public function down(Schema $schema): void {
         $this->addSql("UPDATE camp SET shortTitle = '' WHERE shortTitle IS NULL");
         $this->addSql('ALTER TABLE camp ALTER shortTitle SET NOT NULL');
-        $this->addSql(CockroachDb::is($this->connection)
+        $this->addSql(
+            CockroachDb::is($this->connection)
             ? 'ALTER TABLE camp ALTER shortTitle TYPE STRING'
             : 'ALTER TABLE camp ALTER shortTitle TYPE VARCHAR(32)'
         );

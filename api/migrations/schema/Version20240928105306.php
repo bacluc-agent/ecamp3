@@ -33,7 +33,7 @@ final class Version20240928105306 extends AbstractMigration {
                 alter table checklist_item
                     add constraint checklistitem_checklistid_parentid_position_unique
                         unique (checklistid, parentid, position)
-                            $deferrable
+                            {$deferrable}
             SQL
         );
     }

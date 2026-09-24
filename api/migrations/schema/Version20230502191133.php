@@ -24,7 +24,7 @@ final class Version20230502191133 extends AbstractMigration {
                 alter table activity_progress_label
                     add constraint activity_progress_label_unique
                         unique (campid, position)
-                            $deferrable
+                            {$deferrable}
             SQL
         );
     }

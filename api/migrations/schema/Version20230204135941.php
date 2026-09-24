@@ -29,7 +29,7 @@ final class Version20230204135941 extends AbstractMigration {
                         alter table day 
                             add constraint offset_period_idx 
                                 unique (periodId, dayOffset)
-                                    $deferrable
+                                    {$deferrable}
                         SQL
         );
     }

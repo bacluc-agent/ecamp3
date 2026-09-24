@@ -24,7 +24,7 @@ final class Version20221030095015 extends AbstractMigration {
                         alter table content_node 
                             add constraint contentnode_parentid_slot_position_unique 
                                 unique (parentid, slot, position)
-                                    $deferrable
+                                    {$deferrable}
                         SQL
         );
     }

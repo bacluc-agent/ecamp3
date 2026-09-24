@@ -22,7 +22,8 @@ final class Version20220210070753 extends AbstractMigration {
         $this->addSql('ALTER TABLE profile ADD googleId VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE profile ADD pbsmidataId VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE profile ADD cevidbId VARCHAR(255) DEFAULT NULL');
-        $this->addSql(CockroachDb::is($this->connection)
+        $this->addSql(
+            CockroachDb::is($this->connection)
             ? 'ALTER TABLE profile ALTER username TYPE STRING'
             : 'ALTER TABLE profile ALTER username TYPE VARCHAR(64)'
         );
@@ -36,7 +37,8 @@ final class Version20220210070753 extends AbstractMigration {
         $this->addSql('ALTER TABLE "profile" DROP googleId');
         $this->addSql('ALTER TABLE "profile" DROP pbsmidataId');
         $this->addSql('ALTER TABLE "profile" DROP cevidbId');
-        $this->addSql(CockroachDb::is($this->connection)
+        $this->addSql(
+            CockroachDb::is($this->connection)
             ? 'ALTER TABLE "profile" ALTER username TYPE STRING'
             : 'ALTER TABLE "profile" ALTER username TYPE VARCHAR(32)'
         );
