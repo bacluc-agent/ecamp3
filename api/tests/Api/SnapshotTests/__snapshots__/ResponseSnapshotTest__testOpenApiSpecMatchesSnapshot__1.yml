@@ -65628,7 +65628,7 @@ paths:
           style: form
         -
           deprecated: false
-          description: 'Deprecated: use /users/{userId}/profiles instead. Search profiles by a part of their firstname, surname, nickname or email.'
+          description: 'Search profiles by a part of their firstname, surname, nickname or email. (The ?user= filter is deprecated: use /users/{userId}/profiles instead.)'
           explode: false
           in: query
           name: search
@@ -66800,7 +66800,7 @@ paths:
           style: form
         -
           deprecated: false
-          description: 'Deprecated: use /users/{userId}/profiles instead. Search profiles by a part of their firstname, surname, nickname or email.'
+          description: 'Search profiles by a part of their firstname, surname, nickname or email. (The ?user= filter is deprecated: use /users/{userId}/profiles instead.)'
           explode: false
           in: query
           name: search
