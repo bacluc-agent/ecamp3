@@ -115,6 +115,7 @@ class Activity extends BaseEntity implements BelongsToCampInterface {
     #[ApiProperty(
         writableLink: true,
         example: [['period' => '/periods/1a2b3c4a', 'start' => '2023-05-01T15:00:00+00:00', 'end' => '2023-05-01T16:00:00+00:00']],
+        uriTemplate: ScheduleEntry::ACTIVITY_SUBRESOURCE_URI_TEMPLATE,
     )]
     #[Groups(['read', 'create'])]
     #[ORM\OneToMany(targetEntity: ScheduleEntry::class, mappedBy: 'activity', cascade: ['persist'], orphanRemoval: true)]
@@ -242,7 +243,11 @@ class Activity extends BaseEntity implements BelongsToCampInterface {
     /**
      * @return ScheduleEntry[]
      */
-    #[ApiProperty(readableLink: true)]
+    #[ApiProperty(
+        readableLink: true,
+        uriTemplate: ScheduleEntry::ACTIVITY_SUBRESOURCE_URI_TEMPLATE,
+        extraProperties: ['cacheDependencies' => ['scheduleEntries']]
+    )]
     #[SerializedName('scheduleEntries')]
     #[Groups(['Activity:ScheduleEntries'])]
     public function getEmbeddedScheduleEntries(): array {

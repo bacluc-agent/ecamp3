@@ -21,7 +21,7 @@
             "href": "/api/activities/a13fadc97610"
           },
           "scheduleEntries": {
-            "href": "/api/schedule_entries?activity=%2Fapi%2Factivities%2Fa13fadc97610"
+            "href": "/api/activities/a13fadc97610/schedule_entries"
           },
           "camp": {
             "href": "/api/camps/70ca971c992f"
@@ -174,7 +174,7 @@
             "href": "/api/activities/b29d387cc403"
           },
           "scheduleEntries": {
-            "href": "/api/schedule_entries?activity=%2Fapi%2Factivities%2Fb29d387cc403"
+            "href": "/api/activities/b29d387cc403/schedule_entries"
           },
           "camp": {
             "href": "/api/camps/70ca971c992f"
