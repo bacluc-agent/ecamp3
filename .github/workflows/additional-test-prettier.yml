@@ -1,0 +1,31 @@
+name: 'Additional test: prettier service (node v26 npm cache)'
+
+on:
+  workflow_dispatch:
+
+jobs:
+  prettier-service:
+    name: 'Prettier service as CI user (USER_ID=1001)'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Prepare npm cache dir for uid 1001
+        run: mkdir -p .cache/npm
+
+      - name: Prove old path fails for uid 1001 (root cause)
+        run: |
+          USER_ID=1001 docker compose --profile prettier run --rm --entrypoint sh prettier -c 'id; ls -ld /home/node; touch /home/node/.npm/write-test && echo "WRITE OK" || echo "WRITE FAILED"'
+
+      - name: Run prettier service as USER_ID=1001
+        run: USER_ID=1001 docker compose --profile prettier run --rm prettier npm run lint
+
+      - name: Show npm cache written under /tmp/.npm
+        run: |
+          ls -la .cache/npm
+          ls .cache/npm/_logs | tail -5
+          grep -c EACCES .cache/npm/_logs/*.log || true
+
+      - name: Show docker logs
+        if: always()
+        run: docker compose logs --tail="all"
