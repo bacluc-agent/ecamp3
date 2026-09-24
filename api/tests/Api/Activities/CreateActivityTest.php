@@ -707,7 +707,7 @@ class CreateActivityTest extends ECampApiTestCase {
 
     #[\Override]
     public function getExampleWritePayload($attributes = [], $except = []) {
-        return $this->getExamplePayload(
+        $payload = $this->getExamplePayload(
             Activity::class,
             Post::class,
             array_merge([
@@ -725,6 +725,16 @@ class CreateActivityTest extends ECampApiTestCase {
             [],
             $except
         );
+
+        // scheduleEntries carries a uriTemplate, so the OpenAPI schema marks it readOnly and
+        // getExamplePayload appends it after the writable properties. Denormalization follows
+        // the payload order, so move it to the front to keep the period readability check first
+        // (see testCreateActivityIsNotPossibleFor...BecausePeriodIsNotReadable).
+        if (isset($payload['scheduleEntries'])) {
+            $payload = ['scheduleEntries' => $payload['scheduleEntries']] + $payload;
+        }
+
+        return $payload;
     }
 
     public function getExampleReadPayload($attributes = [], $except = []) {

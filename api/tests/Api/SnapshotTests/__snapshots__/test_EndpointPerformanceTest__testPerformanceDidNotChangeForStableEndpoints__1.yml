@@ -1,4 +1,4 @@
-/activities: 12
+/activities: 13
 /activities/item: 34
 /activity_progress_labels: 5
 /activity_progress_labels/item: 6
@@ -27,9 +27,9 @@
 /profiles: 5
 /profiles/item: 5
 /schedule_entries: 12
-/schedule_entries/item: 15
+/schedule_entries/item: 14
 /users/item: 5
-'/activities?camp=': 12
+'/activities?camp=': 13
 '/activity_progress_labels?camp=': 5
 '/activity_responsibles?activity.camp=': 5
 '/camp_collaborations?camp=': 7
@@ -44,7 +44,7 @@
 '/material_lists?camp=': 10
 '/profiles?user.collaborations.camp=': 5
 '/schedule_entries?period=': 12
-'/camps/{id}/activities': 14
+'/camps/{id}/activities': 15
 '/camps/{id}/activity_progress_labels': 7
 '/camps/{id}/camp_collaborations': 8
 '/camps/{id}/categories': 7
@@ -61,6 +61,6 @@
 '/material_lists/{id}/material_items': 8
 '/content_node/material_nodes/{id}/material_items': 9
 '/users/{id}/profiles': 6
-'/activities/{id}/comments': 9
-'/activities/{id}/activity_responsibles': 8
-'/activities/{id}/schedule_entries': 12
+'/activities/{id}/comments': 8
+'/activities/{id}/activity_responsibles': 7
+'/activities/{id}/schedule_entries': 11
