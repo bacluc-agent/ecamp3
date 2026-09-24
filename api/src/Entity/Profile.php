@@ -36,7 +36,10 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new GetCollection(
             security: 'is_authenticated()',
-            openapi: new OpenApiOperation(description: 'Deprecated: use /users/{userId}/profiles instead.')
+            openapi: new OpenApiOperation(description: 'Deprecated: use /users/{userId}/profiles instead.'),
+            extraProperties: [
+                'scoping_filters' => ['user', 'user.collaborations.camp', 'search'],
+            ]
         ),
         new GetCollection(
             uriTemplate: self::USER_SUBRESOURCE_URI_TEMPLATE,

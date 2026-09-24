@@ -43,7 +43,10 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new GetCollection(
             security: 'is_authenticated()',
-            openapi: new OpenApiOperation(description: 'Deprecated: use /camps/{campId}/material_lists instead.')
+            openapi: new OpenApiOperation(description: 'Deprecated: use /camps/{campId}/material_lists instead.'),
+            extraProperties: [
+                'scoping_filters' => ['camp'],
+            ]
         ),
         new GetCollection(
             uriTemplate: self::CAMP_SUBRESOURCE_URI_TEMPLATE,

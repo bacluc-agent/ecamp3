@@ -32,7 +32,10 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new GetCollection(
             security: 'is_authenticated()',
-            openapi: new OpenApiOperation(description: 'Deprecated: use /activities/{activityId}/activity_responsibles instead.')
+            openapi: new OpenApiOperation(description: 'Deprecated: use /activities/{activityId}/activity_responsibles instead.'),
+            extraProperties: [
+                'scoping_filters' => ['activity', 'activity.camp'],
+            ]
         ),
         new GetCollection(
             uriTemplate: self::ACTIVITY_SUBRESOURCE_URI_TEMPLATE,

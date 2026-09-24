@@ -17,7 +17,6 @@ use App\Doctrine\Filter\MaterialItemPeriodFilter;
 use App\Entity\ContentNode\MaterialNode;
 use App\InputFilter;
 use App\Repository\MaterialItemRepository;
-use App\State\MaterialItemCollectionProvider;
 use App\State\MaterialItemCreateProcessor;
 use App\Util\EntityMap;
 use App\Validator\AssertBelongsToSameCamp;
@@ -47,8 +46,10 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new GetCollection(
             security: 'is_authenticated()',
-            provider: MaterialItemCollectionProvider::class,
-            openapi: new OpenApiOperation(description: 'Deprecated: use subresource routes (/camps/{campId}/material_items, /material_lists/{materialListId}/material_items, /content_node/material_nodes/{materialNodeId}/material_items) instead.')
+            openapi: new OpenApiOperation(description: 'Deprecated: use subresource routes (/camps/{campId}/material_items, /material_lists/{materialListId}/material_items, /content_node/material_nodes/{materialNodeId}/material_items) instead.'),
+            extraProperties: [
+                'scoping_filters' => ['camp', 'period', 'materialList', 'materialNode'],
+            ]
         ),
         new GetCollection(
             uriTemplate: self::CAMP_SUBRESOURCE_URI_TEMPLATE,
@@ -61,7 +62,6 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
             normalizationContext: ['groups' => ['read']],
             security: 'is_fully_authenticated()',
-            provider: MaterialItemCollectionProvider::class,
             extraProperties: [
                 'filter_by_current_user' => false,
             ]
@@ -77,7 +77,6 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
             normalizationContext: ['groups' => ['read']],
             security: 'is_fully_authenticated()',
-            provider: MaterialItemCollectionProvider::class,
             extraProperties: [
                 'filter_by_current_user' => false,
             ]
@@ -93,7 +92,6 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
             normalizationContext: ['groups' => ['read']],
             security: 'is_fully_authenticated()',
-            provider: MaterialItemCollectionProvider::class,
             extraProperties: [
                 'filter_by_current_user' => false,
             ]
@@ -109,7 +107,6 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
             normalizationContext: ['groups' => ['read']],
             security: 'is_fully_authenticated()',
-            provider: MaterialItemCollectionProvider::class,
             extraProperties: [
                 'filter_by_current_user' => false,
             ]
