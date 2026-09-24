@@ -29,7 +29,12 @@ async function getActivity(camp, materialItem) {
 
 async function getSheets(camp, collection, materialList) {
   return await Promise.all(
-    collection.map(async ({ period, materialItems }) => {
+    collection.map(async ({ period, materialItems, materialListSelf }) => {
+      const items = materialListSelf
+        ? materialItems.items.filter(
+            (item) => item.materialList?.()?._meta.self === materialListSelf
+          )
+        : materialItems.items
       const data = [
         [
           `${
@@ -46,7 +51,7 @@ async function getSheets(camp, collection, materialList) {
         ],
       ]
       await Promise.all(
-        materialItems.items.map(async (materialItem) => {
+        items.map(async (materialItem) => {
           const activity = await getActivity(camp, materialItem)
           const scheduleEntries = activity
             ?.scheduleEntries()
@@ -135,10 +140,8 @@ export function useMaterialViewHelper(camp, list) {
     const materialList = computedList.value?._meta.self
     return camp.periods().items.map((period) => ({
       period,
-      materialItems: apiStore.get().materialItems({
-        period: period._meta.self,
-        materialList,
-      }),
+      materialItems: period.materialItems(),
+      materialListSelf: materialList,
     }))
   })
 

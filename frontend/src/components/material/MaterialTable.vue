@@ -386,6 +386,11 @@ export default {
     materialItemsData() {
       const items = this.materialItemCollection.items
         .filter((item) => !(this.periodOnly && item.materialNode !== null))
+        .filter(
+          (item) =>
+            !this.materialList ||
+            item.materialList?.()?._meta.self === this.materialList._meta.self
+        )
         .map((item) => ({
           id: item.id,
           uri: item._meta.self,
