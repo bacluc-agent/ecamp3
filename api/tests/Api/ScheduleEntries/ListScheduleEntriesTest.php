@@ -414,7 +414,7 @@ class ListScheduleEntriesTest extends ECampApiTestCase {
         $this->assertResponseStatusCodeSame(404);
     }
 
-public function testListScheduleEntriesAsActivitySubresourceIsAllowedForCollaborator() {
+    public function testListScheduleEntriesAsActivitySubresourceIsAllowedForCollaborator() {
         $activity = static::getFixture('activity2');
         $response = static::createClientWithCredentials()->request('GET', '/activities/'.$activity->getId().'/schedule_entries');
         $this->assertResponseStatusCodeSame(200);

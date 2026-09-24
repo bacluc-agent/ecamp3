@@ -120,7 +120,7 @@ class ListPeriodsTest extends ECampApiTestCase {
         ], $response->toArray()['_links']['items']);
     }
 
-public function testListPeriodsAsCampSubresourceIsAllowedForCollaborator() {
+    public function testListPeriodsAsCampSubresourceIsAllowedForCollaborator() {
         $camp = static::getFixture('camp1');
         $response = static::createClientWithCredentials()->request('GET', "/camps/{$camp->getId()}/periods");
         $this->assertResponseStatusCodeSame(200);

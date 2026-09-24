@@ -277,7 +277,7 @@ class ListMaterialItemsTest extends ECampApiTestCase {
         ], $response->toArray()['_links']['items']);
     }
 
-public function testListMaterialItemsAsCampSubresourceIsAllowedForCollaborator() {
+    public function testListMaterialItemsAsCampSubresourceIsAllowedForCollaborator() {
         $camp = static::getFixture('camp1');
         $response = static::createClientWithCredentials()->request('GET', "/camps/{$camp->getId()}/material_items");
         $this->assertResponseStatusCodeSame(200);
