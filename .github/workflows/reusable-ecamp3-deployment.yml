@@ -35,6 +35,10 @@ jobs:
   deploy-ecamp3:
     name: Deploy to Kubernetes
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+      pull-requests: write
     environment:
       name: ${{ inputs.env }}
     env:
@@ -126,6 +130,36 @@ jobs:
             export HELM_TIMEOUT="${{ vars.HELM_TIMEOUT }}" 
           fi
           ./.helm/ecamp3/deploy.sh deploy
+
+      - name: Create prod deployment tag
+        continue-on-error: true
+        if: ${{ success() && inputs.action == 'deploy' && inputs.env == 'prod' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          BASE="PROD-$(TZ=Europe/Zurich date +%Y-%m-%d)"
+          REPO_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
+          EXISTING=$(git ls-remote --tags "$REPO_URL" "refs/tags/${BASE}*" 2>/dev/null || true)
+          TAG="$BASE"
+          if [ -n "$EXISTING" ]; then
+            BASE_EXISTS=$(echo "$EXISTING" | awk '{print $2}' | grep -c "^refs/tags/${BASE}$" || true)
+            if [ "$BASE_EXISTS" -gt 0 ]; then
+              MAX_NUM=1
+              for ref in $(echo "$EXISTING" | awk '{print $2}'); do
+                TAG_NAME=${ref##*/}
+                if echo "$TAG_NAME" | grep -qE "^${BASE}-([0-9]+)$"; then
+                  NUM=${TAG_NAME#"$BASE-"}
+                  if [ -n "$NUM" ] && [ "$NUM" -ge "$MAX_NUM" ] 2>/dev/null; then
+                    MAX_NUM=$NUM
+                  fi
+                fi
+              done
+              TAG="${BASE}-$((MAX_NUM + 1))"
+            fi
+          fi
+          git tag "$TAG" "${{ inputs.sha }}"
+          git push "$REPO_URL" "$TAG"
 
       - name: Finish the GitHub deployment
         uses: bobheadxi/deployments@v1.5.0
