@@ -14536,6 +14536,7 @@ components:
         article:
           description: 'The name of the item that is required.'
           example: Volleyball
+          maxLength: 64
           type: string
         done:
           default: false
@@ -14565,12 +14566,15 @@ components:
         quantity:
           description: 'The number of items or the amount in the unit of items that are required.'
           example: 1.5
+          exclusiveMinimum: 0
+          minimum: 0
           type:
             - 'null'
             - number
         unit:
           description: 'An optional unit for measuring the amount of items required.'
           example: kg
+          maxLength: 32
           type:
             - 'null'
             - string
