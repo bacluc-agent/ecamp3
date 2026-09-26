@@ -48,13 +48,13 @@ jobs:
         id: add-nightly-tag
         if: startsWith(github.ref, 'refs/heads/devel')
         run: |
-          echo "nightly-tag=nightly" | tr -d "\n"  >> $GITHUB_OUTPUT
+          echo "nightly-tag=nightly" | tr -d "\n"  >> "$GITHUB_OUTPUT"
 
       - name: Set latest tag if its a tag
         id: add-latest-tag
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          echo "latest-tag=latest" | tr -d "\n"  >> $GITHUB_OUTPUT
+          echo "latest-tag=latest" | tr -d "\n"  >> "$GITHUB_OUTPUT"
 
       - uses: actions/github-script@v9
         id: get-tag
@@ -76,8 +76,8 @@ jobs:
               ]
           END
           )
-          TAGS=$(echo $TAGS | jq -c 'map(select(length > 0))')
-          echo "image-tags=$TAGS" | tr -d "\n"  >> $GITHUB_OUTPUT
+          TAGS=$(echo "$TAGS" | jq -c 'map(select(length > 0))')
+          echo "image-tags=$TAGS" | tr -d "\n"  >> "$GITHUB_OUTPUT"
 
       - name: Get build info
         id: build-info
@@ -85,11 +85,12 @@ jobs:
           set -x
           sudo snap install yq
 
-          export REPO_NAME=$(basename $(pwd))
+          REPO_NAME=$(basename "$PWD")
+          export REPO_NAME
           echo "services:" > /tmp/docker-compose.yml
-          for i in $(find . -name docker-compose.yml); do
-             docker compose -f $i config | yq '.services | select(.[].build != null and .[].image != null)' | sed 's/^/  /' >> /tmp/docker-compose.yml
-          done
+          while IFS= read -r i; do
+             docker compose -f "$i" config | yq '.services | select(.[].build != null and .[].image != null)' | sed 's/^/  /' >> /tmp/docker-compose.yml
+          done < <(find . -name docker-compose.yml)
 
           cat /tmp/docker-compose.yml
 
@@ -101,11 +102,11 @@ jobs:
           yq_pipe=$yq_pipe'| .value.build'
           yq_pipe=$yq_pipe'| .dockerfile=.context + "/" + .dockerfile'
           yq_pipe=$yq_pipe'| [.]'
-          cat /tmp/docker-compose.yml | yq "$yq_pipe"
-          BUILD_INFO=$(cat /tmp/docker-compose.yml | yq "$yq_pipe" -o=json)
-          BUILD_INFO=$(echo $BUILD_INFO | jq -c -s add | sed "s|:local||g")
-          echo $BUILD_INFO
-          echo "result=$BUILD_INFO" | tr -d "\n"  >> $GITHUB_OUTPUT
+          yq "$yq_pipe" /tmp/docker-compose.yml
+          BUILD_INFO=$(yq "$yq_pipe" /tmp/docker-compose.yml -o=json)
+          BUILD_INFO=$(echo "$BUILD_INFO" | jq -c -s add | sed "s|:local||g")
+          echo "$BUILD_INFO"
+          echo "result=$BUILD_INFO" | tr -d "\n"  >> "$GITHUB_OUTPUT"
         env:
           REPO_OWNER: ${{ vars.DOCKER_HUB_USERNAME || steps.repo-owner.outputs.result }}
           VERSION: local
@@ -150,7 +151,7 @@ jobs:
           ${{ env.repo-owner }}
           HEREDOC
 
-          if [ ! echo "${{ matrix.build-config.image }}" | grep -Eq '^[a-zA-Z0-9._/-]+$' ]; then
+          if ! echo "${{ matrix.build-config.image }}" | grep -Eq '^[a-zA-Z0-9._/-]+$'; then
             echo "Error: Invalid Docker image name '${{ matrix.build-config.image }}'."
             exit 1
           fi
@@ -168,28 +169,28 @@ jobs:
         id: get-latest-commit
         run: |
           set -x
-          context=$( echo '${{ toJSON(matrix.build-config) }}' | jq -r '.context' | sed "s|$PWD|.|g")
+          context=$(echo '${{ toJSON(matrix.build-config) }}' | jq -r '.context' | sed "s|$PWD|.|g")
           echo "context: $context"
-          dockerfile=$( echo '${{ toJSON(matrix.build-config) }}' | jq -r '.dockerfile' | sed "s|$PWD|.|g")
+          dockerfile=$(echo '${{ toJSON(matrix.build-config) }}' | jq -r '.dockerfile' | sed "s|$PWD|.|g")
           echo "dockerfile: $dockerfile"
-          git log --stat -n 1 $context $dockerfile
-          latest_commit=$(git log --pretty=format:"%H" -n 1 $context $dockerfile)
+          git log --stat -n 1 "$context" "$dockerfile"
+          latest_commit=$(git log --pretty=format:"%H" -n 1 "$context" "$dockerfile")
           echo "latest_commit: $latest_commit"
-          echo "result=$latest_commit" | tr -d "\n"  >> $GITHUB_OUTPUT
+          echo "result=$latest_commit" | tr -d "\n"  >> "$GITHUB_OUTPUT"
 
       - name: check if image already exists
         id: check-image
         run: |
           set +e
-          docker pull ${{ matrix.build-config.image }}:${{ steps.get-latest-commit.outputs.result }}
+          docker pull "${{ matrix.build-config.image }}:${{ steps.get-latest-commit.outputs.result }}"
           image_exists=$?
           set -e
-          if ([ $image_exists -eq 0 ]); then
+          if [ "$image_exists" -eq 0 ]; then
             echo "image already exists"
-            echo "result=true" | tr -d "\n"  >> $GITHUB_OUTPUT
+            echo "result=true" | tr -d "\n"  >> "$GITHUB_OUTPUT"
           else
             echo "image does not exist"
-            echo "result=false" | tr -d "\n"  >> $GITHUB_OUTPUT
+            echo "result=false" | tr -d "\n"  >> "$GITHUB_OUTPUT"
           fi
 
       - name: Add latest commit to image tag if image does not exist
@@ -208,44 +209,6 @@ jobs:
           script: |
             return JSON.parse('${{ steps.add-latest-commit-to-tags-if-image-does-not-exist.outputs.result }}').map(tag => `${{ matrix.build-config.image }}:${ tag }`)
 
-      - name: populate build args from secrets/vars
-        if: steps.check-image.outputs.result == 'false'
-        id: populate-build-args
-        uses: actions/github-script@v9
-        with:
-          script: |
-            const buildArgValues = {
-              "SENTRY_AUTH_TOKEN" : "${{ secrets.SENTRY_AUTH_TOKEN }}",
-              "SENTRY_FRONTEND_PROJECT" : "${{ vars.SENTRY_FRONTEND_PROJECT }}",
-              "SENTRY_ORG" : "${{ vars.SENTRY_ORG }}",
-              "SENTRY_PRINT_PROJECT" : "${{ vars.SENTRY_PRINT_PROJECT }}",
-              "SENTRY_RELEASE_NAME" : "${{ inputs.sha }}",
-            }
-            const args = JSON.parse(`${{ toJSON(matrix.build-config.args) }}`)
-            let result = ""
-            for (const arg in args) {
-              if (buildArgValues[arg]) {
-                args[arg] = buildArgValues[arg]
-              }
-            }
-            return args
-
-      - name: transform build args
-        if: steps.check-image.outputs.result == 'false'
-        id: transform-build-args
-        run: |
-          set -x
-          echo 'result<<EOF' >> $GITHUB_OUTPUT
-          echo '${{ steps.populate-build-args.outputs.result }}' | yq -p json >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
-          cat $GITHUB_OUTPUT
-
-      - name: debug transform build args output
-        if: steps.check-image.outputs.result == 'false'
-        run: |
-          echo "result: ${{ steps.transform-build-args.outputs.result }}"
-          echo "result: ${{ toJSON(steps.transform-build-args.outputs) }}"
-
       - name: Build and push image
         uses: docker/build-push-action@v7
         if: steps.check-image.outputs.result == 'false'
@@ -254,15 +217,48 @@ jobs:
           file: ${{ matrix.build-config.dockerfile }}
           tags: ${{ join(fromJSON(steps.expand-tags.outputs.result)) }}
           context: ${{ matrix.build-config.context }}
-          build-args: |
-            ${{ steps.transform-build-args.outputs.result }}
           cache-from: type=gha,scope=${{ matrix.build-config.image }}
           cache-to: type=gha,scope=${{ matrix.build-config.image }},mode=max,ignore-error=true
 
       - name: Retag and push images
         if: steps.check-image.outputs.result == 'true'
         run: |
-          for tag in $(echo '${{ env.tags }}' | jq -r '.[]'); do
-            docker tag ${{ matrix.build-config.image }}:${{ steps.get-latest-commit.outputs.result }} ${{ matrix.build-config.image }}:${tag}
-            docker push ${{ matrix.build-config.image }}:${tag}
-          done
+          while IFS= read -r tag; do
+            docker tag "${{ matrix.build-config.image }}:${{ steps.get-latest-commit.outputs.result }}" "${{ matrix.build-config.image }}:${tag}"
+            docker push "${{ matrix.build-config.image }}:${tag}"
+          done < <(echo '${{ env.tags }}' | jq -r '.[]')
+
+  sentry-sourcemaps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ inputs.sha }}
+          allow-unsafe-pr-checkout: true
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.21.0
+
+      - name: Build frontend and upload sourcemaps
+        working-directory: frontend
+        run: |
+          npm ci --no-audit
+          npm run build
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_FRONTEND_PROJECT: ${{ vars.SENTRY_FRONTEND_PROJECT }}
+          SENTRY_RELEASE_NAME: ${{ inputs.sha }}
+
+      - name: Build print and upload sourcemaps
+        working-directory: print
+        run: |
+          npm ci --no-audit
+          npm run build
+          SENTRY_AUTH_TOKEN="$NUXT_SENTRY_AUTH_TOKEN" npx --yes @sentry/cli@2.58.6 sourcemaps upload .output --org "$NUXT_SENTRY_ORG" --project "$NUXT_SENTRY_PROJECT" --release "$NUXT_SENTRY_RELEASE_NAME"
+        env:
+          NUXT_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          NUXT_SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          NUXT_SENTRY_PROJECT: ${{ vars.SENTRY_PRINT_PROJECT }}
+          NUXT_SENTRY_RELEASE_NAME: ${{ inputs.sha }}
