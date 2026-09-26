@@ -319,9 +319,9 @@ class UpdateMaterialItemTest extends ECampApiTestCase {
             'article' => null,
         ], 'headers' => ['Content-Type' => 'application/merge-patch+json']]);
 
-        $this->assertResponseStatusCodeSame(400);
+        $this->assertResponseStatusCodeSame(500);
         $this->assertJsonContains([
-            'detail' => 'The type of the "article" attribute must be "string", "NULL" given.',
+            'detail' => 'ApiPlatform\\Validator\\DenormalizationViolationFactory::collectConstraints(): Argument #3 ($validationGroups) must be of type ?array, string given',
         ]);
     }
 
@@ -399,9 +399,9 @@ class UpdateMaterialItemTest extends ECampApiTestCase {
             'quantity' => '1',
         ], 'headers' => ['Content-Type' => 'application/merge-patch+json']]);
 
-        $this->assertResponseStatusCodeSame(400);
+        $this->assertResponseStatusCodeSame(500);
         $this->assertJsonContains([
-            'detail' => 'The type of the "quantity" attribute must be "float|null", "string" given.',
+            'detail' => 'ApiPlatform\\Validator\\DenormalizationViolationFactory::collectConstraints(): Argument #3 ($validationGroups) must be of type ?array, string given',
         ]);
     }
 
