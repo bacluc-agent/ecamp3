@@ -35,7 +35,7 @@ jobs:
             publish=
             if [ "$i" = 1 ]; then publish="--publish 26257:26257"; fi
             docker run --detach --name "n$i" --network "$CRDB_NETWORK" $publish \
-              "cockroachdb/cockroach:$CRDB_VERSION" start --insecure \
+              "cockroachdb/cockroach:v$CRDB_VERSION" start --insecure \
               --listen-addr=:26257 --http-addr=:8080 \
               --advertise-addr="n$i:26257" \
               --join=n1:26257,n2:26257,n3:26257 \
@@ -44,7 +44,7 @@ jobs:
       - name: Initialize cluster
         run: >-
           timeout 60 sh -c 'until docker run --rm --network "$CRDB_NETWORK"
-          "cockroachdb/cockroach:$CRDB_VERSION" init --host=n1:26257 --insecure; do sleep 2; done'
+          "cockroachdb/cockroach:v$CRDB_VERSION" init --host=n1:26257 --insecure; do sleep 2; done'
       - name: Wait for 3 live nodes
         run: |
           timeout 90 sh -c '
