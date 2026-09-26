@@ -36,8 +36,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Patch(
             security: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object)',
-            // A class-string group resolves in the validator but crashes
-            // DenormalizationViolationFactory on every violation; plain array, as on all other resources.
+            // Plain array rather than a group sequence: MaterialItem has no constraint in
+            // the 'update' group, so the sequence never short-circuited and both validate alike.
             validationContext: ['groups' => ['update', 'Default']]
         ),
         new Delete(
