@@ -30,17 +30,46 @@ from the previous compose file. The healthcheck creates the `ecamp3` database an
 
 ## Compatibility changes
 
-- Removed the ineffective custom Doctrine PostgreSQL platform and restored the normal schema
-  manager platform. No vendor files are tracked or modified.
-- Removed ordinary `NOT DEFERRABLE INITIALLY IMMEDIATE`/`NOT DEFERRABLE` clauses from schema
-  foreign-key migrations. PostgreSQL's default remains immediate enforcement; no deferred
-  unique constraints existed in these migrations.
+- The custom Doctrine schema manager is retained: `CustomPostgreSQLSchemaManager` extends
+  `PostgreSQLSchemaManager` and skips `DEFERRABLE` clauses on CockroachDB (wired via
+  `CustomSchemaManagerFactory`). No vendor files are tracked or modified.
+- Removed 78 ordinary `NOT DEFERRABLE INITIALLY IMMEDIATE`/`NOT DEFERRABLE` clauses from
+  schema foreign-key migrations across 12 files; these are no-ops on PostgreSQL, whose
+  default remains immediate enforcement.
+- Four migrations declare `DEFERRABLE INITIALLY DEFERRED` unique constraints that CockroachDB
+  does not support: `Version20221030095015` (content_node), `Version20230204135941` (day),
+  `Version20230502191133` (activity_progress_label), `Version20240928105306` (checklist_item).
+  `Version20221030095015` and `Version20230502191133` use a conditional suffix
+  (`CockroachDb::is() ? '' : ' deferrable initially deferred'`); `Version20230204135941` and
+  `Version20240928105306` return early on CockroachDB because the unique index already exists
+  from an earlier migration and the DROP/re-add would hit asynchronous schema propagation.
 - Added `App\Doctrine\DBAL\CockroachDb` to detect CockroachDB from `SELECT version()`.
   Type-changing migrations use CockroachDB's `STRING` type while preserving the original
   PostgreSQL `VARCHAR`/`TEXT` statements.
-- The `pg_trgm` extension and GIN indexes are skipped only on CockroachDB; PostgreSQL keeps
-  the original migration behavior.
+- The `pg_trgm` extension and GIN indexes are skipped only on CockroachDB
+  (`Version20260627120000` returns early — ordinary lower indexes do not provide equivalent
+  substring search); PostgreSQL keeps the original migration behavior.
+- Seven migrations override `isTransactional()` to return
+  `!CockroachDb::is($this->connection)`: `Version20211207143737`, `Version20220501060227`,
+  `Version20220501101420`, `Version20220611193723`, `Version20250520220800`,
+  `Version20250821113132`, `Version20251004093025`. Root cause: CockroachDB does not make an
+  in-transaction schema change visible to later statements in the same transaction (e.g.
+  `column "mi.campid" does not exist` when an ADD COLUMN is followed by an UPDATE). DDL inside
+  transactions works fine on CockroachDB; the issue is visibility of schema changes to
+  subsequent statements.
+- `Version20220611193723` casts `gen_random_uuid()` to text (`gen_random_uuid()::text`):
+  CockroachDB rejects `jsonb_object_agg(uuid, jsonb)`; the cast to text is valid on both
+  engines.
+- `Version20211010091358`, `Version20220210070753`, and `Version20240817112552` use
+  CockroachDB's `STRING` type for ALTER COLUMN TYPE statements where PostgreSQL needs
+  `VARCHAR`/`TEXT`.
 - `server_version: '15.0'` remains unchanged.
+- The CockroachDB reverse migration walk (`doctrine:migrations:execute --down` for all 69
+  versions) has 19/69 historical failures from asynchronous schema propagation races (e.g.
+  `schema "public" already exists`, `cannot drop UNIQUE constraint`, `duplicate constraint
+name`). These are pre-existing CockroachDB limitations with historical migrations, not
+  regressions from this evaluation; the PostgreSQL reverse walk has 11/69 failures,
+  byte-identical to the devel base.
 
 Full migrations, `bin/console about` and representative API tests run against the
 CockroachDB service in the Additional-Test workflow (JWT keys are generated there as in
@@ -126,7 +155,7 @@ workflow):
 
 ```sql
 SHOW PARTITIONS FROM TABLE period;
-SHOW RANGES FROM TABLE period WITH DETAILS;   -- lease_holder, replicas, replica_localities
+SHOW RANGES FROM INDEX period@period_start WITH DETAILS;   -- lease_holder, replicas, replica_localities
 SELECT node_id, locality, is_live FROM crdb_internal.gossip_nodes;
 SELECT start FROM period ORDER BY start;      -- fixture years actually present
 ```
@@ -145,20 +174,25 @@ license grace window (7 days) applies to long-lived clusters.
 
 ### Test results
 
-Additional-Test run
-https://github.com/bacluc-agent/ecamp3/actions/runs/35846663297/job/107134362286
-(all steps green, branch `issue-225`):
+Additional-Test runs on HEAD `bf5367d2b` (all 15 steps green, branch `issue-225`):
 
-- [3-node cluster start / init / wait for 3 live nodes](https://github.com/bacluc-agent/ecamp3/actions/runs/35846663297/job/107134362286#step:2)
-- [cluster compose file validated](https://github.com/bacluc-agent/ecamp3/actions/runs/35846663297/job/107134362286#step:6)
-- [full migrations](https://github.com/bacluc-agent/ecamp3/actions/runs/35846663297/job/107134362286#step:11)
-- [year partitions + lease_preferences applied](https://github.com/bacluc-agent/ecamp3/actions/runs/35846663297/job/107134362286#step:12)
-- [partition/range/gossip evidence](https://github.com/bacluc-agent/ecamp3/actions/runs/35846663297/job/107134362286#step:13)
-- [bin/console about](https://github.com/bacluc-agent/ecamp3/actions/runs/35846663297/job/107134362286#step:14)
-- [ListCampsTest + CreateCampTest: `OK (63 tests, 145 assertions)`](https://github.com/bacluc-agent/ecamp3/actions/runs/35846663297/job/107134362286#step:15)
-- [fixture years and per-year leaseholders after convergence](https://github.com/bacluc-agent/ecamp3/actions/runs/35846663297/job/107134362286#step:16)
+- push-triggered: https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962
+- pull-request-triggered: https://github.com/bacluc-agent/ecamp3/actions/runs/36268103641
 
-Evidence excerpt from the final step (`SHOW RANGES FROM TABLE period WITH DETAILS`,
+Step evidence (identical step numbering in both runs; links point at the push-triggered
+run):
+
+- [start 3-node cluster](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962#step:2)
+- [initialize cluster](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962#step:3)
+- [wait for 3 live nodes](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962#step:4)
+- [validate both compose files](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962#step:6)
+- [full migrations](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962#step:11)
+- [distribute camp years across nodes (partitions + lease_preferences)](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962#step:12)
+- [boot API (bin/console about)](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962#step:13)
+- [ListCampsTest + CreateCampTest](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962#step:14)
+- [assert camp years are leased on different nodes (convergence loop + SHOW PARTITIONS + SHOW RANGES FROM INDEX + gossip)](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962#step:15)
+
+Evidence excerpt from the final step (`SHOW RANGES FROM INDEX period@period_start WITH DETAILS`,
 `period_start` ranges; every range has `replicas {1,2,3}`):
 
 | Span (partition)                 | Fixture rows | Leaseholder |
@@ -178,12 +212,20 @@ https://github.com/bacluc-agent/ecamp3/actions/runs/35843772190.
 
 ## Performance conclusions
 
-`.ops/performance-test/` contains HTTP-level k6-style scripts and measurements; it does not
-contain query plans or measurements attributable to issues ecamp3 #8123 or #8668. Therefore
-this evaluation makes no query-bound conclusion for either issue. Those conclusions require
-reproducible workloads for the affected endpoints plus `EXPLAIN ANALYZE`/statement metrics
-on PostgreSQL and a representative multi-node CockroachDB cluster. A single insecure node
-cannot establish distributed-performance behavior.
+- ecamp3 #8123 (n+1 database queries when fetching /content_nodes and /camps) is query-bound:
+  the serializer issues separate SQL statements per parent entity. The fix belongs in the
+  serializer (eager loading/joins), not in the database.
+- ecamp3 #8668 (slow query for checklistitems) is query-bound: a slow SQL query on the
+  checklistitem access path.
+- Both are not data-volume-bound: ecamp3's per-year row counts are far below CockroachDB's
+  `range_min_bytes` (measured 128 MiB / 134217728 bytes on the evaluation cluster), so
+  year-based partitioning cannot move work between nodes even in principle — there is too
+  little data per year to trigger range splits at year boundaries under load.
+- `.ops/performance-test/output.json` is not usable as evidence: it targets an external
+  `API_ROOT_URL` (dev.ecamp3.ch) whose engine and row counts are unrecorded, and the
+  collection-vs-item latency ratio cannot separate N+1 from row count.
+- Outstanding work for a future evaluation: `pg_stat_statements` plus
+  `EXPLAIN (ANALYZE, BUFFERS)` on both engines with a reproducible workload.
 
 ## Recommendation
 
@@ -193,14 +235,14 @@ measurements (ecamp3 #8123/#8668) remain outstanding.
 
 ## Commands and results
 
-| Command                                                           | Result                                                                 |
-| ----------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| `docker compose -f docker-compose.cockroachdb.yml config`         | Passed                                                                 |
-| `docker compose -f docker-compose.cockroachdb.yml up -d`          | Passed; service healthy                                                |
-| `... exec ... SHOW DATABASES; SHOW USERS;`                        | Passed; `ecamp3` database and user present                             |
-| `docker compose up -d`                                            | Blocked: runner exposes 4 CPUs but compose requests a larger CPU range |
-| `docker compose -f docker-compose.cockroachdb-cluster.yml config` | Passed                                                                 |
-| 3-node cluster + partitions + tests                               | See Multi-replica evaluation test results below                        |
+| Command                                                           | Result                                                                                                                                                                                                                                             |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `docker compose -f docker-compose.cockroachdb.yml config`         | Passed                                                                                                                                                                                                                                             |
+| `docker compose -f docker-compose.cockroachdb.yml up -d`          | Passed; service healthy                                                                                                                                                                                                                            |
+| `... exec ... SHOW DATABASES; SHOW USERS;`                        | Passed; `ecamp3` database and user present                                                                                                                                                                                                         |
+| `docker compose up -d`                                            | Blocked: runner exposes 4 CPUs but compose requests a larger CPU range                                                                                                                                                                             |
+| `docker compose -f docker-compose.cockroachdb-cluster.yml config` | Passed                                                                                                                                                                                                                                             |
+| 3-node cluster + partitions + tests                               | Passed; all 15 steps green (runs [36268099962](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962), [36268103641](https://github.com/bacluc-agent/ecamp3/actions/runs/36268103641)) — see Multi-replica evaluation test results below |
 
 ## References
 
