@@ -190,8 +190,9 @@ describe.skip('authentication logic', () => {
 
       // then
       expect(result.id).toEqual('1a2b3c4d')
+      expect(apiStore.get).toHaveBeenCalledWith('/users/1a2b3c4d')
       expect(rootEndpointGet.profiles).toHaveBeenCalledTimes(1)
-      expect(rootEndpointGet.profiles).toHaveBeenCalledWith({ user: '/users/1a2b3c4d' })
+      expect(rootEndpointGet.profiles).toHaveBeenCalledWith()
     })
 
     it.each([[401], [403], [404]])(
@@ -219,8 +220,9 @@ describe.skip('authentication logic', () => {
 
         // then
         expect(result).toEqual(null)
+        expect(apiStore.get).toHaveBeenCalledWith('/users/1a2b3c4d')
         expect(rootEndpointGet.profiles).toHaveBeenCalledTimes(1)
-        expect(rootEndpointGet.profiles).toHaveBeenCalledWith({ user: '/users/1a2b3c4d' })
+        expect(rootEndpointGet.profiles).toHaveBeenCalledWith()
         expect(auth.logout).toHaveBeenCalledTimes(1)
       }
     )
@@ -355,8 +357,7 @@ function createState(authState = {}) {
           href: '/authentication_token',
         },
         profiles: {
-          href: '/profiles{?user}',
-          templated: true,
+          href: '/profiles',
         },
         oauthGoogle: {
           href: '/auth/google{?callback}',
@@ -383,6 +384,9 @@ function createState(authState = {}) {
         profile: {
           href: '/profile/5c6c7c8',
         },
+        profiles: {
+          href: '/users/1a2b3c4d/profiles',
+        },
         _meta: {
           load: Promise.resolve({
             id: '1a2b3c4d',
@@ -399,7 +403,7 @@ function createState(authState = {}) {
           }),
         },
       },
-      '/profiles?user=%2Fusers%2F1a2b3c4d': {
+      '/users/1a2b3c4d/profiles': {
         _meta: {
           load: Promise.resolve({
             items: [
