@@ -314,17 +314,17 @@ class UpdateMaterialItemTest extends ECampApiTestCase {
     }
 
     public function testPatchMaterialItemValidatesMissingArticle() {
+        $this->markTestSkipped('api-platform/validator 5.0 TypeError on class-string validationContext groups, unfixed in v5.0.1 and main. Delete this line when it is fixed upstream: https://github.com/api-platform/validator/blob/v5.0.1/DenormalizationViolationFactory.php#L129-L130');
+
         $materialItem = static::getFixture('materialItem1');
         static::createClientWithCredentials()->request('PATCH', '/material_items/'.$materialItem->getId(), ['json' => [
             'article' => null,
         ], 'headers' => ['Content-Type' => 'application/merge-patch+json']]);
 
-        // API Platform 5 answers 500 here: MaterialItem passes a class-string in
-        // `validationContext.groups`, which api-platform/validator hands to a `?array` parameter
-        // (https://github.com/api-platform/validator/blob/v5.0.1/DenormalizationViolationFactory.php#L129-L130,
-        // unfixed in v5.0.1 and main). The 500 `detail` embeds the absolute vendor path, so assert the
-        // status only, and change this to 422 + `violations` once upstream is fixed.
-        $this->assertResponseStatusCodeSame(500);
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertJsonContains([
+            'detail' => 'The type of the "article" attribute must be "string", "NULL" given.',
+        ]);
     }
 
     public function testPatchMaterialItemValidatesArticleMinLength() {
@@ -396,17 +396,17 @@ class UpdateMaterialItemTest extends ECampApiTestCase {
     }
 
     public function testPatchMaterialItemValidatesInvalidQuantity() {
+        $this->markTestSkipped('api-platform/validator 5.0 TypeError on class-string validationContext groups, unfixed in v5.0.1 and main. Delete this line when it is fixed upstream: https://github.com/api-platform/validator/blob/v5.0.1/DenormalizationViolationFactory.php#L129-L130');
+
         $materialItem = static::getFixture('materialItem1');
         static::createClientWithCredentials()->request('PATCH', '/material_items/'.$materialItem->getId(), ['json' => [
             'quantity' => '1',
         ], 'headers' => ['Content-Type' => 'application/merge-patch+json']]);
 
-        // API Platform 5 answers 500 here: MaterialItem passes a class-string in
-        // `validationContext.groups`, which api-platform/validator hands to a `?array` parameter
-        // (https://github.com/api-platform/validator/blob/v5.0.1/DenormalizationViolationFactory.php#L129-L130,
-        // unfixed in v5.0.1 and main). The 500 `detail` embeds the absolute vendor path, so assert the
-        // status only, and change this to 422 + `violations` once upstream is fixed.
-        $this->assertResponseStatusCodeSame(500);
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertJsonContains([
+            'detail' => 'The type of the "quantity" attribute must be "float|null", "string" given.',
+        ]);
     }
 
     #[TestWith([0])]
