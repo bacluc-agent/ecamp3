@@ -113,6 +113,7 @@ class Activity extends BaseEntity implements BelongsToCampInterface {
     #[AssertLastCollectionItemIsNotDeleted(message: 'Cannot delete the last schedule entry.', groups: ['ScheduleEntry:delete'])]
     #[Assert\Count(min: 1, groups: ['create'])]
     #[ApiProperty(
+        readable: false,
         writableLink: true,
         example: [['period' => '/periods/1a2b3c4a', 'start' => '2023-05-01T15:00:00+00:00', 'end' => '2023-05-01T16:00:00+00:00']],
     )]
@@ -198,7 +199,7 @@ class Activity extends BaseEntity implements BelongsToCampInterface {
     /**
      * The list of people that are responsible for planning or carrying out this activity.
      */
-    #[ApiProperty(writable: false)]
+    #[ApiProperty(writable: false, uriTemplate: ActivityResponsible::ACTIVITY_SUBRESOURCE_URI_TEMPLATE)]
     #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: ActivityResponsible::class, mappedBy: 'activity', orphanRemoval: true)]
     #[ORM\OrderBy(['createTime' => 'ASC'])]
@@ -242,11 +243,25 @@ class Activity extends BaseEntity implements BelongsToCampInterface {
     /**
      * @return ScheduleEntry[]
      */
-    #[ApiProperty(readableLink: true)]
+    #[ApiProperty(
+        readableLink: true,
+        uriTemplate: ScheduleEntry::ACTIVITY_SUBRESOURCE_URI_TEMPLATE,
+        extraProperties: ['cacheDependencies' => ['scheduleEntries']]
+    )]
     #[SerializedName('scheduleEntries')]
     #[Groups(['Activity:ScheduleEntries'])]
     public function getEmbeddedScheduleEntries(): array {
         return $this->scheduleEntries->getValues();
+    }
+
+    /**
+     * @return ScheduleEntry[]
+     */
+    #[ApiProperty(writable: false, uriTemplate: ScheduleEntry::ACTIVITY_SUBRESOURCE_URI_TEMPLATE)]
+    #[SerializedName('scheduleEntries')]
+    #[Groups(['read'])]
+    public function getScheduleEntriesLink(): array {
+        return [];
     }
 
     /**
@@ -278,7 +293,11 @@ class Activity extends BaseEntity implements BelongsToCampInterface {
     /**
      * @return ActivityResponsible[]
      */
-    #[ApiProperty(readableLink: true)]
+    #[ApiProperty(
+        readableLink: true,
+        uriTemplate: ActivityResponsible::ACTIVITY_SUBRESOURCE_URI_TEMPLATE,
+        extraProperties: ['cacheDependencies' => ['activityResponsibles']]
+    )]
     #[SerializedName('activityResponsibles')]
     #[Groups(['Activity:ActivityResponsibles'])]
     public function getEmbeddedActivityResponsibles(): array {

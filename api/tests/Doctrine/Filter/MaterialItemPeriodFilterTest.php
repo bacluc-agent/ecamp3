@@ -120,6 +120,7 @@ class MaterialItemPeriodFilterTest extends TestCase {
                 'property' => 'period',
                 'type' => 'string',
                 'required' => false,
+                'description' => 'Deprecated: use subresource routes instead.',
             ],
         ], $description);
     }

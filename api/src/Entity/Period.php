@@ -9,8 +9,10 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use App\Doctrine\Filter\CampCollaboratorFilter;
 use App\InputFilter;
 use App\Repository\PeriodRepository;
@@ -50,8 +52,25 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new GetCollection(
             security: 'is_authenticated()',
+            normalizationContext: ['groups' => ['read']],
+            openapi: new OpenApiOperation(description: 'Deprecated: use /camps/{campId}/periods instead.'),
             extraProperties: [
                 'scoping_filters' => ['camp', 'campCollaborator'],
+            ]
+        ),
+        new GetCollection(
+            uriTemplate: self::CAMP_SUBRESOURCE_URI_TEMPLATE,
+            uriVariables: [
+                'campId' => new Link(
+                    toProperty: 'camp',
+                    fromClass: Camp::class,
+                    security: 'is_granted("CAMP_COLLABORATOR", camp) or is_granted("CAMP_IS_PUBLIC", camp)'
+                ),
+            ],
+            normalizationContext: ['groups' => ['read']],
+            security: 'is_fully_authenticated()',
+            extraProperties: [
+                'filter_by_current_user' => false,
             ]
         ),
         new Post(
@@ -68,6 +87,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(filterClass: CampCollaboratorFilter::class)]
 #[ORM\Entity(repositoryClass: PeriodRepository::class)]
 class Period extends BaseEntity implements BelongsToCampInterface {
+    public const CAMP_SUBRESOURCE_URI_TEMPLATE = '/camps/{campId}/periods{._format}'; // ponytail: no custom controller needed; API Platform subresource handles filtering via Doctrine relation.
     public const ITEM_NORMALIZATION_CONTEXT = [
         'groups' => ['read', 'Period:Camp', 'Period:Days'],
         'swagger_definition_name' => 'read',
@@ -106,6 +126,8 @@ class Period extends BaseEntity implements BelongsToCampInterface {
      * Material items that are assigned directly to the period, as opposed to individual
      * activities.
      */
+    #[ApiProperty(writable: false, uriTemplate: MaterialItem::PERIOD_SUBRESOURCE_URI_TEMPLATE)]
+    #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: MaterialItem::class, mappedBy: 'period')]
     #[ORM\OrderBy(['article' => 'ASC', 'createTime' => 'ASC'])]
     public Collection $materialItems;

@@ -4,7 +4,7 @@
       "href": "/api/activities/a13fadc97610"
     },
     "scheduleEntries": {
-      "href": "/api/schedule_entries?activity=%2Fapi%2Factivities%2Fa13fadc97610"
+      "href": "/api/activities/a13fadc97610/schedule_entries"
     },
     "camp": {
       "href": "/api/camps/70ca971c992f"
@@ -19,7 +19,7 @@
       "href": "/api/activities/a13fadc97610/comments"
     },
     "activityResponsibles": {
-      "href": "/api/activity_responsibles?activity=%2Fapi%2Factivities%2Fa13fadc97610"
+      "href": "/api/activities/a13fadc97610/activity_responsibles"
     },
     "rootContentNode": {
       "href": "/api/content_node/column_layouts/160f007bd04f"

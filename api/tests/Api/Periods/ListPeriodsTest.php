@@ -120,6 +120,45 @@ class ListPeriodsTest extends ECampApiTestCase {
         ], $response->toArray()['_links']['items']);
     }
 
+    public function testListPeriodsAsCampSubresourceIsAllowedForCollaborator() {
+        $camp = static::getFixture('camp1');
+        $response = static::createClientWithCredentials()->request('GET', "/camps/{$camp->getId()}/periods");
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains([
+            'totalItems' => 2,
+            '_links' => [
+                'items' => [],
+            ],
+            '_embedded' => [
+                'items' => [],
+            ],
+        ]);
+        $this->assertEqualsCanonicalizing([
+            ['href' => $this->getIriFor('period1')],
+            ['href' => $this->getIriFor('period2')],
+        ], $response->toArray()['_links']['items']);
+    }
+
+    public function testListPeriodsAsCampSubresourceIsDeniedForUnrelatedUser() {
+        $camp = static::getFixture('camp1');
+        static::createClientWithCredentials(['email' => static::$fixtures['user4unrelated']->getEmail()])
+            ->request('GET', "/camps/{$camp->getId()}/periods")
+        ;
+
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testListPeriodsAsCampSubresourceInCampPrototypeIsAllowedForUnrelatedUser() {
+        $camp = static::getFixture('campPrototype');
+        $response = static::createClientWithCredentials()->request('GET', "/camps/{$camp->getId()}/periods");
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains(['totalItems' => 1]);
+        $this->assertEqualsCanonicalizing([
+            ['href' => $this->getIriFor('period1campPrototype')],
+        ], $response->toArray()['_links']['items']);
+    }
+
     public function testListPeriodsFilteredByCampCollaboratorIsAllowedForCollaborator() {
         $user = static::$fixtures['user1manager'];
         $response = static::createClientWithCredentials(['email' => $user->getEmail()])

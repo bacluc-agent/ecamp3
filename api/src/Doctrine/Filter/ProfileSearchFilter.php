@@ -20,7 +20,7 @@ final class ProfileSearchFilter extends AbstractFilter {
             'property' => self::QUERY_PARAM_NAME,
             'type' => Type::string()->__toString(),
             'required' => false,
-            'description' => 'Search profiles by a part of their firstname, surname, nickname or email.',
+            'description' => 'Search profiles by a part of their firstname, surname, nickname or email. (The ?user= filter is deprecated: use /users/{userId}/profiles instead.)',
         ]];
     }
 

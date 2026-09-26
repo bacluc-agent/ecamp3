@@ -262,9 +262,7 @@ export default {
     },
     commentCounts() {
       if (!getEnv().FEATURE_COMMENTS || this.isOutsider) return new Map()
-      return commentCountsByActivity(
-        this.api.get().comments({ camp: this.camp._meta.self }).items
-      )
+      return commentCountsByActivity(this.camp.comments().items)
     },
   },
   watch: {

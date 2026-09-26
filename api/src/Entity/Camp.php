@@ -104,6 +104,7 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
     #[Assert\Count(min: 1, groups: ['create'])]
     #[Assert\Count(min: 2, minMessage: 'A camp must have at least one period.', groups: ['Period:delete'])]
     #[ApiProperty(
+        readable: false,
         writableLink: true,
         example: [['description' => 'Hauptlager', 'start' => '2022-01-01', 'end' => '2022-01-08']]
     )]
@@ -156,7 +157,7 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
      * Lists for collecting the required materials needed for carrying out the programme. Each collaborator
      * has a material list, and there may be more, such as shopping lists.
      */
-    #[ApiProperty(writable: false, example: '["/material_lists/1a2b3c4d"]')]
+    #[ApiProperty(writable: false, example: '["/material_lists/1a2b3c4d"]', uriTemplate: MaterialList::CAMP_SUBRESOURCE_URI_TEMPLATE)]
     #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: MaterialList::class, mappedBy: 'camp', cascade: ['persist'], orphanRemoval: true)]
     #[ORM\OrderBy(['name' => 'ASC', 'createTime' => 'ASC'])]
@@ -165,6 +166,8 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
     /**
      * List of MaterialItems that belong to this Camp.
      */
+    #[ApiProperty(writable: false, uriTemplate: MaterialItem::CAMP_SUBRESOURCE_URI_TEMPLATE)]
+    #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: MaterialItem::class, mappedBy: 'camp', cascade: ['persist'], orphanRemoval: true)]
     #[ORM\OrderBy(['article' => 'ASC', 'createTime' => 'ASC'])]
     public Collection $materialItems;
@@ -449,7 +452,8 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
     /**
      * All comments of the camp.
      */
-    #[ApiProperty(readable: false, writable: false)]
+    #[ApiProperty(writable: false, uriTemplate: Comment::CAMP_SUBRESOURCE_URI_TEMPLATE)]
+    #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'camp', cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\OrderBy(['createTime' => 'ASC'])]
     public Collection $comments;
@@ -472,11 +476,21 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
     /**
      * @return Period[]
      */
-    #[ApiProperty(readableLink: true)]
+    #[ApiProperty(readableLink: true, uriTemplate: Period::CAMP_SUBRESOURCE_URI_TEMPLATE)]
     #[SerializedName('periods')]
     #[Groups(['Camp:Periods'])]
     public function getEmbeddedPeriods(): array {
         return $this->periods->getValues();
+    }
+
+    /**
+     * @return Period[]
+     */
+    #[ApiProperty(writable: false, uriTemplate: Period::CAMP_SUBRESOURCE_URI_TEMPLATE)]
+    #[SerializedName('periods')]
+    #[Groups(['read'])]
+    public function getPeriodsLink(): array {
+        return [];
     }
 
     #[ApiProperty(readable: false)]

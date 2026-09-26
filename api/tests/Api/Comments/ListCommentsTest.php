@@ -133,4 +133,59 @@ class ListCommentsTest extends ECampApiTestCase {
             'detail' => 'Access Denied.',
         ]);
     }
+
+    public function testListCommentsCampSubresourceIsAllowedForCollaborator() {
+        $camp = static::getFixture('camp1');
+        $response = static::createClientWithCredentials()->request('GET', "/camps/{$camp->getId()}/comments");
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains([
+            'totalItems' => 3,
+            '_links' => [
+                'items' => [],
+            ],
+            '_embedded' => [
+                'items' => [],
+            ],
+        ]);
+        $this->assertEqualsCanonicalizing([
+            ['href' => $this->getIriFor('comment1')],
+            ['href' => $this->getIriFor('comment2')],
+            ['href' => $this->getIriFor('comment3')],
+        ], $response->toArray()['_links']['items']);
+    }
+
+    public function testListCommentsCampSubresourceIsDeniedForUnrelatedUser() {
+        $camp = static::getFixture('camp1');
+        static::createClientWithCredentials(['email' => static::$fixtures['user4unrelated']->getEmail()])
+            ->request('GET', "/camps/{$camp->getId()}/comments")
+        ;
+
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testListCommentsCampSubresourceInCampPrototypeIsDeniedForUnrelatedUser() {
+        $camp = static::getFixture('campPrototype');
+        static::createClientWithCredentials()
+            ->request('GET', "/camps/{$camp->getId()}/comments")
+        ;
+
+        $this->assertResponseStatusCodeSame(403);
+        $this->assertJsonContains([
+            'title' => 'An error occurred',
+            'detail' => 'Access Denied.',
+        ]);
+    }
+
+    public function testListCommentsCampSubresourceInSharedCampIsDeniedForUnrelatedUser() {
+        $camp = static::getFixture('campShared');
+        static::createClientWithCredentials()
+            ->request('GET', "/camps/{$camp->getId()}/comments")
+        ;
+
+        $this->assertResponseStatusCodeSame(403);
+        $this->assertJsonContains([
+            'title' => 'An error occurred',
+            'detail' => 'Access Denied.',
+        ]);
+    }
 }

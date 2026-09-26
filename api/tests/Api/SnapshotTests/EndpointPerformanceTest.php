@@ -70,10 +70,6 @@ class EndpointPerformanceTest extends ECampApiTestCase {
         $not200Responses = array_filter($responseCodes, fn ($value) => 200 != $value);
         assertThat($not200Responses, equalTo([]));
 
-        if (self::isPerformanceTestDebugOutput()) {
-            var_dump($queryExecutionTime);
-        }
-
         $endpointsWithTooLongExecutionTime = array_filter($queryExecutionTime, fn ($value) => MAX_EXECUTION_TIME_SECONDS < $value);
 
         $this->assertMatchesSnapshot($numberOfQueries, new ECampYamlSnapshotDriver());
@@ -98,10 +94,6 @@ class EndpointPerformanceTest extends ECampApiTestCase {
             = $this->measurePerformanceFor($collectionEndpoint.'?camp=/camps/'.self::getFixtureFor('/camps')->getId());
 
         assertThat($statusCode, equalTo(200));
-
-        if (self::isPerformanceTestDebugOutput()) {
-            echo "{$collectionEndpoint}: {$executionTimeSeconds}\n";
-        }
 
         $queryCountRanges = self::getContentNodeEndpointQueryCountRanges()[$collectionEndpoint];
         assertThat(
@@ -132,10 +124,6 @@ class EndpointPerformanceTest extends ECampApiTestCase {
         [$statusCode, $queryCount, $executionTimeSeconds] = $this->measurePerformanceFor("{$collectionEndpoint}/{$fixtureFor->getId()}");
 
         assertThat($statusCode, equalTo(200));
-
-        if (self::isPerformanceTestDebugOutput()) {
-            echo "{$collectionEndpoint}: {$executionTimeSeconds}\n";
-        }
 
         $queryCountRanges = self::getContentNodeEndpointQueryCountRanges()[$collectionEndpoint.'/item'];
         assertThat(
@@ -203,8 +191,8 @@ class EndpointPerformanceTest extends ECampApiTestCase {
             '/content_node/column_layouts/item' => [9, 9],
             '/content_node/checklist_nodes' => [6, 7],
             '/content_node/checklist_nodes/item' => [9, 9],
-            '/content_node/material_nodes' => [6, 7],
-            '/content_node/material_nodes/item' => [9, 9],
+            '/content_node/material_nodes' => [8, 8],
+            '/content_node/material_nodes/item' => [10, 10],
             '/content_node/multi_selects' => [7, 8],
             '/content_node/multi_selects/item' => [9, 9],
             '/content_node/responsive_layouts' => [7, 7],
@@ -279,6 +267,10 @@ class EndpointPerformanceTest extends ECampApiTestCase {
         $checklist1Id = $this->getFixture('checklist1')->getId();
         $dayId = $this->getFixture('day1period1')->getId();
         $periodId = $this->getFixture('period1')->getId();
+        $materialListId = $this->getFixture('materialList1')->getId();
+        $materialNodeId = $this->getFixture('materialNode2')->getId();
+        $activityId = $this->getFixture('activity1')->getId();
+        $userId = $this->getFixture('user1manager')->getId();
 
         return [
             '/camps/{id}/activities' => $camp1Id,
@@ -286,11 +278,21 @@ class EndpointPerformanceTest extends ECampApiTestCase {
             '/camps/{id}/camp_collaborations' => $camp1Id,
             '/camps/{id}/categories' => $camp1Id,
             '/camps/{id}/checklists' => $camp1Id,
+            '/camps/{id}/periods' => $camp1Id,
+            '/camps/{id}/material_lists' => $camp1Id,
+            '/camps/{id}/material_items' => $camp1Id,
+            '/camps/{id}/comments' => $camp1Id,
             '/checklists/{id}/checklist_items' => $checklist1Id,
             '/days/{id}/day_responsibles' => $dayId,
             '/periods/{id}/days' => $periodId,
             '/periods/{id}/schedule_entries' => $periodId,
-            '/activities/{id}/comments' => $this->getFixture('activity1')->getId(),
+            '/periods/{id}/material_items' => $periodId,
+            '/material_lists/{id}/material_items' => $materialListId,
+            '/content_node/material_nodes/{id}/material_items' => $materialNodeId,
+            '/users/{id}/profiles' => $userId,
+            '/activities/{id}/comments' => $activityId,
+            '/activities/{id}/activity_responsibles' => $activityId,
+            '/activities/{id}/schedule_entries' => $activityId,
         ];
     }
 
@@ -306,9 +308,5 @@ class EndpointPerformanceTest extends ECampApiTestCase {
 
     private function getEnvironment(): string {
         return static::$kernel->getContainer()->getParameter('kernel.environment');
-    }
-
-    private static function isPerformanceTestDebugOutput(): bool {
-        return 'true' === getenv('PERFORMANCE_TEST_DEBUG_OUTPUT');
     }
 }
