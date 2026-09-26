@@ -124,7 +124,10 @@ export default {
         }
 
         // else: create new entry
-        return this.scheduleEntries
+        // the activity subresource is read-only, so post to the writable root collection
+        return this.api
+          .get()
+          .scheduleEntries()
           .$post({
             period: entry.period()._meta.self,
             start: entry.start,

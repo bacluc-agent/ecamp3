@@ -113,9 +113,9 @@ class Activity extends BaseEntity implements BelongsToCampInterface {
     #[AssertLastCollectionItemIsNotDeleted(message: 'Cannot delete the last schedule entry.', groups: ['ScheduleEntry:delete'])]
     #[Assert\Count(min: 1, groups: ['create'])]
     #[ApiProperty(
+        readable: false,
         writableLink: true,
         example: [['period' => '/periods/1a2b3c4a', 'start' => '2023-05-01T15:00:00+00:00', 'end' => '2023-05-01T16:00:00+00:00']],
-        uriTemplate: ScheduleEntry::ACTIVITY_SUBRESOURCE_URI_TEMPLATE,
     )]
     #[Groups(['read', 'create'])]
     #[ORM\OneToMany(targetEntity: ScheduleEntry::class, mappedBy: 'activity', cascade: ['persist'], orphanRemoval: true)]
@@ -252,6 +252,16 @@ class Activity extends BaseEntity implements BelongsToCampInterface {
     #[Groups(['Activity:ScheduleEntries'])]
     public function getEmbeddedScheduleEntries(): array {
         return $this->scheduleEntries->getValues();
+    }
+
+    /**
+     * @return ScheduleEntry[]
+     */
+    #[ApiProperty(writable: false, uriTemplate: ScheduleEntry::ACTIVITY_SUBRESOURCE_URI_TEMPLATE)]
+    #[SerializedName('scheduleEntries')]
+    #[Groups(['read'])]
+    public function getScheduleEntriesLink(): array {
+        return [];
     }
 
     /**
