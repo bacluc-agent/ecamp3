@@ -56,7 +56,6 @@ services:
       - n1
       - n2
       - n3
-    restart: 'on-failure'
     command: init --host=n1:26257 --insecure
     networks:
       - crdb

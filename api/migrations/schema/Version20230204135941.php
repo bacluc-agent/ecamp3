@@ -23,14 +23,13 @@ final class Version20230204135941 extends AbstractMigration {
         }
 
         $this->addSql('DROP INDEX offset_period_idx');
-        $deferrable = CockroachDb::is($this->connection) ? '' : ' deferrable initially deferred';
         $this->addSql(
-            <<<SQL
+            <<<'EOF'
                         alter table day 
                             add constraint offset_period_idx 
                                 unique (periodId, dayOffset)
-                                    {$deferrable}
-                        SQL
+                                    deferrable initially deferred
+                        EOF
         );
     }
 

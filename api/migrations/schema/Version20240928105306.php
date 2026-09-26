@@ -27,14 +27,13 @@ final class Version20240928105306 extends AbstractMigration {
                 drop index checklistitem_checklistid_parentid_position_unique
                 EOF
         );
-        $deferrable = CockroachDb::is($this->connection) ? '' : ' deferrable initially deferred';
         $this->addSql(
-            <<<SQL
+            <<<'EOF'
                 alter table checklist_item
                     add constraint checklistitem_checklistid_parentid_position_unique
                         unique (checklistid, parentid, position)
-                            {$deferrable}
-            SQL
+                            deferrable initially deferred
+            EOF
         );
     }
 
