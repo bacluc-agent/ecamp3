@@ -5,6 +5,9 @@
                 "profile": {
                     "href": "escaped_value"
                 },
+                "profiles": {
+                    "href": "escaped_value"
+                },
                 "self": {
                     "href": "escaped_value"
                 }

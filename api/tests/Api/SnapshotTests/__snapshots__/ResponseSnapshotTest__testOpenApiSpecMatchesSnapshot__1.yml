@@ -64,7 +64,6 @@ components:
         - category
         - comments
         - location
-        - scheduleEntries
         - title
       type: object
     Activity-create_write.jsonMergePatch:
@@ -89,7 +88,6 @@ components:
         scheduleEntries:
           items:
             $ref: '#/components/schemas/ScheduleEntry-create_write.jsonMergePatch'
-          readOnly: true
           type: array
         title:
           description: 'The title of this activity that is shown in the picasso.'
@@ -775,7 +773,6 @@ components:
         scheduleEntries:
           items:
             $ref: '#/components/schemas/ScheduleEntry-write_create.jsonMergePatch'
-          readOnly: true
           type: array
         title:
           description: 'The title of this activity that is shown in the picasso.'
@@ -810,7 +807,6 @@ components:
         scheduleEntries:
           items:
             $ref: '#/components/schemas/ScheduleEntry-write_create.jsonMergePatch'
-          readOnly: true
           type: array
         title:
           description: 'The title of this activity that is shown in the picasso.'
@@ -1783,7 +1779,6 @@ components:
             scheduleEntries:
               items:
                 $ref: '#/components/schemas/ScheduleEntry.jsonld-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
-              readOnly: true
               type: array
             title:
               description: 'The title of this activity that is shown in the picasso.'
@@ -1823,6 +1818,11 @@ components:
           type: string
         rootContentNode:
           $ref: '#/components/schemas/ColumnLayout.jsonld-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+        scheduleEntries:
+          items:
+            $ref: '#/components/schemas/ScheduleEntry.jsonld-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+          readOnly: true
+          type: array
     Activity.jsonld-read_CampCollaboration.Camp_CampCollaboration.User:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -1845,7 +1845,6 @@ components:
             scheduleEntries:
               items:
                 $ref: '#/components/schemas/ScheduleEntry.jsonld-read_CampCollaboration.Camp_CampCollaboration.User'
-              readOnly: true
               type: array
             title:
               description: 'The title of this activity that is shown in the picasso.'
@@ -1885,6 +1884,11 @@ components:
           type: string
         rootContentNode:
           $ref: '#/components/schemas/ColumnLayout.jsonld-read_CampCollaboration.Camp_CampCollaboration.User'
+        scheduleEntries:
+          items:
+            $ref: '#/components/schemas/ScheduleEntry.jsonld-read_CampCollaboration.Camp_CampCollaboration.User'
+          readOnly: true
+          type: array
     Activity.jsonld-read_CampCollaboration.User:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -1907,7 +1911,6 @@ components:
             scheduleEntries:
               items:
                 $ref: '#/components/schemas/ScheduleEntry.jsonld-read_CampCollaboration.User'
-              readOnly: true
               type: array
             title:
               description: 'The title of this activity that is shown in the picasso.'
@@ -1947,6 +1950,11 @@ components:
           type: string
         rootContentNode:
           $ref: '#/components/schemas/ColumnLayout.jsonld-read_CampCollaboration.User'
+        scheduleEntries:
+          items:
+            $ref: '#/components/schemas/ScheduleEntry.jsonld-read_CampCollaboration.User'
+          readOnly: true
+          type: array
     Activity.jsonld-read_Category.PreferredContentTypes:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -1969,7 +1977,6 @@ components:
             scheduleEntries:
               items:
                 $ref: '#/components/schemas/ScheduleEntry.jsonld-read_Category.PreferredContentTypes'
-              readOnly: true
               type: array
             title:
               description: 'The title of this activity that is shown in the picasso.'
@@ -2009,6 +2016,11 @@ components:
           type: string
         rootContentNode:
           $ref: '#/components/schemas/ColumnLayout.jsonld-read_Category.PreferredContentTypes'
+        scheduleEntries:
+          items:
+            $ref: '#/components/schemas/ScheduleEntry.jsonld-read_Category.PreferredContentTypes'
+          readOnly: true
+          type: array
     Activity.jsonld-read_Category.PreferredContentTypes_Category.ContentNodes:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -2031,7 +2043,6 @@ components:
             scheduleEntries:
               items:
                 $ref: '#/components/schemas/ScheduleEntry.jsonld-read_Category.PreferredContentTypes_Category.ContentNodes'
-              readOnly: true
               type: array
             title:
               description: 'The title of this activity that is shown in the picasso.'
@@ -2071,6 +2082,11 @@ components:
           type: string
         rootContentNode:
           $ref: '#/components/schemas/ColumnLayout.jsonld-read_Category.PreferredContentTypes_Category.ContentNodes'
+        scheduleEntries:
+          items:
+            $ref: '#/components/schemas/ScheduleEntry.jsonld-read_Category.PreferredContentTypes_Category.ContentNodes'
+          readOnly: true
+          type: array
     Activity.jsonld-read_Day.DayResponsibles:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -2093,7 +2109,6 @@ components:
             scheduleEntries:
               items:
                 $ref: '#/components/schemas/ScheduleEntry.jsonld-read_Day.DayResponsibles'
-              readOnly: true
               type: array
             title:
               description: 'The title of this activity that is shown in the picasso.'
@@ -2133,6 +2148,11 @@ components:
           type: string
         rootContentNode:
           $ref: '#/components/schemas/ColumnLayout.jsonld-read_Day.DayResponsibles'
+        scheduleEntries:
+          items:
+            $ref: '#/components/schemas/ScheduleEntry.jsonld-read_Day.DayResponsibles'
+          readOnly: true
+          type: array
     Activity.jsonld-read_Period.Camp_Period.Days:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -2216,7 +2236,6 @@ components:
             scheduleEntries:
               items:
                 $ref: '#/components/schemas/ScheduleEntry.jsonld-read_ScheduleEntry.Activity'
-              readOnly: true
               type: array
             title:
               description: 'The title of this activity that is shown in the picasso.'
@@ -2256,6 +2275,11 @@ components:
           type: string
         rootContentNode:
           $ref: '#/components/schemas/ColumnLayout.jsonld-read_ScheduleEntry.Activity'
+        scheduleEntries:
+          items:
+            $ref: '#/components/schemas/ScheduleEntry.jsonld-read_ScheduleEntry.Activity'
+          readOnly: true
+          type: array
     ActivityProgressLabel:
       properties:
         camp:
@@ -52914,6 +52938,11 @@ components:
             - string
         profile:
           $ref: '#/components/schemas/Profile'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile'
+          readOnly: true
+          type: array
         recaptchaToken:
           description: 'ReCaptchaToken used on Register-View.'
           type:
@@ -53011,6 +53040,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile-read'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile-read'
+          readOnly: true
+          type: array
       type: object
     User-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries:
       properties:
@@ -53043,6 +53077,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
+          readOnly: true
+          type: array
       type: object
     User-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes:
       properties:
@@ -53075,6 +53114,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
+          readOnly: true
+          type: array
       type: object
     User-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User:
       properties:
@@ -53107,6 +53151,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+          readOnly: true
+          type: array
       type: object
     User-read_CampCollaboration.Camp_CampCollaboration.User:
       properties:
@@ -53139,6 +53188,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile-read_CampCollaboration.Camp_CampCollaboration.User'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile-read_CampCollaboration.Camp_CampCollaboration.User'
+          readOnly: true
+          type: array
       type: object
     User-read_CampCollaboration.User:
       properties:
@@ -53171,6 +53225,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile-read_CampCollaboration.User'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile-read_CampCollaboration.User'
+          readOnly: true
+          type: array
       type: object
     User-read_Category.PreferredContentTypes:
       properties:
@@ -53203,6 +53262,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile-read_Category.PreferredContentTypes'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile-read_Category.PreferredContentTypes'
+          readOnly: true
+          type: array
       type: object
     User-read_Category.PreferredContentTypes_Category.ContentNodes:
       properties:
@@ -53235,6 +53299,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile-read_Category.PreferredContentTypes_Category.ContentNodes'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile-read_Category.PreferredContentTypes_Category.ContentNodes'
+          readOnly: true
+          type: array
       type: object
     User-read_Day.DayResponsibles:
       properties:
@@ -53267,6 +53336,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile-read_Day.DayResponsibles'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile-read_Day.DayResponsibles'
+          readOnly: true
+          type: array
       type: object
     User-read_Period.Camp_Period.Days:
       properties:
@@ -53299,6 +53373,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile-read_Period.Camp_Period.Days'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile-read_Period.Camp_Period.Days'
+          readOnly: true
+          type: array
       type: object
     User-read_ScheduleEntry.Activity:
       properties:
@@ -53331,6 +53410,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile-read_ScheduleEntry.Activity'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile-read_ScheduleEntry.Activity'
+          readOnly: true
+          type: array
       type: object
     User-read_User.create:
       description: |-
@@ -53366,6 +53450,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile-read_User.create'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile-read_User.create'
+          readOnly: true
+          type: array
       required:
         - profile
       type: object
@@ -53488,6 +53577,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.html-read'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.html-read'
+          readOnly: true
+          type: array
       type: object
     User.html-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries:
       properties:
@@ -53520,6 +53614,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.html-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.html-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
+          readOnly: true
+          type: array
       type: object
     User.html-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes:
       properties:
@@ -53552,6 +53651,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.html-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.html-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
+          readOnly: true
+          type: array
       type: object
     User.html-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User:
       properties:
@@ -53584,6 +53688,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.html-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.html-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+          readOnly: true
+          type: array
       type: object
     User.html-read_CampCollaboration.Camp_CampCollaboration.User:
       properties:
@@ -53616,6 +53725,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.html-read_CampCollaboration.Camp_CampCollaboration.User'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.html-read_CampCollaboration.Camp_CampCollaboration.User'
+          readOnly: true
+          type: array
       type: object
     User.html-read_CampCollaboration.User:
       properties:
@@ -53648,6 +53762,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.html-read_CampCollaboration.User'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.html-read_CampCollaboration.User'
+          readOnly: true
+          type: array
       type: object
     User.html-read_Category.PreferredContentTypes:
       properties:
@@ -53680,6 +53799,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.html-read_Category.PreferredContentTypes'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.html-read_Category.PreferredContentTypes'
+          readOnly: true
+          type: array
       type: object
     User.html-read_Category.PreferredContentTypes_Category.ContentNodes:
       properties:
@@ -53712,6 +53836,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.html-read_Category.PreferredContentTypes_Category.ContentNodes'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.html-read_Category.PreferredContentTypes_Category.ContentNodes'
+          readOnly: true
+          type: array
       type: object
     User.html-read_Day.DayResponsibles:
       properties:
@@ -53744,6 +53873,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.html-read_Day.DayResponsibles'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.html-read_Day.DayResponsibles'
+          readOnly: true
+          type: array
       type: object
     User.html-read_Period.Camp_Period.Days:
       properties:
@@ -53776,6 +53910,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.html-read_Period.Camp_Period.Days'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.html-read_Period.Camp_Period.Days'
+          readOnly: true
+          type: array
       type: object
     User.html-read_ScheduleEntry.Activity:
       properties:
@@ -53808,6 +53947,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.html-read_ScheduleEntry.Activity'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.html-read_ScheduleEntry.Activity'
+          readOnly: true
+          type: array
       type: object
     User.html-read_User.create:
       description: |-
@@ -53843,6 +53987,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.html-read_User.create'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.html-read_User.create'
+          readOnly: true
+          type: array
       required:
         - profile
       type: object
@@ -53897,6 +54046,10 @@ components:
                   description: 'The hashed password-reset-key. Of course not exposed through the API.'
                   maxLength: 255
                   type: ['null', string]
+                profiles:
+                  items: { $ref: '#/components/schemas/Profile' }
+                  readOnly: true
+                  type: array
                 recaptchaToken:
                   description: 'ReCaptchaToken used on Register-View.'
                   type: ['null', string]
@@ -54013,6 +54166,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.jsonld-read'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.jsonld-read'
+          readOnly: true
+          type: array
     User.jsonld-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -54050,6 +54208,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.jsonld-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.jsonld-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
+          readOnly: true
+          type: array
     User.jsonld-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -54087,6 +54250,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.jsonld-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.jsonld-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
+          readOnly: true
+          type: array
     User.jsonld-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -54124,6 +54292,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.jsonld-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.jsonld-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
+          readOnly: true
+          type: array
     User.jsonld-read_CampCollaboration.Camp_CampCollaboration.User:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -54161,6 +54334,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.jsonld-read_CampCollaboration.Camp_CampCollaboration.User'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.jsonld-read_CampCollaboration.Camp_CampCollaboration.User'
+          readOnly: true
+          type: array
     User.jsonld-read_CampCollaboration.User:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -54198,6 +54376,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.jsonld-read_CampCollaboration.User'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.jsonld-read_CampCollaboration.User'
+          readOnly: true
+          type: array
     User.jsonld-read_Category.PreferredContentTypes:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -54235,6 +54418,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.jsonld-read_Category.PreferredContentTypes'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.jsonld-read_Category.PreferredContentTypes'
+          readOnly: true
+          type: array
     User.jsonld-read_Category.PreferredContentTypes_Category.ContentNodes:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -54272,6 +54460,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.jsonld-read_Category.PreferredContentTypes_Category.ContentNodes'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.jsonld-read_Category.PreferredContentTypes_Category.ContentNodes'
+          readOnly: true
+          type: array
     User.jsonld-read_Day.DayResponsibles:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -54309,6 +54502,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.jsonld-read_Day.DayResponsibles'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.jsonld-read_Day.DayResponsibles'
+          readOnly: true
+          type: array
     User.jsonld-read_Period.Camp_Period.Days:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -54346,6 +54544,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.jsonld-read_Period.Camp_Period.Days'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.jsonld-read_Period.Camp_Period.Days'
+          readOnly: true
+          type: array
     User.jsonld-read_ScheduleEntry.Activity:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -54383,6 +54586,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.jsonld-read_ScheduleEntry.Activity'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.jsonld-read_ScheduleEntry.Activity'
+          readOnly: true
+          type: array
     User.jsonld-read_User.create:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -54423,6 +54631,11 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/Profile.jsonld-read_User.create'
+        profiles:
+          items:
+            $ref: '#/components/schemas/Profile.jsonld-read_User.create'
+          readOnly: true
+          type: array
     UserActivation-create:
       properties:
         email:
@@ -66375,7 +66588,7 @@ paths:
               schema:
                 allOf:
                   - { $ref: '#/components/schemas/JsonApiCollectionBaseSchemaNoPagination' }
-                  - { properties: { data: { items: { properties: { attributes: { properties: { _id: { description: 'An internal, unique, randomly generated identifier of this entity.', example: 1a2b3c4d, maxLength: 16, readOnly: true, type: string }, abbreviation: { description: 'A displayable name of the user.', example: AB, readOnly: true, type: ['null', string] }, activationKey: { description: 'User-Input for activation.', type: ['null', string], writeOnly: true }, color: { description: 'A displayable name of the user.', example: '#ff0000', readOnly: true, type: ['null', string] }, currentPassword: { type: ['null', string], writeOnly: true }, displayName: { description: 'A displayable name of the user.', example: 'Robert Baden-Powell', readOnly: true, type: ['null', string] }, email: { readOnly: true, type: ['null', string] }, password: { description: "A new password for this user. At least 12 characters, as is explicitly recommended by OWASP:\nhttps://github.com/OWASP/ASVS/blob/master/4.0/en/0x11-V2-Authentication.md#v21-password-security\n2.1.1: Verify that user set passwords are at least 12 characters in length (after multiple spaces are combined).", example: learning-by-doing-101, maxLength: 128, minLength: 12, type: ['null', string], writeOnly: true }, passwordResetKeyHash: { description: 'The hashed password-reset-key. Of course not exposed through the API.', maxLength: 255, type: ['null', string] }, recaptchaToken: { description: 'ReCaptchaToken used on Register-View.', type: ['null', string], writeOnly: true }, roles: { items: { type: ['null', string] }, readOnly: true, type: array }, userCamps: { items: { $ref: '#/components/schemas/UserCamp' }, type: array }, userIdentifier: { readOnly: true, type: string } }, type: object }, id: { type: string }, relationships: { properties: { profile: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } } }, type: object }, type: { type: string } }, required: [id, type], type: object }, type: array }, included: { description: 'Related resources requested via the "include" query parameter.', externalDocs: { url: 'https://jsonapi.org/format/#fetching-includes' }, items: { anyOf: [{ $ref: '#/components/schemas/Profile.jsonapi' }] }, readOnly: true, type: array } }, type: object }
+                  - { properties: { data: { items: { properties: { attributes: { properties: { _id: { description: 'An internal, unique, randomly generated identifier of this entity.', example: 1a2b3c4d, maxLength: 16, readOnly: true, type: string }, abbreviation: { description: 'A displayable name of the user.', example: AB, readOnly: true, type: ['null', string] }, activationKey: { description: 'User-Input for activation.', type: ['null', string], writeOnly: true }, color: { description: 'A displayable name of the user.', example: '#ff0000', readOnly: true, type: ['null', string] }, currentPassword: { type: ['null', string], writeOnly: true }, displayName: { description: 'A displayable name of the user.', example: 'Robert Baden-Powell', readOnly: true, type: ['null', string] }, email: { readOnly: true, type: ['null', string] }, password: { description: "A new password for this user. At least 12 characters, as is explicitly recommended by OWASP:\nhttps://github.com/OWASP/ASVS/blob/master/4.0/en/0x11-V2-Authentication.md#v21-password-security\n2.1.1: Verify that user set passwords are at least 12 characters in length (after multiple spaces are combined).", example: learning-by-doing-101, maxLength: 128, minLength: 12, type: ['null', string], writeOnly: true }, passwordResetKeyHash: { description: 'The hashed password-reset-key. Of course not exposed through the API.', maxLength: 255, type: ['null', string] }, profiles: { items: { $ref: '#/components/schemas/Profile' }, readOnly: true, type: array }, recaptchaToken: { description: 'ReCaptchaToken used on Register-View.', type: ['null', string], writeOnly: true }, roles: { items: { type: ['null', string] }, readOnly: true, type: array }, userCamps: { items: { $ref: '#/components/schemas/UserCamp' }, type: array }, userIdentifier: { readOnly: true, type: string } }, type: object }, id: { type: string }, relationships: { properties: { profile: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } } }, type: object }, type: { type: string } }, required: [id, type], type: object }, type: array }, included: { description: 'Related resources requested via the "include" query parameter.', externalDocs: { url: 'https://jsonapi.org/format/#fetching-includes' }, items: { anyOf: [{ $ref: '#/components/schemas/Profile.jsonapi' }] }, readOnly: true, type: array } }, type: object }
                 description: 'User.jsonapi collection.'
             text/html:
               schema:
