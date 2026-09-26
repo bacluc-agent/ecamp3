@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use App\Doctrine\DBAL\CockroachDb;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -14,6 +15,11 @@ final class Version20220611193723 extends AbstractMigration {
     #[\Override]
     public function getDescription(): string {
         return 'ContentNode: Change inheritance type from JOINED to SINGLE_TABLE';
+    }
+
+    #[\Override]
+    public function isTransactional(): bool {
+        return !CockroachDb::is($this->connection);
     }
 
     public function up(Schema $schema): void {
@@ -53,7 +59,7 @@ final class Version20220611193723 extends AbstractMigration {
             SET data = jsonb_build_object('sections', storyboard.sections)
             FROM
                 ( 
-                    SELECT sb.id, jsonb_object_agg(gen_random_uuid(), json_build_object('column1', coalesce(sbs.column1,''), 'column2', coalesce(sbs.column2,''), 'column3', coalesce(sbs.column3,''), 'position', coalesce(sbs.position,0))) as sections
+                    SELECT sb.id, jsonb_object_agg(gen_random_uuid()::text, json_build_object('column1', coalesce(sbs.column1,''), 'column2', coalesce(sbs.column2,''), 'column3', coalesce(sbs.column3,''), 'position', coalesce(sbs.position,0))) as sections
                     FROM content_node_storyboard sb
                     INNER join content_node_storyboard_section sbs
                     ON sb.id=sbs.storyboardid
@@ -75,10 +81,10 @@ final class Version20220611193723 extends AbstractMigration {
         $this->addSql('DROP TABLE content_node_storyboard');
         $this->addSql('DROP TABLE content_node_multiselect_option');
         $this->addSql('DROP TABLE content_node_storyboard_section');
-        $this->addSql('ALTER TABLE activity ADD CONSTRAINT FK_AC74095AF886581C FOREIGN KEY (rootContentNodeId) REFERENCES content_node (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE category ADD CONSTRAINT FK_64C19C1F886581C FOREIGN KEY (rootContentNodeId) REFERENCES content_node (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE content_node ADD CONSTRAINT FK_481D0580B7939B21 FOREIGN KEY (rootId) REFERENCES content_node (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE material_item ADD CONSTRAINT FK_4B73482BD2115263 FOREIGN KEY (materialNodeId) REFERENCES content_node (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE activity ADD CONSTRAINT FK_AC74095AF886581C FOREIGN KEY (rootContentNodeId) REFERENCES content_node (id)');
+        $this->addSql('ALTER TABLE category ADD CONSTRAINT FK_64C19C1F886581C FOREIGN KEY (rootContentNodeId) REFERENCES content_node (id)');
+        $this->addSql('ALTER TABLE content_node ADD CONSTRAINT FK_481D0580B7939B21 FOREIGN KEY (rootId) REFERENCES content_node (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE material_item ADD CONSTRAINT FK_4B73482BD2115263 FOREIGN KEY (materialNodeId) REFERENCES content_node (id) ON DELETE CASCADE');
     }
 
     #[\Override]
@@ -98,21 +104,21 @@ final class Version20220611193723 extends AbstractMigration {
         $this->addSql('CREATE INDEX idx_e2b71b9f9d468a55 ON content_node_storyboard_section (createtime)');
         $this->addSql('CREATE INDEX idx_e2b71b9f55aa53e2 ON content_node_storyboard_section (updatetime)');
         $this->addSql('CREATE INDEX idx_e2b71b9f8f096e57 ON content_node_storyboard_section (storyboardid)');
-        $this->addSql('ALTER TABLE content_node_columnlayout ADD CONSTRAINT fk_7d8cea8bf396750 FOREIGN KEY (id) REFERENCES content_node (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE content_node_materialnode ADD CONSTRAINT fk_f4b3137fbf396750 FOREIGN KEY (id) REFERENCES content_node (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE content_node_multiselect ADD CONSTRAINT fk_6ec3519bbf396750 FOREIGN KEY (id) REFERENCES content_node (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE content_node_singletext ADD CONSTRAINT fk_e41b9ceabf396750 FOREIGN KEY (id) REFERENCES content_node (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE content_node_storyboard ADD CONSTRAINT fk_c6aa45afbf396750 FOREIGN KEY (id) REFERENCES content_node (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE content_node_multiselect_option ADD CONSTRAINT fk_fce40c9c922275b3 FOREIGN KEY (multiselectid) REFERENCES content_node_multiselect (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE content_node_storyboard_section ADD CONSTRAINT fk_e2b71b9f8f096e57 FOREIGN KEY (storyboardid) REFERENCES content_node_storyboard (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE content_node_columnlayout ADD CONSTRAINT fk_7d8cea8bf396750 FOREIGN KEY (id) REFERENCES content_node (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE content_node_materialnode ADD CONSTRAINT fk_f4b3137fbf396750 FOREIGN KEY (id) REFERENCES content_node (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE content_node_multiselect ADD CONSTRAINT fk_6ec3519bbf396750 FOREIGN KEY (id) REFERENCES content_node (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE content_node_singletext ADD CONSTRAINT fk_e41b9ceabf396750 FOREIGN KEY (id) REFERENCES content_node (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE content_node_storyboard ADD CONSTRAINT fk_c6aa45afbf396750 FOREIGN KEY (id) REFERENCES content_node (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE content_node_multiselect_option ADD CONSTRAINT fk_fce40c9c922275b3 FOREIGN KEY (multiselectid) REFERENCES content_node_multiselect (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE content_node_storyboard_section ADD CONSTRAINT fk_e2b71b9f8f096e57 FOREIGN KEY (storyboardid) REFERENCES content_node_storyboard (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE content_node DROP CONSTRAINT fk_481d0580b7939b21');
         $this->addSql('ALTER TABLE content_node DROP data');
-        $this->addSql('ALTER TABLE content_node ADD CONSTRAINT fk_481d0580b7939b21 FOREIGN KEY (rootid) REFERENCES content_node_columnlayout (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE content_node ADD CONSTRAINT fk_481d0580b7939b21 FOREIGN KEY (rootid) REFERENCES content_node_columnlayout (id)');
         $this->addSql('ALTER TABLE material_item DROP CONSTRAINT fk_4b73482bd2115263');
-        $this->addSql('ALTER TABLE material_item ADD CONSTRAINT fk_4b73482bd2115263 FOREIGN KEY (materialnodeid) REFERENCES content_node_materialnode (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE material_item ADD CONSTRAINT fk_4b73482bd2115263 FOREIGN KEY (materialnodeid) REFERENCES content_node_materialnode (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE activity DROP CONSTRAINT fk_ac74095af886581c');
-        $this->addSql('ALTER TABLE activity ADD CONSTRAINT fk_ac74095af886581c FOREIGN KEY (rootcontentnodeid) REFERENCES content_node_columnlayout (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE activity ADD CONSTRAINT fk_ac74095af886581c FOREIGN KEY (rootcontentnodeid) REFERENCES content_node_columnlayout (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE category DROP CONSTRAINT fk_64c19c1f886581c');
-        $this->addSql('ALTER TABLE category ADD CONSTRAINT fk_64c19c1f886581c FOREIGN KEY (rootcontentnodeid) REFERENCES content_node_columnlayout (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE category ADD CONSTRAINT fk_64c19c1f886581c FOREIGN KEY (rootcontentnodeid) REFERENCES content_node_columnlayout (id) ON DELETE CASCADE');
     }
 }

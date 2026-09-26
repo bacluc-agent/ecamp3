@@ -1,0 +1,106 @@
+name: Additional Test - CockroachDB
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [issue-225]
+
+permissions:
+  contents: read
+
+jobs:
+  cockroachdb:
+    name: CockroachDB migrations and API tests
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://ecamp3:ecamp3@localhost:26257/ecamp3?serverVersion=15.0&charset=utf8
+      APP_ENV: test
+      CRDB_IMAGE: cockroachdb/cockroach:v24.3.0
+      CRDB_NETWORK: crdb-net
+    steps:
+      - name: Start 3-node CockroachDB cluster
+        run: |
+          docker network create "$CRDB_NETWORK"
+          for i in 1 2 3; do
+            publish=
+            if [ "$i" = 1 ]; then publish="--publish 26257:26257"; fi
+            docker run --detach --name "n$i" --network "$CRDB_NETWORK" $publish \
+              "$CRDB_IMAGE" start --insecure \
+              --listen-addr=:26257 --http-addr=:8080 \
+              --advertise-addr="n$i:26257" \
+              --join=n1:26257,n2:26257,n3:26257 \
+              --locality="node=n$i"
+          done
+      - name: Initialize cluster
+        run: >-
+          timeout 60 sh -c 'until docker run --rm --network "$CRDB_NETWORK"
+          "$CRDB_IMAGE" init --host=n1:26257 --insecure; do sleep 2; done'
+      - name: Wait for 3 live nodes
+        run: |
+          timeout 90 sh -c '
+            until docker exec n1 cockroach sql --insecure \
+              --execute="SELECT count(*) FROM crdb_internal.gossip_nodes WHERE is_live" \
+              --format=csv 2>/dev/null | tr -d "\r" | grep -qx 3; do
+              sleep 2
+            done'
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Validate cluster compose file
+        run: docker compose -f docker-compose.cockroachdb-cluster.yml config --quiet
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5.9'
+          extensions: intl,pgsql
+          tools: composer:2.10.3
+      - name: Install API dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+        working-directory: api
+      - name: Generate JWT keys
+        run: |
+          mkdir -p var/cache var/log config/jwt
+          jwt_passphrase=${JWT_PASSPHRASE:-$(grep '^JWT_PASSPHRASE=' .env | cut -f 2 -d '=')}
+          echo "$jwt_passphrase" | openssl genpkey -out config/jwt/private.pem -pass stdin -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096
+          echo "$jwt_passphrase" | openssl pkey -in config/jwt/private.pem -passin stdin -out config/jwt/public.pem -pubout
+        working-directory: api
+      - name: Bootstrap database
+        run: >-
+          psql 'postgresql://root@localhost:26257/defaultdb?sslmode=disable'
+          -c "CREATE USER IF NOT EXISTS ecamp3; CREATE DATABASE IF NOT EXISTS ecamp3; CREATE DATABASE IF NOT EXISTS ecamp3test; GRANT ALL ON DATABASE ecamp3 TO ecamp3; GRANT ALL ON DATABASE ecamp3test TO ecamp3"
+      - name: Run full migrations
+        run: bin/console doctrine:migrations:migrate --no-interaction
+        working-directory: api
+      - name: Distribute camp years across nodes
+        run: |
+          docker exec -i n1 cockroach sql --insecure --database=ecamp3test <<'SQL'
+          CREATE INDEX IF NOT EXISTS period_start ON period(start);
+          ALTER INDEX period@period_start PARTITION BY RANGE (start) (
+            PARTITION y_le2022 VALUES FROM (MINVALUE) TO ('2023-01-01'),
+            PARTITION y2023    VALUES FROM ('2023-01-01') TO ('2024-01-01'),
+            PARTITION y2024    VALUES FROM ('2024-01-01') TO ('2025-01-01'),
+            PARTITION y_ge2025 VALUES FROM ('2025-01-01') TO (MAXVALUE)
+          );
+          ALTER PARTITION y_le2022 OF INDEX period@period_start CONFIGURE ZONE USING constraints='[]', lease_preferences='[[+node=n1]]';
+          ALTER PARTITION y2023    OF INDEX period@period_start CONFIGURE ZONE USING constraints='[]', lease_preferences='[[+node=n2]]';
+          ALTER PARTITION y2024    OF INDEX period@period_start CONFIGURE ZONE USING constraints='[]', lease_preferences='[[+node=n3]]';
+          ALTER PARTITION y_ge2025 OF INDEX period@period_start CONFIGURE ZONE USING constraints='[]', lease_preferences='[[+node=n1]]';
+          SQL
+      - name: Show partition and lease evidence
+        run: |
+          sleep 15
+          docker exec -i n1 cockroach sql --insecure --database=ecamp3test <<'SQL'
+          SHOW PARTITIONS FROM TABLE period;
+          SHOW RANGES FROM TABLE period WITH DETAILS;
+          SELECT node_id, locality, is_live FROM crdb_internal.gossip_nodes;
+          SQL
+      - name: Boot API
+        run: bin/console about
+        working-directory: api
+      - name: Run representative API tests
+        run: composer test tests/Api/Camps/ListCampsTest.php tests/Api/Camps/CreateCampTest.php
+        working-directory: api
+      - name: Show distributed camp years
+        run: |
+          sleep 150
+          docker exec -i n1 cockroach sql --insecure --database=ecamp3test <<'SQL'
+          SELECT start FROM period ORDER BY start;
+          SHOW RANGES FROM TABLE period WITH DETAILS;
+          SQL

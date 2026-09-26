@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use App\Doctrine\DBAL\CockroachDb;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -17,23 +18,32 @@ final class Version20240928105306 extends AbstractMigration {
     }
 
     public function up(Schema $schema): void {
+        if (CockroachDb::is($this->connection)) {
+            return;
+        }
+
         $this->addSql(
             <<<'EOF'
                 drop index checklistitem_checklistid_parentid_position_unique
                 EOF
         );
+        $deferrable = CockroachDb::is($this->connection) ? '' : ' deferrable initially deferred';
         $this->addSql(
-            <<<'EOF'
+            <<<SQL
                 alter table checklist_item
                     add constraint checklistitem_checklistid_parentid_position_unique
                         unique (checklistid, parentid, position)
-                            deferrable initially deferred
-            EOF
+                            {$deferrable}
+            SQL
         );
     }
 
     #[\Override]
     public function down(Schema $schema): void {
+        if (CockroachDb::is($this->connection)) {
+            return;
+        }
+
         $this->addSql(
             <<<'EOF'
                 alter table checklist_item 
