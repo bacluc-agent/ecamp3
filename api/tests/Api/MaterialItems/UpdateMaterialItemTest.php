@@ -319,10 +319,12 @@ class UpdateMaterialItemTest extends ECampApiTestCase {
             'article' => null,
         ], 'headers' => ['Content-Type' => 'application/merge-patch+json']]);
 
+        // API Platform 5 answers 500 here: MaterialItem passes a class-string in
+        // `validationContext.groups`, which api-platform/validator hands to a `?array` parameter
+        // (https://github.com/api-platform/validator/blob/v5.0.1/DenormalizationViolationFactory.php#L129-L130,
+        // unfixed in v5.0.1 and main). The 500 `detail` embeds the absolute vendor path, so assert the
+        // status only, and change this to 422 + `violations` once upstream is fixed.
         $this->assertResponseStatusCodeSame(500);
-        $this->assertJsonContains([
-            'detail' => 'ApiPlatform\\Validator\\DenormalizationViolationFactory::collectConstraints(): Argument #3 ($validationGroups) must be of type ?array, string given',
-        ]);
     }
 
     public function testPatchMaterialItemValidatesArticleMinLength() {
@@ -399,10 +401,12 @@ class UpdateMaterialItemTest extends ECampApiTestCase {
             'quantity' => '1',
         ], 'headers' => ['Content-Type' => 'application/merge-patch+json']]);
 
+        // API Platform 5 answers 500 here: MaterialItem passes a class-string in
+        // `validationContext.groups`, which api-platform/validator hands to a `?array` parameter
+        // (https://github.com/api-platform/validator/blob/v5.0.1/DenormalizationViolationFactory.php#L129-L130,
+        // unfixed in v5.0.1 and main). The 500 `detail` embeds the absolute vendor path, so assert the
+        // status only, and change this to 422 + `violations` once upstream is fixed.
         $this->assertResponseStatusCodeSame(500);
-        $this->assertJsonContains([
-            'detail' => 'ApiPlatform\\Validator\\DenormalizationViolationFactory::collectConstraints(): Argument #3 ($validationGroups) must be of type ?array, string given',
-        ]);
     }
 
     #[TestWith([0])]
