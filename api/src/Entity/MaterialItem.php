@@ -19,7 +19,6 @@ use App\State\MaterialItemCreateProcessor;
 use App\Util\EntityMap;
 use App\Validator\AssertBelongsToSameCamp;
 use App\Validator\AssertEitherIsNull;
-use App\Validator\MaterialItemUpdateGroupSequence;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -37,7 +36,9 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Patch(
             security: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object)',
-            validationContext: ['groups' => MaterialItemUpdateGroupSequence::class]
+            // A class-string group resolves in the validator but crashes
+            // DenormalizationViolationFactory on every violation; plain array, as on all other resources.
+            validationContext: ['groups' => ['update', 'Default']]
         ),
         new Delete(
             security: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object)'
