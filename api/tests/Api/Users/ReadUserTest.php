@@ -45,6 +45,9 @@ class ReadUserTest extends ECampApiTestCase {
                 'profile' => [
                     'href' => $this->getIriFor('profile4unrelated'),
                 ],
+                'profiles' => [
+                    'href' => '/users/'.$user->getId().'/profiles',
+                ],
             ],
         ]);
     }
@@ -66,6 +69,9 @@ class ReadUserTest extends ECampApiTestCase {
                 'profile' => [
                     'href' => $this->getIriFor('profile1manager'),
                 ],
+                'profiles' => [
+                    'href' => '/users/'.$user->getId().'/profiles',
+                ],
             ],
         ]);
     }
@@ -86,6 +92,9 @@ class ReadUserTest extends ECampApiTestCase {
                 ],
                 'profile' => [
                     'href' => $this->getIriFor('profile2member'),
+                ],
+                'profiles' => [
+                    'href' => '/users/'.$user->getId().'/profiles',
                 ],
             ],
         ]);

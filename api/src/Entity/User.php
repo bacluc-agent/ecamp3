@@ -240,6 +240,16 @@ class User extends BaseEntity implements UserInterface, PasswordAuthenticatedUse
         return $this->profile;
     }
 
+    /**
+     * @return Profile[]
+     */
+    #[ApiProperty(writable: false, uriTemplate: Profile::USER_SUBRESOURCE_URI_TEMPLATE)]
+    #[SerializedName('profiles')]
+    #[Groups(['read'])]
+    public function getProfilesLink(): array {
+        return [];
+    }
+
     #[ApiProperty(readableLink: true)]
     #[SerializedName('profile')]
     #[Groups(['User:create'])]
