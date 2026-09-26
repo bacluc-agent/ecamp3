@@ -165,7 +165,7 @@ class DeleteChecklistTest extends ECampApiTestCase {
         $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains([
             'title' => 'An error occurred',
-            'detail' => 'checklistItems[0].checklistNodes: It\'s not possible to delete a checklist item as long as checklist nodes are referencing it.',
+            'detail' => 'checklistItems[2].checklistNodes: It\'s not possible to delete a checklist item as long as checklist nodes are referencing it.',
         ]);
     }
 }
