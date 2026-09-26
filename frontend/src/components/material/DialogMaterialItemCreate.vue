@@ -42,7 +42,6 @@ export default {
     return {
       entityProperties: ['quantity', 'unit', 'article'],
       embeddedEntities: ['materialList'],
-      entityUri: this.materialItemCollection._meta.self,
     }
   },
   watch: {
