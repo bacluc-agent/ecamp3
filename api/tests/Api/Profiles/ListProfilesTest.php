@@ -236,4 +236,40 @@ class ListProfilesTest extends ECampApiTestCase {
 
         $this->assertResponseStatusCodeSame(401);
     }
+
+    public function testListProfilesAsUserSubresourceIsDeniedForUnrelatedUser() {
+        $user = static::getFixture('user4unrelated');
+        $response = static::createClientWithCredentials()->request('GET', '/users/'.$user->getId().'/profiles');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains(['totalItems' => 0]);
+        $this->assertArrayNotHasKey('items', $response->toArray()['_links']);
+    }
+
+    public function testListProfilesAsUserSubresourceDoesNotLeakProfileOfDeletedUser() {
+        $user = static::getFixture('userWithStateDeleted');
+        $response = static::createClientWithCredentials()->request('GET', '/users/'.$user->getId().'/profiles');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains(['totalItems' => 0]);
+        $this->assertArrayNotHasKey('items', $response->toArray()['_links']);
+    }
+
+    public function testListProfilesAsUserSubresourceIsAllowedForSelfIfSelfHasNoCampCollaborations() {
+        $profile = static::getFixture('profileWithoutCampCollaborations');
+        $response = static::createClientWithCredentials(['email' => $profile->email])
+            ->request('GET', '/users/'.$profile->user->getId().'/profiles')
+        ;
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains([
+            'totalItems' => 1,
+            '_links' => [
+                'items' => [],
+            ],
+            '_embedded' => [
+                'items' => [],
+            ],
+        ]);
+        $this->assertEqualsCanonicalizing([
+            ['href' => $this->getIriFor('profileWithoutCampCollaborations')],
+        ], $response->toArray()['_links']['items']);
+    }
 }

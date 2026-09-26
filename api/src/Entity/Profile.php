@@ -51,10 +51,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ),
             ],
             normalizationContext: ['groups' => ['read']],
-            security: 'is_authenticated()',
-            extraProperties: [
-                'filter_by_current_user' => false,
-            ]
+            security: 'is_authenticated()'
         ),
     ],
     normalizationContext: ['groups' => ['read']],
