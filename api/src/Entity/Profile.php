@@ -220,7 +220,12 @@ class Profile extends BaseEntity {
     #[ORM\Column(type: 'json')]
     public array $roles = ['ROLE_USER'];
 
-    #[ApiProperty(writable: false, readableLink: true, example: '/users/1a2b3c4d')]
+    #[ApiProperty(
+        writable: false,
+        readableLink: true,
+        example: '/users/1a2b3c4d',
+        description: 'The user this profile belongs to. Deprecated: the ?user= filter is superseded by the '.self::USER_SUBRESOURCE_URI_TEMPLATE.' subresource. The ?user.collaborations.camp= filter is unaffected and still the way to list the profiles of a camp\'s collaborators.'
+    )]
     #[Groups(['read'])]
     #[ORM\OneToOne(targetEntity: User::class, mappedBy: 'profile')]
     public User $user;

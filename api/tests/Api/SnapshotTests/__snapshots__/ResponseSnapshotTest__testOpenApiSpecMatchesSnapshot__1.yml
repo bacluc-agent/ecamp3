@@ -17849,6 +17849,7 @@ components:
           anyOf:
             - $ref: '#/components/schemas/User'
             - type: 'null'
+          description: "The user this profile belongs to. Deprecated: the ?user= filter is superseded by the /users/{userId}/profiles{._format} subresource. The ?user.collaborations.camp= filter is unaffected and still the way to list the profiles of a camp's collaborators."
           example: /users/1a2b3c4d
           readOnly: true
       required:
@@ -18024,6 +18025,7 @@ components:
           anyOf:
             - $ref: '#/components/schemas/User-read'
             - type: 'null'
+          description: "The user this profile belongs to. Deprecated: the ?user= filter is superseded by the /users/{userId}/profiles{._format} subresource. The ?user.collaborations.camp= filter is unaffected and still the way to list the profiles of a camp's collaborators."
           example: /users/1a2b3c4d
           readOnly: true
       required:
@@ -18114,6 +18116,7 @@ components:
           anyOf:
             - $ref: '#/components/schemas/User-read_User.create'
             - type: 'null'
+          description: "The user this profile belongs to. Deprecated: the ?user= filter is superseded by the /users/{userId}/profiles{._format} subresource. The ?user.collaborations.camp= filter is unaffected and still the way to list the profiles of a camp's collaborators."
           example: /users/1a2b3c4d
           readOnly: true
       required:
@@ -18364,6 +18367,7 @@ components:
           anyOf:
             - $ref: '#/components/schemas/User.html-read'
             - type: 'null'
+          description: "The user this profile belongs to. Deprecated: the ?user= filter is superseded by the /users/{userId}/profiles{._format} subresource. The ?user.collaborations.camp= filter is unaffected and still the way to list the profiles of a camp's collaborators."
           example: /users/1a2b3c4d
           readOnly: true
       required:
@@ -18454,6 +18458,7 @@ components:
           anyOf:
             - $ref: '#/components/schemas/User.html-read_User.create'
             - type: 'null'
+          description: "The user this profile belongs to. Deprecated: the ?user= filter is superseded by the /users/{userId}/profiles{._format} subresource. The ?user.collaborations.camp= filter is unaffected and still the way to list the profiles of a camp's collaborators."
           example: /users/1a2b3c4d
           readOnly: true
       required:
@@ -18669,6 +18674,7 @@ components:
               anyOf:
                 - $ref: '#/components/schemas/User.jsonld-read'
                 - type: 'null'
+              description: "The user this profile belongs to. Deprecated: the ?user= filter is superseded by the /users/{userId}/profiles{._format} subresource. The ?user.collaborations.camp= filter is unaffected and still the way to list the profiles of a camp's collaborators."
               example: /users/1a2b3c4d
               readOnly: true
           required:
@@ -18766,6 +18772,7 @@ components:
               anyOf:
                 - $ref: '#/components/schemas/User.jsonld-read_User.create'
                 - type: 'null'
+              description: "The user this profile belongs to. Deprecated: the ?user= filter is superseded by the /users/{userId}/profiles{._format} subresource. The ?user.collaborations.camp= filter is unaffected and still the way to list the profiles of a camp's collaborators."
               example: /users/1a2b3c4d
               readOnly: true
           required:
@@ -34611,7 +34618,7 @@ paths:
           style: form
         -
           deprecated: false
-          description: 'Search profiles by a part of their firstname, surname, nickname or email. (The ?user= filter is deprecated: use /users/{userId}/profiles instead.)'
+          description: 'Search profiles by a part of their firstname, surname, nickname or email.'
           explode: false
           in: query
           name: search
@@ -35783,7 +35790,7 @@ paths:
           style: form
         -
           deprecated: false
-          description: 'Search profiles by a part of their firstname, surname, nickname or email. (The ?user= filter is deprecated: use /users/{userId}/profiles instead.)'
+          description: 'Search profiles by a part of their firstname, surname, nickname or email.'
           explode: false
           in: query
           name: search
