@@ -3,50 +3,86 @@ name: Test Write Access Check
 on:
   workflow_dispatch:
     inputs:
-      test-user:
+      organization:
         type: string
-        description: 'GitHub username to test write access for'
+        description: 'Organization containing the repository'
         required: true
         default: 'bacluc-agent'
+      repository:
+        type: string
+        description: 'Repository to test'
+        required: true
+        default: 'ecamp3'
+      username:
+        type: string
+        description: 'GitHub username to test'
+        required: true
+        default: 'bacluc-agent'
+      expected:
+        type: choice
+        description: 'Expected authorization result'
+        required: true
+        default: allow
+        options:
+          - allow
+          - deny
+
+permissions: read-all
 
 jobs:
   test-permission-check:
-    name: Test permission check for user
+    name: Test permission check
     runs-on: ubuntu-latest
     steps:
-      - name: Check write access for test user
+      - name: Run authorization gate
         id: check
+        continue-on-error: true
+        uses: actions/github-script@v9
+        env:
+          TEST_ORG: ${{ inputs.organization }}
+          TEST_REPO: ${{ inputs.repository }}
+          TEST_USER: ${{ inputs.username }}
+        with:
+          github-token: ${{ secrets.REPO_ACCESS_TOKEN || github.token }}
+          script: |
+            const login = process.env.TEST_USER;
+            let authorized = false;
+
+            try {
+              if (typeof login !== 'string' || login.length === 0) {
+                throw new Error('invalid username');
+              }
+
+              const membership = await github.request('GET /orgs/{org}/memberships/{username}', {
+                org: process.env.TEST_ORG,
+                username: login,
+              });
+              const permission = await github.request('GET /repos/{owner}/{repo}/collaborators/{username}/permission', {
+                owner: process.env.TEST_ORG,
+                repo: process.env.TEST_REPO,
+                username: login,
+              });
+
+              authorized = membership?.data?.state === 'active'
+                && ['write', 'maintain', 'admin'].includes(permission?.data?.permission);
+            } catch {}
+
+            core.setOutput('authorized', String(authorized));
+            if (!authorized) {
+              core.setFailed('authorization denied');
+            }
+
+      - name: Assert expected result
+        if: always()
+        env:
+          EXPECTED: ${{ inputs.expected }}
+          AUTHORIZED: ${{ steps.check.outputs.authorized }}
+          OUTCOME: ${{ steps.check.outcome }}
         run: |
-          USER="${{ github.event.inputs.test-user }}"
-          
-          echo "Testing write access for user: $USER"
-          
-          # Query GitHub GraphQL API to check if user is an org member with write access
-          RESULT=$(curl -s -X POST "https://api.github.com/graphql" \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: Bearer ${{ secrets.REPO_ACCESS_TOKEN }}" \
-            -d "{\"query\": \"query { organization(login: \\\"ecamp\\\") { membersWithRole(first: 100, query: \\\"$USER\\\") { edges { node { login } role } } } }\"}")
-          
-          echo "GraphQL result: $RESULT"
-          
-          # Check if user is found with WRITE or ADMIN role
-          HAS_ACCESS=$(echo "$RESULT" | jq -r --arg user "$USER" '.data.organization.membersWithRole.edges[] | select(.node.login == $user) | .role' | grep -E '^(WRITE|ADMIN)$' | head -1)
-          
-          if [ -n "$HAS_ACCESS" ]; then
-            echo "User $USER has write access (role: $HAS_ACCESS)"
-            echo "has-access=true" >> $GITHUB_OUTPUT
-            echo "result=PASS" >> $GITHUB_OUTPUT
-          else
-            echo "User $USER does NOT have write access to ecamp/ecamp3"
-            echo "has-access=false" >> $GITHUB_OUTPUT
-            echo "result=FAIL" >> $GITHUB_OUTPUT
+          if [ "$EXPECTED" = "allow" ] && [ "$AUTHORIZED" = "true" ] && [ "$OUTCOME" = "success" ]; then
+            exit 0
           fi
-      
-      - name: Report result
-        run: |
-          echo "Test result for ${{ github.event.inputs.test-user }}: ${{ steps.check.outputs.result }}"
-          if [ "${{ steps.check.outputs.has-access }}" = "true" ]; then
-            echo "✅ PASS: User has write access"
-          else
-            echo "❌ FAIL: User does not have write access"
+          if [ "$EXPECTED" = "deny" ] && [ "$AUTHORIZED" = "false" ] && [ "$OUTCOME" = "failure" ]; then
+            exit 0
           fi
+          exit 1
