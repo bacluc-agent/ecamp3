@@ -33,9 +33,6 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    App\Validator\MaterialItemUpdateGroupSequence:
-        public: true
-
     App\EventListener\DebugExceptionHeadersSubscriber:
         arguments:
             $env: '%kernel.environment%'
@@ -71,6 +68,11 @@ services:
 
     App\Serializer\Normalizer\CollectionItemsNormalizer:
         decorates: 'api_platform.hal.normalizer.collection'
+
+    App\State\DenormalizationViolationFactory:
+        decorates: 'api_platform.state.denormalization_violation_factory'
+        arguments:
+            - '@.inner'
 
     App\State\ValidationErrorProvider:
         decorates: 'api_platform.validator.state.error_provider'

@@ -19,7 +19,6 @@ use App\State\MaterialItemCreateProcessor;
 use App\Util\EntityMap;
 use App\Validator\AssertBelongsToSameCamp;
 use App\Validator\AssertEitherIsNull;
-use App\Validator\MaterialItemUpdateGroupSequence;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -37,7 +36,9 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Patch(
             security: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object)',
-            validationContext: ['groups' => MaterialItemUpdateGroupSequence::class]
+            // Plain array rather than a group sequence: MaterialItem has no constraint in
+            // the 'update' group, so the sequence never short-circuited and both validate alike.
+            validationContext: ['groups' => ['update', 'Default']]
         ),
         new Delete(
             security: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object)'
