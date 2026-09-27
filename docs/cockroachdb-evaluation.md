@@ -31,8 +31,9 @@ from the previous compose file. The healthcheck creates the `ecamp3` database an
 ## Compatibility changes
 
 - The custom Doctrine schema manager is retained: `CustomPostgreSQLSchemaManager` extends
-  `PostgreSQLSchemaManager` and skips `DEFERRABLE` clauses on CockroachDB (wired via
-  `CustomSchemaManagerFactory`). No vendor files are tracked or modified.
+  `PostgreSQLSchemaManager` and filters only indexes whose names start with `unmanaged_`
+  (wired via `CustomSchemaManagerFactory`). CockroachDB compatibility is implemented in
+  the migration files; no vendor files are tracked or modified.
 - Removed 78 ordinary `NOT DEFERRABLE INITIALLY IMMEDIATE`/`NOT DEFERRABLE` clauses from
   schema foreign-key migrations across 12 files; these are no-ops on PostgreSQL, whose
   default remains immediate enforcement.
@@ -174,23 +175,11 @@ license grace window (7 days) applies to long-lived clusters.
 
 ### Test results
 
-Additional-Test runs on HEAD `bf5367d2b` (all 15 steps green, branch `issue-225`):
+Additional-Test run on HEAD `bf5367d2b` (all 15 steps green, branch `issue-225`):
 
-- push-triggered: https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962
-- pull-request-triggered: https://github.com/bacluc-agent/ecamp3/actions/runs/36268103641
-
-Step evidence (identical step numbering in both runs; links point at the push-triggered
-run):
-
-- [start 3-node cluster](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962#step:2)
-- [initialize cluster](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962#step:3)
-- [wait for 3 live nodes](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962#step:4)
-- [validate both compose files](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962#step:6)
-- [full migrations](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962#step:11)
-- [distribute camp years across nodes (partitions + lease_preferences)](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962#step:12)
-- [boot API (bin/console about)](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962#step:13)
-- [ListCampsTest + CreateCampTest](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962#step:14)
-- [assert camp years are leased on different nodes (convergence loop + SHOW PARTITIONS + SHOW RANGES FROM INDEX + gossip)](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962#step:15)
+- [full migrations](https://github.com/bacluc-agent/ecamp3/actions/runs/36305721545/job/108581870716#step:11)
+- [ListCampsTest + CreateCampTest](https://github.com/bacluc-agent/ecamp3/actions/runs/36305721545/job/108581870716#step:14)
+- [assert camp years are leased on different nodes (convergence loop + SHOW PARTITIONS + SHOW RANGES FROM INDEX + gossip)](https://github.com/bacluc-agent/ecamp3/actions/runs/36305721545/job/108581870716#step:15)
 
 Evidence excerpt from the final step (`SHOW RANGES FROM INDEX period@period_start WITH DETAILS`,
 `period_start` ranges; every range has `replicas {1,2,3}`):
@@ -203,12 +192,9 @@ Evidence excerpt from the final step (`SHOW RANGES FROM INDEX period@period_star
 | `…/29/20089 → …/30` (2025)       | 1            | `1 node=n1` |
 
 Earlier runs on the way there (bug-fix history): migrations blocked at
-`Version20250520220800` in
-https://github.com/bacluc-agent/ecamp3/actions/runs/35830769267 and at
-`Version20250821113132` in
-https://github.com/bacluc-agent/ecamp3/actions/runs/35843389988; fixture loading failed
-on the case-sensitive `profileId` column in
-https://github.com/bacluc-agent/ecamp3/actions/runs/35843772190.
+`Version20250520220800` and `Version20250821113132`; fixture loading failed
+on the case-sensitive `profileId` column. The final run's migration and API-test
+evidence is linked above.
 
 ## Performance conclusions
 
@@ -235,14 +221,14 @@ measurements (ecamp3 #8123/#8668) remain outstanding.
 
 ## Commands and results
 
-| Command                                                           | Result                                                                                                                                                                                                                                             |
-| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `docker compose -f docker-compose.cockroachdb.yml config`         | Passed                                                                                                                                                                                                                                             |
-| `docker compose -f docker-compose.cockroachdb.yml up -d`          | Passed; service healthy                                                                                                                                                                                                                            |
-| `... exec ... SHOW DATABASES; SHOW USERS;`                        | Passed; `ecamp3` database and user present                                                                                                                                                                                                         |
-| `docker compose up -d`                                            | Blocked: runner exposes 4 CPUs but compose requests a larger CPU range                                                                                                                                                                             |
-| `docker compose -f docker-compose.cockroachdb-cluster.yml config` | Passed                                                                                                                                                                                                                                             |
-| 3-node cluster + partitions + tests                               | Passed; all 15 steps green (runs [36268099962](https://github.com/bacluc-agent/ecamp3/actions/runs/36268099962), [36268103641](https://github.com/bacluc-agent/ecamp3/actions/runs/36268103641)) — see Multi-replica evaluation test results below |
+| Command                                                           | Result                                                                                                                                                                                                                                                                                                                                                                       |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `docker compose -f docker-compose.cockroachdb.yml config`         | Passed                                                                                                                                                                                                                                                                                                                                                                       |
+| `docker compose -f docker-compose.cockroachdb.yml up -d`          | Passed; service healthy                                                                                                                                                                                                                                                                                                                                                      |
+| `... exec ... SHOW DATABASES; SHOW USERS;`                        | Passed; `ecamp3` database and user present                                                                                                                                                                                                                                                                                                                                   |
+| `docker compose up -d`                                            | Blocked: runner exposes 4 CPUs but compose requests a larger CPU range                                                                                                                                                                                                                                                                                                       |
+| `docker compose -f docker-compose.cockroachdb-cluster.yml config` | Passed                                                                                                                                                                                                                                                                                                                                                                       |
+| 3-node cluster + partitions + tests                               | Passed; all 15 steps green — see [migrations](https://github.com/bacluc-agent/ecamp3/actions/runs/36305721545/job/108581870716#step:11), [API tests](https://github.com/bacluc-agent/ecamp3/actions/runs/36305721545/job/108581870716#step:14), and [leaseholder assertions](https://github.com/bacluc-agent/ecamp3/actions/runs/36305721545/job/108581870716#step:15) below |
 
 ## References
 
