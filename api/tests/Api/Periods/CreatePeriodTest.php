@@ -258,11 +258,11 @@ class CreatePeriodTest extends ECampApiTestCase {
 
         $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains([
-            'detail' => 'start: This value should be of type string.',
+            'detail' => "start: Parsing datetime string \"20201-01\" using format \"!Y-m-d\" resulted in 1 errors: \nat position 4: The separation symbol could not be found",
             'violations' => [
                 [
                     'propertyPath' => 'start',
-                    'message' => 'This value should be of type string.',
+                    'message' => "Parsing datetime string \"20201-01\" using format \"!Y-m-d\" resulted in 1 errors: \nat position 4: The separation symbol could not be found",
                 ],
             ],
         ]);
@@ -275,11 +275,11 @@ class CreatePeriodTest extends ECampApiTestCase {
 
         $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains([
-            'detail' => 'start: This value should be of type string.',
+            'detail' => "start: Parsing datetime string \"2021-01-01T05:31+01:00\" using format \"!Y-m-d\" resulted in 1 errors: \nat position 10: Trailing data",
             'violations' => [
                 [
                     'propertyPath' => 'start',
-                    'message' => 'This value should be of type string.',
+                    'message' => "Parsing datetime string \"2021-01-01T05:31+01:00\" using format \"!Y-m-d\" resulted in 1 errors: \nat position 10: Trailing data",
                 ],
             ],
         ]);
@@ -306,11 +306,11 @@ class CreatePeriodTest extends ECampApiTestCase {
 
         $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains([
-            'detail' => 'end: This value should be of type string.',
+            'detail' => "end: Parsing datetime string \"20201-01\" using format \"!Y-m-d\" resulted in 1 errors: \nat position 4: The separation symbol could not be found",
             'violations' => [
                 [
                     'propertyPath' => 'end',
-                    'message' => 'This value should be of type string.',
+                    'message' => "Parsing datetime string \"20201-01\" using format \"!Y-m-d\" resulted in 1 errors: \nat position 4: The separation symbol could not be found",
                 ],
             ],
         ]);
