@@ -160,6 +160,17 @@ export default defineConfig(({ mode }) => ({
         replacement: path.resolve(__dirname, 'node_modules', 'inter-ui'),
       },
 
+      // vuedraggable's UMD build does require("vue"), which Vite resolves to the full CJS
+      // build (vue.cjs.prod.js + the template compiler) and bundles a second Vue.
+      // ponytail: works around vuedraggable shipping UMD only; drop when it ships ESM.
+      {
+        find: /^vue$/,
+        replacement: path.resolve(
+          __dirname,
+          'node_modules/vue/dist/vue.runtime.esm-bundler.js'
+        ),
+      },
+
       // find dayjs from commons
       {
         find: 'dayjs',
