@@ -126,7 +126,10 @@ export default {
           totalHeight += footer.offsetHeight + (idx > 0 ? -borderWidth : 0)
         }
       })
-      this.footerHeight = totalHeight > 0 ? `${totalHeight}px` : '0px'
+      const newHeight = totalHeight > 0 ? `${totalHeight}px` : '0px'
+      if (this.footerHeight !== newHeight) {
+        this.footerHeight = newHeight
+      }
     },
     offlineListener() {
       this.offline = true
