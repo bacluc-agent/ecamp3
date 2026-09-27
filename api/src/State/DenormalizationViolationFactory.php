@@ -23,6 +23,13 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * HTTP 500 with a TypeError for every denormalization violation, because TypeError is
  * absent from the exception_to_status map. Resolve the class to the groups it yields
  * for the error path only, leaving the operation's group sequence intact.
+ *
+ * The decorated factory also demotes every type mismatch to its generic Type
+ * message, which throws away the reason the serializer gave ("Parsing datetime
+ * string ... at position 4: ...") and leaves the user with "This value should be of
+ * type string." even though the value is a string. Put the serializer's own message
+ * back, but only for Type::INVALID_TYPE_ERROR violations, so NotNull, NotBlank and
+ * every other violation keep the validator's wording.
  */
 class DenormalizationViolationFactory implements DenormalizationViolationFactoryInterface {
     public function __construct(private readonly DenormalizationViolationFactoryInterface $decorated) {}
@@ -40,32 +47,30 @@ class DenormalizationViolationFactory implements DenormalizationViolationFactory
         try {
             $this->decorated->handle($exception, $operation);
         } catch (ValidationException $validationException) {
-            $dateMessages = $this->dateMessages($exception);
-            if ([] === $dateMessages) {
+            $messages = $this->messages($exception);
+            if ([] === $messages) {
                 throw $validationException;
             }
 
             $violations = new ConstraintViolationList();
             foreach ($validationException->getConstraintViolationList() as $violation) {
-                $path = $violation->getPropertyPath();
-                $pathMessages = $dateMessages[$path] ?? [];
-                $message = array_shift($pathMessages);
-                $dateMessages[$path] = $pathMessages;
-                $violations->add(null === $message || Type::INVALID_TYPE_ERROR !== $violation->getCode() ? $violation : $this->withMessage($violation, $message));
+                $pathMessages = $messages[$violation->getPropertyPath()] ?? [];
+                $message = Type::INVALID_TYPE_ERROR === $violation->getCode() ? array_shift($pathMessages) : null;
+                $violations->add(null === $message ? $violation : $this->withMessage($violation, $message));
             }
 
             throw new ValidationException($violations);
         }
     }
 
-    private function dateMessages(NotNormalizableValueException|PartialDenormalizationException $exception): array {
+    private function messages(NotNormalizableValueException|PartialDenormalizationException $exception): array {
         $errors = $exception instanceof NotNormalizableValueException
             ? [$exception]
             : $exception->getNotNormalizableValueErrors();
         $messages = [];
 
         foreach ($errors as $error) {
-            if ($error instanceof NotNormalizableValueException && (str_starts_with($error->getMessage(), 'Parsing datetime string ') || str_starts_with($error->getMessage(), 'Failed to parse time string ') || str_starts_with($error->getMessage(), 'The data is either not an string'))) {
+            if ($error instanceof NotNormalizableValueException) {
                 $messages[$error->getPath()][] = $error->getMessage();
             }
         }
