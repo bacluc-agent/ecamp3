@@ -18,20 +18,20 @@ jobs:
         id: check
         run: |
           USER="${{ github.event.inputs.test-user }}"
-          
+
           echo "Testing write access for user: $USER"
-          
+
           # Query GitHub GraphQL API to check if user is an org member with write access
           RESULT=$(curl -s -X POST "https://api.github.com/graphql" \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: Bearer ${{ secrets.REPO_ACCESS_TOKEN }}" \
             -d "{\"query\": \"query { organization(login: \\\"ecamp\\\") { membersWithRole(first: 100, query: \\\"$USER\\\") { edges { node { login } role } } } }\"}")
-          
+
           echo "GraphQL result: $RESULT"
-          
+
           # Check if user is found with WRITE or ADMIN role
           HAS_ACCESS=$(echo "$RESULT" | jq -r --arg user "$USER" '.data.organization.membersWithRole.edges[] | select(.node.login == $user) | .role' | grep -E '^(WRITE|ADMIN)$' | head -1)
-          
+
           if [ -n "$HAS_ACCESS" ]; then
             echo "User $USER has write access (role: $HAS_ACCESS)"
             echo "has-access=true" >> $GITHUB_OUTPUT
@@ -41,7 +41,7 @@ jobs:
             echo "has-access=false" >> $GITHUB_OUTPUT
             echo "result=FAIL" >> $GITHUB_OUTPUT
           fi
-      
+
       - name: Report result
         run: |
           echo "Test result for ${{ github.event.inputs.test-user }}: ${{ steps.check.outputs.result }}"
