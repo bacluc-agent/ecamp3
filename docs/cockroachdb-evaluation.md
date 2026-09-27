@@ -175,7 +175,7 @@ license grace window (7 days) applies to long-lived clusters.
 
 ### Test results
 
-Additional-Test run on HEAD `bf5367d2b` (all 15 steps green, branch `issue-225`):
+Additional-Test run on HEAD `939b46d8b9f7a5402d0cbc8d7ca5df2ab34bf13a` (all 15 steps green, branch `issue-225`):
 
 - [full migrations](https://github.com/bacluc-agent/ecamp3/actions/runs/36305721545/job/108581870716#step:11)
 - [ListCampsTest + CreateCampTest](https://github.com/bacluc-agent/ecamp3/actions/runs/36305721545/job/108581870716#step:14)
