@@ -1,0 +1,61 @@
+App\Entity\ContentNode\Storyboard:
+  storyboardCampUnrelated:
+    root: '@columnLayout1campUnrelated'
+    parent: '@columnLayout1campUnrelated'
+    slot: '1'
+    position: 4
+    instanceName: <word()>
+    contentType: '@contentTypeStoryboard'
+    data:
+      {
+        sections:
+          {
+            'cf13d4b5-3ccd-4d9a-ab40-ad6f7e287140':
+              {
+                column1: <word()>,
+                column2Html: <sentence()>,
+                column3: <word()>,
+                position: 0,
+              },
+          },
+      }
+  storyboardCampPrototype:
+    root: '@columnLayout1campPrototype'
+    parent: '@columnLayout1campPrototype'
+    slot: '1'
+    position: 4
+    instanceName: <word()>
+    contentType: '@contentTypeStoryboard'
+    data:
+      {
+        sections:
+          {
+            'aaaaaaaa-3ccd-4d9a-ab40-dddddddddddd':
+              {
+                column1: <word()>,
+                column2Html: <sentence()>,
+                column3: <word()>,
+                position: 0,
+              },
+          },
+      }
+  storyboardCampShared:
+    root: '@columnLayout1campShared'
+    parent: '@columnLayout1campShared'
+    slot: '1'
+    position: 4
+    instanceName: <word()>
+    contentType: '@contentTypeStoryboard'
+    data:
+      {
+        sections:
+          {
+            'cccccccc-3ccd-4d9a-ab40-aaaaaaaaaaaa':
+              {
+                column1: <word()>,
+                column2Html: <sentence()>,
+                column3: <word()>,
+                position: 0,
+              },
+          },
+      }

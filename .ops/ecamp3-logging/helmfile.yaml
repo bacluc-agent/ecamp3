@@ -1,0 +1,14 @@
+environments:
+    default:
+        values:
+            - ./env.yaml
+---
+repositories:
+    - name: fluent
+      url: https://fluent.github.io/helm-charts
+
+releases:
+    - name: ''
+      chart: .
+      values:
+          - ./values.yaml.gotmpl

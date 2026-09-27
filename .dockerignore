@@ -1,0 +1,17 @@
+# Remove files from the production Docker images that could contain sensitive information.
+# This file does not affect the development builds, because the contexts for those are the
+# api and frontend directories, respectively.
+
+.cache/
+.git/
+.github/
+/frontend/data
+/frontend/dist
+/frontend/.env.*
+/frontend/public/environment.*
+/frontend-old/data
+/frontend-old/dist
+/frontend-old/.env.*
+/frontend-old/public/environment.*
+**/vendor/
+**/node_modules/

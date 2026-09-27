@@ -1,0 +1,41 @@
+App\Entity\Activity:
+  activity1:
+    camp: '@camp1'
+    title: 'Activity 1'
+    location: <word()>
+    rootContentNode: '@columnLayout1'
+    category: '@category1'
+
+App\Entity\ScheduleEntry:
+  scheduleEntry1:
+    period: '@period1'
+    activity: '@activity1'
+    startOffset: 480
+    endOffset: 540
+  scheduleEntry2:
+    period: '@period1'
+    activity: '@activity1'
+    startOffset: 1980
+    endOffset: 2040
+
+# Root node
+App\Entity\ContentNode\ColumnLayout:
+  columnLayout1:
+    root: '@self'
+    parent: null
+    slot: null
+    position: 0
+    data: { columns: [{ slot: '1', width: 12 }] }
+    instanceName: 'columnLayout1Root'
+    contentType: '@contentTypeColumnLayout'
+
+# Reponsive layout
+App\Entity\ContentNode\ResponsiveLayout:
+  responsiveLayout1:
+    root: '@columnLayout1'
+    parent: '@columnLayout1'
+    slot: '1'
+    position: 0
+    data: { items: [{ slot: 'main' }, { slot: 'aside-top' }, { slot: 'aside-bottom' }] }
+    instanceName: 'responsiveLayout1'
+    contentType: '@contentTypeResponsiveLayout'

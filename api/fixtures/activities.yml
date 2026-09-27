@@ -1,0 +1,32 @@
+App\Entity\Activity:
+  activity2:
+    camp: '@camp1'
+    title: 'Activity 2'
+    location: <word()>
+    rootContentNode: '@columnLayout3'
+    category: '@category2'
+    progressLabel: '@activityProgressLabel2'
+  activity1camp2:
+    camp: '@camp2'
+    title: <word()>
+    location: <word()>
+    rootContentNode: '@columnLayout1camp2'
+    category: '@category1camp2'
+  activity1campUnrelated:
+    camp: '@campUnrelated'
+    title: <word()>
+    location: <word()>
+    rootContentNode: '@columnLayout1campUnrelated'
+    category: '@category1campUnrelated'
+  activity1campPrototype:
+    camp: '@campPrototype'
+    title: <word()>
+    location: <word()>
+    rootContentNode: '@columnLayout1campPrototype'
+    category: '@category1campPrototype'
+  activity1campShared:
+    camp: '@campShared'
+    title: <word()>
+    location: <word()>
+    rootContentNode: '@columnLayout1campShared'
+    category: '@category1campShared'

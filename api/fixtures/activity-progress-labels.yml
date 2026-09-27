@@ -1,0 +1,45 @@
+App\Entity\ActivityProgressLabel:
+  activityProgressLabel1:
+    camp: '@camp1'
+    position: 0
+    title: 'In Planung'
+  activityProgressLabel2:
+    camp: '@camp1'
+    position: 1
+    title: 'Geplant'
+  activityProgressLabel1Camp2:
+    camp: '@camp2'
+    position: 0
+    title: 'In Planung'
+  activityProgressLabel2Camp2:
+    camp: '@camp2'
+    position: 1
+    title: 'Geplant'
+  activityProgressLabel1campUnrelated:
+    camp: '@campUnrelated'
+    position: 0
+    title: 'In Planung'
+  activityProgressLabel2campUnrelated:
+    camp: '@campUnrelated'
+    position: 1
+    title: 'Geplant'
+  activityProgressLabel1campPrototype:
+    camp: '@campPrototype'
+    position: 0
+    title: 'Vorüberlegungen gemacht'
+  activityProgressLabel2campPrototype:
+    camp: '@campPrototype'
+    position: 1
+    title: 'In Arbeit'
+  activityProgressLabel3campPrototype:
+    camp: '@campPrototype'
+    position: 2
+    title: 'Überprüft'
+  activityProgressLabel1campShared:
+    camp: '@campShared'
+    position: 0
+    title: 'In Planung'
+  activityProgressLabel2campShared:
+    camp: '@campShared'
+    position: 1
+    title: 'Geplant'

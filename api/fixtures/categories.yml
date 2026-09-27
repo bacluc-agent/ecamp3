@@ -1,0 +1,52 @@
+App\Entity\Category:
+  category1:
+    camp: '@camp1'
+    short: LA
+    name: Lageraktivität
+    color: '#FF9800'
+    numberingStyle: 1
+    rootContentNode: '@columnLayout2'
+    preferredContentTypes:
+      - '@contentTypeSafetyConsiderations'
+  category2:
+    camp: '@camp1'
+    short: LP
+    name: Lagerprogramm
+    color: '#99CCFF'
+    numberingStyle: 1
+    rootContentNode: '@columnLayout4'
+  categoryWithNoActivities:
+    camp: '@camp1'
+    short: ES
+    name: Essen
+    color: '#99CCFF'
+    numberingStyle: 1
+    rootContentNode: '@columnLayout5'
+  category1camp2:
+    camp: '@camp2'
+    short: LS
+    name: Lagersport
+    color: '#4DBB52'
+    numberingStyle: 1
+    rootContentNode: '@columnLayout2camp2'
+  category1campUnrelated:
+    camp: '@campUnrelated'
+    short: LS
+    name: Lagersport
+    color: '#4DBB52'
+    numberingStyle: 1
+    rootContentNode: '@columnLayout2campUnrelated'
+  category1campPrototype:
+    camp: '@campPrototype'
+    short: LS
+    name: Lagersport
+    color: '#4DBB52'
+    numberingStyle: 1
+    rootContentNode: '@columnLayout2campPrototype'
+  category1campShared:
+    camp: '@campShared'
+    short: LS
+    name: Lagersport
+    color: '#4DBB52'
+    numberingStyle: 1
+    rootContentNode: '@columnLayout2campShared'

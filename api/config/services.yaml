@@ -1,0 +1,275 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+    app.httpCache.maxHeaderSize: 31500 # lower than Vanish default http_resp_size (32k)
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    _instanceof:
+        App\State\Util\AbstractPersistProcessor:
+            bind:
+                $decorated: '@api_platform.doctrine.orm.state.persist_processor'
+
+        App\State\Util\AbstractRemoveProcessor:
+            bind:
+                $decorated: '@api_platform.doctrine.orm.state.remove_processor'
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
+    App\Validator\MaterialItemUpdateGroupSequence:
+        public: true
+
+    App\EventListener\DebugExceptionHeadersSubscriber:
+        arguments:
+            $env: '%kernel.environment%'
+
+    # Since the input filter classes are resolved at runtime instead
+    # of with constructor dependency injection, we create a service
+    # locator that will serve all the required classes
+    App\Serializer\Denormalizer\InputFilterDenormalizer:
+        arguments: [!tagged_locator { tag: 'app.input_filter' }]
+    App\InputFilter\:
+        resource: '../src/InputFilter/*Filter.php'
+        exclude:
+            - '../src/InputFilter/InputFilter.php'
+        tags:
+            - 'app.input_filter'
+
+    App\Doctrine\Orm\Extension\FilterEagerLoadingsExtension:
+        decorates: 'api_platform.doctrine.orm.query_extension.filter_eager_loading'
+
+    App\Serializer\Normalizer\RelatedCollectionLinkNormalizer:
+        decorates: 'api_platform.hal.normalizer.item'
+        arguments:
+            - '@.inner'
+            - '@api_platform.filter_locator'
+            - '@serializer.name_converter.metadata_aware'
+            - '@Rize\UriTemplate'
+
+    App\Serializer\Normalizer\ContentTypeNormalizer:
+        decorates: 'api_platform.hal.normalizer.item'
+
+    App\Serializer\Normalizer\UriTemplateNormalizer:
+        decorates: 'api_platform.hal.normalizer.entrypoint'
+
+    App\Serializer\Normalizer\CollectionItemsNormalizer:
+        decorates: 'api_platform.hal.normalizer.collection'
+
+    App\State\ValidationErrorProvider:
+        decorates: 'api_platform.validator.state.error_provider'
+        arguments:
+            - '@.inner'
+            - '@serializer.normalizer.error.translation_info_of_constraint_violation'
+            - '@service.translation_to_all_locales'
+            - '@serializer.name_converter.metadata_aware'
+
+    App\State\RequireCollectionFilterProvider:
+        decorates: 'api_platform.doctrine.orm.state.collection_provider'
+        arguments:
+            - '@.inner'
+            - '@request_stack'
+
+    App\Serializer\SerializerContextBuilder:
+        decorates: 'api_platform.serializer.context_builder'
+
+    ApiPlatform\Metadata\Property\Factory\AttributePropertyMetadataFactory:
+        decorates: 'api_platform.metadata.property.metadata_factory'
+        # Reverts change here: https://github.com/api-platform/symfony/compare/v4.1.23...v4.1.24
+        decoration_priority: 20
+
+    App\Serializer\PreventAutomaticEmbeddingPropertyMetadataFactory:
+        decorates: 'api_platform.metadata.property.metadata_factory'
+        # Priority should be 1 lower than the one of SerializerPropertyMetadataFactory, see
+        # https://github.com/api-platform/core/blob/main/src/Bridge/Symfony/Bundle/Resources/config/metadata/metadata.xml#L65
+        decoration_priority: 29
+
+    App\Serializer\Denormalizer\MaterialItemDenormalizer:
+        tags:
+            - { name: 'serializer.denormalizer', priority: 64 }
+
+    App\OpenApi\JwtDecorator:
+        decorates: 'api_platform.openapi.factory'
+        arguments:
+            - '@.inner'
+            - '%env(COOKIE_PREFIX)%'
+
+    App\OpenApi\OAuthDecorator:
+        decorates: 'api_platform.openapi.factory'
+
+    App\OpenApi\RefreshTokenDecorator:
+        decorates: 'api_platform.openapi.factory'
+        arguments:
+            - '@.inner'
+            - '%env(COOKIE_PREFIX)%'
+
+    App\OAuth\UrlGeneratorDecorator:
+        class: App\OAuth\UrlGeneratorDecorator
+        arguments:
+            - '@Symfony\Component\Routing\Generator\UrlGeneratorInterface'
+            - '%kernel.environment%'
+
+    knpu.oauth2.provider_factory:
+        class: KnpU\OAuth2ClientBundle\DependencyInjection\ProviderFactory
+        arguments:
+            - '@App\OAuth\UrlGeneratorDecorator'
+
+    App\Security\OAuth\GoogleAuthenticator:
+        arguments:
+            - '@lexik_jwt_authentication.handler.authentication_success'
+            - '%env(COOKIE_PREFIX)%'
+
+    App\Security\OAuth\HitobitoAuthenticator:
+        arguments:
+            - '@lexik_jwt_authentication.handler.authentication_success'
+            - '%env(COOKIE_PREFIX)%'
+
+    App\Security\ReCaptcha\ReCaptchaWrapper:
+        public: true # necessary to be able to mock ReCaptcha in the container in Api tests
+        arguments:
+            - '%env(RECAPTCHA_SECRET)%'
+            - '@ReCaptcha\ReCaptcha'
+
+    App\Service\MailService:
+        public: true
+        arguments:
+            - '@Symfony\Component\Mailer\MailerInterface'
+            - '@translator'
+            - '@Twig\Environment'
+            - '%env(FRONTEND_BASE_URL)%'
+            - '%env(MAIL_FROM_EMAIL)%'
+            - '%env(MAIL_FROM_NAME)%'
+
+    service.translation_to_all_locales:
+        class: App\Service\TranslateToAllLocalesService
+        public: true
+        arguments:
+            - '@translator'
+            - '@translator'
+            - '%env(csv:TRANSLATE_ERRORS_TO_LOCALES)%'
+
+    serializer.normalizer.error.translation_info_of_constraint_violation:
+        class: App\Serializer\Normalizer\Error\TranslationInfoOfConstraintViolation
+
+    App\EventListener\JWTCreatedListener:
+        tags:
+            - {
+                  name: kernel.event_listener,
+                  event: lexik_jwt_authentication.on_jwt_created,
+                  method: onJWTCreated,
+              }
+
+    App\HttpCache\PurgeHttpCacheListener:
+        arguments:
+            - '@api_platform.iri_converter'
+            - '@api_platform.resource_class_resolver'
+            - '@api_platform.property_accessor'
+        tags:
+            - { name: doctrine.event_listener, event: preUpdate }
+            - { name: doctrine.event_listener, event: onFlush }
+            - { name: doctrine.event_listener, event: postFlush }
+
+    api_platform.http_cache.tag_collector:
+        class: App\HttpCache\TagCollector
+
+    App\HttpCache\AddCollectionTagsListener:
+        tags:
+            - {
+                  name: kernel.event_listener,
+                  event: kernel.response,
+                  method: onKernelResponse,
+                  priority: 12,
+              }
+
+    App\HttpCache\CacheControlListener:
+        arguments:
+            $apiCacheEnabled: '%env(API_CACHE_ENABLED)%'
+            $maxHeaderSize: '%app.httpCache.maxHeaderSize%'
+            $headerKey: '%fos_http_cache.tag_handler.response_header%'
+        tags:
+            - {
+                  name: kernel.event_listener,
+                  event: kernel.response,
+                  method: onKernelResponse,
+                  priority: -1,
+              } # priority -1, executed after FOSHttpCacheBundle Listeners
+
+    App\HttpCache\VarnishProxyClient:
+        arguments:
+            $apiCacheEnabled: '%env(API_CACHE_ENABLED)%'
+            $varnishApiUrl: '%env(VARNISH_API_URL)%'
+
+    App\HttpCache\ResponseTagger:
+        arguments:
+            $matchPath: '%app.httpCache.matchPath%'
+
+    # Entity Filter
+    App\Doctrine\FilterByCurrentUserExtension:
+        tags:
+            # FilterEagerLoadingExtension has Priority -17 and breaks the DQL generated in ContentNodeRepository => Priority -20 ensures this runs after FilterEagerLoadingExtension
+            - {
+                  name: api_platform.doctrine.orm.query_extension.collection,
+                  priority: -20,
+              }
+            - { name: api_platform.doctrine.orm.query_extension.item }
+
+    App\Metadata\Resource\Factory\UriTemplateFactory:
+        arguments:
+            - '@api_platform.filter_locator'
+
+    Symfony\Component\String\Inflector\EnglishInflector:
+        public: false
+
+    Rize\UriTemplate:
+        public: false
+
+    Symfony\Component\Serializer\Normalizer\DateTimeNormalizer:
+        arguments:
+            $defaultContext:
+                # ensure, data coming from API without timezone information is interpreted as UTC
+                # (e.g. period start '2021-01-01' in POST payload)
+                datetime_timezone: 'UTC'
+
+    # https://github.com/api-platform/core/issues/4975#issuecomment-1253617780
+    api_platform.cache.metadata.property:
+        parent: cache.system
+        tags: [cache.pool]
+    api_platform.cache.metadata.resource:
+        parent: cache.system
+        tags: [cache.pool]
+    api_platform.cache.metadata.resource_collection:
+        parent: cache.system
+        tags: [cache.pool]
+    api_platform.cache.route_name_resolver:
+        parent: cache.system
+        tags: [cache.pool]
+    api_platform.cache.identifiers_extractor:
+        parent: cache.system
+        tags: [cache.pool]
+    api_platform.elasticsearch.cache.metadata.document:
+        parent: cache.system
+        tags: [cache.pool]
+
+    # https://github.com/api-platform/core/issues/4975#issuecomment-1327620795
+    # Speeds up api-platform cache build substantially
+    # May have to be removed soon when api-platform removes these services
+    # see vendor/api-platform/core/src/Symfony/Bundle/Resources/config/metadata/property.xml:41
+    api_platform.cache.metadata.identifier:
+        parent: cache.adapter.array
+        tags: [cache.pool]

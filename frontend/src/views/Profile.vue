@@ -1,0 +1,160 @@
+<template>
+  <v-container fluid>
+    <content-card
+      v-if="user"
+      max-width="800"
+      :title="
+        $t('views.profile.profile') + (user._meta.loading ? '' : ': ' + user.displayName)
+      "
+      toolbar
+    >
+      <template #title-actions>
+        <UserMeta v-if="!$vuetify.display.mdAndUp" avatar-only />
+      </template>
+      <v-col>
+        <v-skeleton-loader type="text" :loading="profile._meta.loading">
+          <api-form :entity="profile" name="profile">
+            <e-text-field
+              class="e-profile--email"
+              :model-value="profile.email"
+              path="email"
+              variant="outlined"
+              readonly
+              required
+            >
+              <template #append>
+                <dialog-change-mail>
+                  <template #activator="{ props }">
+                    <ButtonEdit text class="v-btn--has-bg" variant="tonal" v-bind="props">
+                      {{ $t('global.button.change') }}
+                    </ButtonEdit>
+                  </template>
+                </dialog-change-mail>
+              </template>
+            </e-text-field>
+
+            <e-text-field
+              class="e-profile--password"
+              :label="$t('views.profile.password')"
+              model-value="••••••••"
+              path="password"
+              variant="outlined"
+              readonly
+              type="password"
+            >
+              <template #append>
+                <dialog-change-password>
+                  <template #activator="{ props }">
+                    <ButtonEdit text class="v-btn--has-bg" variant="tonal" v-bind="props">
+                      {{ $t('views.profile.changePassword') }}
+                    </ButtonEdit>
+                  </template>
+                </dialog-change-password>
+              </template>
+            </e-text-field>
+
+            <api-text-field path="firstname" @finished="reloadUser()" />
+
+            <api-text-field path="surname" @finished="reloadUser()" />
+
+            <api-text-field path="nickname" @finished="reloadUser()" />
+
+            <api-text-field
+              path="abbreviation"
+              vee-rules="oneEmojiOrTwoCharacters"
+              @finished="reloadUser()"
+            />
+
+            <api-color-picker path="color" @finished="reloadUser()" />
+
+            <api-select path="language" :items="availableLocales" />
+          </api-form>
+          <v-btn
+            v-if="!$vuetify.display.mdAndUp"
+            class="mt-2"
+            color="red"
+            block
+            size="large"
+            dark
+            @click="$auth.logout()"
+          >
+            {{ $t('global.button.logout') }}
+          </v-btn>
+        </v-skeleton-loader>
+      </v-col>
+    </content-card>
+
+    <dialog-change-mail-running :email-verification-key="emailVerificationKey" />
+  </v-container>
+</template>
+
+<script>
+import ApiSelect from '@/components/form/api/ApiSelect.vue'
+import ApiTextField from '@/components/form/api/ApiTextField.vue'
+import ContentCard from '@/components/layout/ContentCard.vue'
+import DialogChangeMail from '@/components/user/DialogChangeMail.vue'
+import DialogChangeMailRunning from '@/components/user/DialogChangeMailRunning.vue'
+import DialogChangePassword from '@/components/user/DialogChangePassword.vue'
+import VueI18n from '@/plugins/i18n'
+import { mapGetters } from 'vuex'
+import ButtonEdit from '@/components/buttons/ButtonEdit.vue'
+import ApiForm from '@/components/form/api/ApiForm.vue'
+import ApiColorPicker from '@/components/form/api/ApiColorPicker.vue'
+
+export default {
+  name: 'Home',
+  components: {
+    ApiColorPicker,
+    ApiForm,
+    ButtonEdit,
+    ApiSelect,
+    ApiTextField,
+    ContentCard,
+    DialogChangeMail,
+    DialogChangeMailRunning,
+    DialogChangePassword,
+  },
+  props: {
+    emailVerificationKey: { type: String, required: false, default: null },
+  },
+  head() {
+    return {
+      title: this.$t('views.profile.profile'),
+    }
+  },
+  computed: {
+    ...mapGetters({
+      user: 'getLoggedInUser',
+    }),
+    profile() {
+      return this.user?.profile()
+    },
+    availableLocales() {
+      return VueI18n.global.availableLocales.map((l) => ({
+        value: l,
+        text: this.$t('global.language', 1, { locale: l }),
+      }))
+    },
+  },
+  watch: {
+    profile() {
+      if (VueI18n.global.availableLocales.includes(this.profile?.language)) {
+        this.$store.commit('setLanguage', this.profile?.language)
+      }
+    },
+  },
+  methods: {
+    reloadUser() {
+      if (this.user) this.api.reload(this.user)
+    },
+  },
+}
+</script>
+
+<style lang="scss" scoped>
+.e-profile--email :deep(.v-input__append-inner),
+.e-profile--password :deep(.v-input__append-inner) {
+  margin-top: 0 !important;
+  align-self: center;
+}
+</style>

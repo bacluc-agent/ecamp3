@@ -1,0 +1,29 @@
+{
+    "name": "ecamp-core",
+    "main": "index.ts",
+    "scripts": {
+        "lint": "npm run lint:eslint && npm run lint:prettier",
+        "lint:eslint": "eslint --fix .",
+        "lint:prettier": "prettier --write --ignore-path .prettierignore **/*.{json,md,mjs,ts}",
+        "lint:check": "npm run lint:check:eslint && npm run lint:check:prettier",
+        "lint:check:eslint": "eslint . --max-warnings 0",
+        "lint:check:prettier": "prettier --check --ignore-path .prettierignore **/*.{json,md,mjs,ts}"
+    },
+    "dependencies": {
+        "@pulumi/pulumi": "3.263.0",
+        "@pulumi/aws": "7.47.0",
+        "@pulumi/awsx": "3.9.0"
+    },
+    "devDependencies": {
+        "@eslint/compat": "2.1.1",
+        "@eslint/js": "10.0.1",
+        "@types/node": "24.13.6",
+        "eslint": "10.11.0",
+        "eslint-config-prettier": "10.1.8",
+        "eslint-plugin-n": "18.3.0",
+        "eslint-plugin-prettier": "5.5.6",
+        "eslint-plugin-promise": "7.3.0",
+        "globals": "17.12.0",
+        "prettier": "3.9.7"
+    }
+}

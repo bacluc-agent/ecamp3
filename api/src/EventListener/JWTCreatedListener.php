@@ -1,0 +1,29 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\EventListener;
+
+use ApiPlatform\Metadata\IriConverterInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTCreatedEvent;
+use Symfony\Bundle\SecurityBundle\Security;
+
+/**
+ * Adds the IRI of the newly logged in user to the JWT token payload. This is useful for frontends
+ * to know where to fetch personal profile information.
+ */
+class JWTCreatedListener {
+    public function __construct(private readonly Security $security, private readonly IriConverterInterface $iriConverter) {}
+
+    public function onJWTCreated(JWTCreatedEvent $event) {
+        $payload = $event->getData();
+
+        $user = $this->security->getUser();
+        if (!$user) {
+            return;
+        }
+
+        $payload['user'] = $this->iriConverter->getIriFromResource($user);
+        $event->setData($payload);
+    }
+}

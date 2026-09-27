@@ -1,0 +1,55 @@
+{{ $configFile := `
+email_domains = [ "*" ]
+upstreams = [ "file:///dev/null" ]
+skip_provider_button = true
+`
+}}
+{{ $grafanaProxyHost := .Environment.Values | getOrNil "GRAFANA_PROXY_HOST" | required "GRAFANA_PROXY_HOST is required" }}
+{{ $loggingProxyHost := .Environment.Values | getOrNil "LOGGING_PROXY_HOST" | required "LOGGING_PROXY_HOST is required" }}
+
+grafana-proxy:
+  gatewayApi:
+    enabled: {{ .Environment.Values | get "GATEWAY_ENABLED" true }}
+    gatewayRef:
+      name: traefik-gateway
+      namespace: api-gateway
+    hostnames:
+      - {{ $grafanaProxyHost | quote }}
+  extraArgs:
+    whitelist-domain: {{ $grafanaProxyHost | quote }}
+    provider: github
+    github-org: ecamp
+    upstream: http://kube-prometheus-stack-grafana.kube-prometheus-stack.svc.cluster.local:80
+  config:
+    # OAuth client ID
+    clientID: {{ .Environment.Values | getOrNil "GRAFANA_PROXY_OAUTH_CLIENT_ID" | required "GRAFANA_PROXY_OAUTH_CLIENT_ID is required" | quote }}
+    # OAuth client secret
+    clientSecret: {{ .Environment.Values | getOrNil "GRAFANA_PROXY_OAUTH_CLIENT_SECRET" | required "GRAFANA_PROXY_OAUTH_CLIENT_SECRET is required" | quote }}
+    configFile: |
+        {{- $configFile | trim | nindent 8 }}
+    # Create a new secret with the following command
+    # openssl rand -base64 32 | head -c 32 | base64
+    cookieSecret: {{ .Environment.Values | getOrNil "COOKIE_SECRET" | required "COOKIE_SECRET is required" | quote }}
+logging-proxy:
+  gatewayApi:
+    enabled: {{ .Environment.Values | get "GATEWAY_ENABLED" true }}
+    gatewayRef:
+      name: traefik-gateway
+      namespace: api-gateway
+    hostnames:
+      - {{ $loggingProxyHost | quote }}
+  extraArgs:
+    whitelist-domain: {{ $loggingProxyHost | quote }}
+    provider: github
+    github-org: ecamp
+    upstream: http://kibana.ecamp3-logging.svc.cluster.local:5601
+  config:
+    # OAuth client ID
+    clientID: {{ .Environment.Values | getOrNil "LOGGING_PROXY_OAUTH_CLIENT_ID" | required "LOGGING_PROXY_OAUTH_CLIENT_ID is required" | quote }}
+    # OAuth client secret
+    clientSecret: {{ .Environment.Values | getOrNil "LOGGING_PROXY_OAUTH_CLIENT_SECRET" | required "LOGGING_PROXY_OAUTH_CLIENT_SECRET is required" | quote }}
+    configFile: |
+        {{- $configFile | trim | nindent 8 }}
+    # Create a new secret with the following command
+    # openssl rand -base64 32 | head -c 32 | base64
+    cookieSecret: {{ .Environment.Values | getOrNil "COOKIE_SECRET" | required "COOKIE_SECRET is required" | quote }}

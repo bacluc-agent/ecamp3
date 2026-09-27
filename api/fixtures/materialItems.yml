@@ -1,0 +1,49 @@
+App\Entity\MaterialItem:
+  materialItem1:
+    camp: '@camp1'
+    materialList: '@materialList1'
+    period: null
+    materialNode: '@materialNode1'
+    article: Mehl
+    quantity: 1
+    unit: kg
+  materialItem1period1:
+    camp: '@camp1'
+    materialList: '@materialList1'
+    period: '@period1'
+    materialNode: null
+    article: Blachen
+    quantity: 3
+    unit: Bünde
+  materialItem1period1camp2:
+    camp: '@camp2'
+    materialList: '@materialList1camp2'
+    period: '@period1camp2'
+    materialNode: null
+    article: Zucker
+    quantity: 1
+    unit: kg
+  materialItem1period1campUnrelated:
+    camp: '@campUnrelated'
+    materialList: '@materialList1campUnrelated'
+    period: '@period1campUnrelated'
+    materialNode: null
+    article: Lagerapotheke
+    quantity: 1
+    unit: null
+  materialItem1period1campPrototype:
+    camp: '@campPrototype'
+    materialList: '@materialList1campPrototype'
+    period: '@period1campPrototype'
+    materialNode: null
+    article: Lagerapotheke
+    quantity: 1
+    unit: null
+  materialItem1period1campShared:
+    camp: '@campShared'
+    materialList: '@materialList1campShared'
+    period: '@period1campShared'
+    materialNode: null
+    article: Umhang
+    quantity: 1
+    unit: null

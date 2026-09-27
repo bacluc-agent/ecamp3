@@ -1,0 +1,301 @@
+<?php
+
+namespace App\Tests\Api\SnapshotTests;
+
+use ApiPlatform\Symfony\Bundle\Test\Client;
+use App\Entity\BaseEntity;
+use App\Tests\Api\ECampApiTestCase;
+use App\Tests\Constraints\CompatibleHalResponse;
+use App\Tests\Spatie\Snapshots\Driver\ECampYamlSnapshotDriver;
+use App\Util\ArrayDeepSort;
+use Hautelook\AliceBundle\PhpUnit\FixtureStore;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
+use Symfony\Component\Yaml\Yaml;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+
+use function PHPUnit\Framework\assertThat;
+use function PHPUnit\Framework\equalTo;
+
+/**
+ * @internal
+ */
+class ResponseSnapshotTest extends ECampApiTestCase {
+    /**
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     */
+    public function testRootEndpointMatchesSnapshot() {
+        $response = static::createClientWithCredentials()->request('GET', '/');
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertMatchesResponseSnapshot($response);
+    }
+
+    /**
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     */
+    public function testOpenApiSpecMatchesSnapshot() {
+        $response = static::createClientWithCredentials()
+            ->request(
+                'GET',
+                '/docs.jsonopenapi',
+                [
+                    'headers' => [
+                        'accept' => 'application/vnd.openapi+json',
+                    ],
+                ]
+            )
+        ;
+
+        $sortedOpenApiArray = ArrayDeepSort::sort($response->toArray());
+        // Arguments for Yaml::dump taken from https://github.com/api-platform/core/blob/49c81194a3e6833f10d135c739776636775b15a5/src/OpenApi/Command/OpenApiCommand.php#L58
+        $openApiYaml = Yaml::dump(
+            input: $sortedOpenApiArray,
+            inline: 10,
+            indent: 2,
+            flags: Yaml::DUMP_OBJECT_AS_MAP
+            | Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE
+            | Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
+        );
+
+        $this->assertMatchesSnapshot($openApiYaml, new ECampYamlSnapshotDriver());
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
+    #[DataProvider('getCollectionEndpoints')]
+    #[DataProvider('getCollectionEndpointsFiltered')]
+    public function testGetCollectionMatchesStructure(Client $client, string $endpoint) {
+        if (!str_contains($endpoint, '?')) {
+            $endpoint .= self::scopingFilterFor($endpoint);
+        }
+
+        $response = $client->request('GET', $endpoint);
+
+        assertThat($response->getStatusCode(), equalTo(200));
+        $this->assertMatchesEscapedResponseSnapshot($response);
+    }
+
+    /**
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     */
+    public static function getCollectionEndpoints() {
+        static::bootKernel();
+        $client = static::createClientWithCredentials();
+        $client->disableReboot();
+        $response = $client->request('GET', '/');
+
+        $responseArray = $response->toArray();
+        $onlyUrls = array_map(fn (array $item) => $item['href'], $responseArray['_links']);
+        $withoutParameters = array_map(fn (string $uriTemplate) => preg_replace('/\{[^}]*}/', '', $uriTemplate), $onlyUrls);
+        $normalEndpoints = array_filter($withoutParameters, function (string $endpoint) {
+            // @noinspection PhpDuplicateMatchArmBodyInspection
+            return match ($endpoint) {
+                '/' => false,
+                '/authentication_token' => false,
+                '/auth/google' => false,
+                '/auth/pbsmidata' => false,
+                '/auth/cevidb' => false,
+                '/auth/jubladb' => false,
+                '/auth/reset_password' => false,
+                '/auth/resend_activation' => false,
+                '/content_nodes' => false,
+                '/content_node/checklist_nodes' => false,
+                '/content_node/column_layouts' => false,
+                '/content_node/material_nodes' => false,
+                '/content_node/multi_selects' => false,
+                '/content_node/responsive_layouts' => false,
+                '/content_node/single_texts' => false,
+                '/content_node/storyboards' => false,
+                '/checklist_items' => false,
+                '/invitations' => false,
+                '/material_items' => false,
+                '/personal_invitations' => false,
+                '/token/refresh' => false,
+                '/users' => false,
+                default => true
+            };
+        });
+
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $withUrlAsKey = array_reduce($normalEndpoints, function (?array $left, string $right) use ($client) {
+            $newArray = $left ?? [];
+            $newArray[$right] = [$client, $right];
+
+            return $newArray;
+        });
+
+        return $withUrlAsKey;
+    }
+
+    /**
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     */
+    public static function getCollectionEndpointsFiltered() {
+        static::bootKernel();
+        $client = static::createClientWithCredentials();
+        $client->disableReboot();
+        $client->request('GET', '/');
+
+        return [
+            [$client, '/content_nodes?camp=/camps/'.self::getFixtureFor('/camps')->getId()],
+            [$client, '/content_node/checklist_nodes?camp=/camps/'.self::getFixtureFor('/camps')->getId()],
+            [$client, '/content_node/column_layouts?camp=/camps/'.self::getFixtureFor('/camps')->getId()],
+            [$client, '/content_node/material_nodes?camp=/camps/'.self::getFixtureFor('/camps')->getId()],
+            [$client, '/content_node/multi_selects?camp=/camps/'.self::getFixtureFor('/camps')->getId()],
+            [$client, '/content_node/responsive_layouts?camp=/camps/'.self::getFixtureFor('/camps')->getId()],
+            [$client, '/content_node/single_texts?camp=/camps/'.self::getFixtureFor('/camps')->getId()],
+            [$client, '/content_node/storyboards?camp=/camps/'.self::getFixtureFor('/camps')->getId()],
+            [$client, '/checklist_items?checklist=/checklists/'.self::getFixtureFor('/checklists')->getId()],
+            [$client, '/material_items?camp=/camps/'.self::getFixtureFor('/camps')->getId()],
+            [$client, '/comments?camp=/camps/'.self::getFixtureFor('/camps')->getId()],
+            [$client, '/activities/'.self::getFixtureFor('/activities')->getId().'/comments'],
+        ];
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
+    #[DataProvider('getItemEndpoints')]
+    public function testGetItemMatchesStructure(Client $client, string $endpoint) {
+        /** @var BaseEntity $fixtureFor */
+        $fixtureFor = self::getFixtureFor($endpoint);
+
+        $itemResponse = $client->request('GET', "{$endpoint}/{$fixtureFor->getId()}");
+
+        assertThat($itemResponse->getStatusCode(), equalTo(200));
+        $this->assertMatchesEscapedResponseSnapshot($itemResponse);
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public static function getItemEndpoints() {
+        return array_filter(self::getCollectionEndpoints(), function (array $endpoint) {
+            return match ($endpoint[1]) {
+                default => true,
+            };
+        });
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
+    #[DataProvider('getPatchEndpoints')]
+    public function testPatchResponseMatchesGetItemResponse(Client $client, string $endpoint) {
+        /** @var BaseEntity $fixtureFor */
+        $fixtureFor = self::getFixtureFor($endpoint);
+
+        $itemResponse = $client->request('GET', "{$endpoint}/{$fixtureFor->getId()}");
+        assertThat($itemResponse->getStatusCode(), equalTo(200));
+
+        $patchResponse = $client->request(
+            'PATCH',
+            "{$endpoint}/{$fixtureFor->getId()}",
+            [
+                'json' => [],
+                'headers' => [
+                    'Content-Type' => 'application/merge-patch+json',
+                ],
+            ]
+        );
+        assertThat($patchResponse->getStatusCode(), equalTo(200));
+
+        assertThat($itemResponse->toArray(), CompatibleHalResponse::isHalCompatibleWith($patchResponse->toArray()));
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public static function getPatchEndpoints() {
+        return array_filter(self::getItemEndpoints(), function (array $endpoint) {
+            return match ($endpoint[1]) {
+                '/activity_responsibles' => false,
+                // column layout has a problem with an empty patch
+                '/content_node/column_layouts' => false,
+                '/content_types' => false,
+                '/days' => false,
+                '/day_responsibles' => false,
+                '/comments' => false,
+                default => true,
+            };
+        });
+    }
+
+    /**
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     */
+    #[TestWith(['/camps', '/activities'], '/camps_{campId}_activities')]
+    #[TestWith(['/camps', '/activity_progress_labels'], '/camps_{campId}_activity_progress_labels')]
+    #[TestWith(['/camps', '/camp_collaborations'], '/camps_{campId}_camp_collaborations')]
+    #[TestWith(['/camps', '/checklists'], '/camps_{campId}_checklists')]
+    #[TestWith(['/camps', '/categories'], '/camps_{campId}_categories')]
+    #[TestWith(['/checklists', '/checklist_items'], '/checklists_{campId}_checklist_items')]
+    #[TestWith(['/days', '/day_responsibles'], '/days_{campId}_day_responsibles')]
+    #[TestWith(['/periods', '/days'], '/periods_{campId}_days')]
+    #[TestWith(['/periods', '/schedule_entries'], '/periods_{campId}_schedule_entries')]
+    public function testSubResourceUrlMatchesSnapshot(string $endpoint, string $subresource) {
+        $fixture = self::getFixtureFor($endpoint);
+        $uri = "{$endpoint}/{$fixture->getId()}{$subresource}";
+
+        $response = static::createClientWithCredentials()->request('GET', $uri);
+
+        assertThat($response->getStatusCode(), equalTo(200));
+        $this->assertMatchesEscapedResponseSnapshot($response);
+    }
+
+    private static function scopingFilterFor(string $collectionEndpoint): string {
+        return CollectionScopingFilterMap::get($collectionEndpoint, FixtureStore::getFixtures());
+    }
+
+    private static function getFixtureFor(string $collectionEndpoint) {
+        $fixtures = FixtureStore::getFixtures();
+
+        return ReadItemFixtureMap::get($collectionEndpoint, $fixtures);
+    }
+}

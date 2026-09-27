@@ -1,0 +1,90 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`An ESwitch > looks like a switch > checked 1`] = `
+<div data-app>
+     <div class="e-form-container"
+          name="test"
+          value="true">
+          <div class="v-input v-input--horizontal v-input--center-affix v-input--density-default v-theme--light v-locale--is-ltr v-input--dirty v-switch v-switch--inset">
+               <!---->
+               <div class="v-input__control">
+                    <div class="v-selection-control v-selection-control--dirty v-selection-control--density-default">
+                         <div class="v-selection-control__wrapper text-primary">
+                              <div class="v-switch__track bg-primary">
+                                   <!---->
+                                   <!---->
+                              </div>
+                              <div class="v-selection-control__input">
+                                   <input aria-disabled="false"
+                                          aria-label="test"
+                                          checked
+                                          id
+                                          type="checkbox"
+                                          value="true">
+                                   <div class="v-switch__thumb">
+                                        <transition-stub appear="false"
+                                                         css="true"
+                                                         name="scale-transition"
+                                                         persisted="false">
+                                             <!---->
+                                        </transition-stub>
+                                   </div>
+                              </div>
+                         </div>
+                         <label class="v-label v-label--clickable"
+                                for>
+                              <!---->
+                              test
+                         </label>
+                    </div>
+               </div>
+               <!---->
+               <!---->
+          </div>
+     </div>
+</div>
+`;
+
+exports[`An ESwitch > looks like a switch > unchecked 1`] = `
+<div data-app>
+     <div class="e-form-container"
+          name="test"
+          value="false">
+          <div class="v-input v-input--horizontal v-input--center-affix v-input--density-default v-theme--light v-locale--is-ltr v-input--dirty v-switch v-switch--inset">
+               <!---->
+               <div class="v-input__control">
+                    <div class="v-selection-control v-selection-control--density-default">
+                         <div class="v-selection-control__wrapper">
+                              <div class="v-switch__track">
+                                   <!---->
+                                   <!---->
+                              </div>
+                              <div class="v-selection-control__input">
+                                   <input aria-disabled="false"
+                                          aria-label="test"
+                                          id
+                                          type="checkbox"
+                                          value="true">
+                                   <div class="v-switch__thumb">
+                                        <transition-stub appear="false"
+                                                         css="true"
+                                                         name="scale-transition"
+                                                         persisted="false">
+                                             <!---->
+                                        </transition-stub>
+                                   </div>
+                              </div>
+                         </div>
+                         <label class="v-label v-label--clickable"
+                                for>
+                              <!---->
+                              test
+                         </label>
+                    </div>
+               </div>
+               <!---->
+               <!---->
+          </div>
+     </div>
+</div>
+`;

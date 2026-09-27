@@ -1,0 +1,28 @@
+App\Entity\DayResponsible:
+  dayResponsible1:
+    campCollaboration: '@campCollaboration1manager'
+    day: '@day1period1'
+  dayResponsible1day2period1:
+    campCollaboration: '@campCollaboration1manager'
+    day: '@day2period1'
+  dayResponsible1day1period2:
+    campCollaboration: '@campCollaboration1manager'
+    day: '@day1period2'
+  dayResponsible1day2period2:
+    campCollaboration: '@campCollaboration1manager'
+    day: '@day2period2'
+  dayResponsible1day3period2:
+    campCollaboration: '@campCollaboration1manager'
+    day: '@day3period2'
+  dayResponsible2day3period2:
+    campCollaboration: '@campCollaboration2member'
+    day: '@day3period2'
+  dayResponsible1day1period1campUnrelated:
+    campCollaboration: '@campCollaboration1campUnrelated'
+    day: '@day1period1campUnrelated'
+  dayResponsible1day1period1campPrototype:
+    campCollaboration: '@campCollaboration1campPrototype'
+    day: '@day1period1campPrototype'
+  dayResponsible1day1period1campShared:
+    campCollaboration: '@campCollaboration1campShared'
+    day: '@day1period1campShared'

@@ -1,0 +1,222 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Constraints;
+
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+
+use function PHPUnit\Framework\assertThat;
+use function PHPUnit\Framework\logicalNot;
+
+/**
+ * @internal
+ */
+class CompatibleHalResponseTest extends TestCase {
+    #[DataProvider('compatibleArrays')]
+    public function testCompatibleArrays(array $array1, array $array2) {
+        assertThat($array1, CompatibleHalResponse::isHalCompatibleWith($array2));
+    }
+
+    #[DataProvider('compatibleArrays')]
+    public function testCompatibleArraysIsCommutative(array $array1, array $array2) {
+        assertThat($array2, CompatibleHalResponse::isHalCompatibleWith($array1));
+    }
+
+    public static function compatibleArrays(): \Iterator {
+        yield 'empty' => [[], []];
+
+        yield 'one_key' => [['one' => 1], ['one' => 1]];
+
+        yield 'two_keys' => [
+            ['one' => 1, 'two' => 2],
+            ['one' => 1, 'two' => 2],
+        ];
+
+        yield 'different_values' => [['one' => 1], ['one' => 2]];
+
+        yield 'one_embedded_one_not' => [
+            [
+                '_links' => [
+                    'one' => 'value',
+                ],
+            ],
+            [
+                '_links' => [
+                    'one' => 'value',
+                ],
+                '_embedded' => [
+                    'one' => [
+                        '_links' => [
+                            'self' => 1,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'recursive' => [
+            [
+                '_links' => [
+                    'one' => 'value',
+                ],
+                '_embedded' => [
+                    'one' => [
+                        '_links' => [
+                            'self' => 1,
+                        ],
+                        '_embedded' => [
+                            'one' => [
+                                '_links' => [
+                                    'self' => 1,
+                                ],
+                            ],
+                            'two' => [
+                                '_links' => [
+                                    'self' => 1,
+                                ],
+                            ],
+                        ],
+                    ],
+                    'two' => [
+                        '_links' => [
+                            'self' => 1,
+                        ],
+                    ],
+                ],
+            ],
+            [
+                '_links' => [
+                    'one' => 'value',
+                ],
+                '_embedded' => [
+                    'one' => [
+                        '_links' => [
+                            'self' => 1,
+                        ],
+                        '_embedded' => [
+                            'one' => [
+                                '_links' => [
+                                    'self' => 1,
+                                ],
+                            ],
+                            'two' => [
+                                '_links' => [
+                                    'self' => 1,
+                                ],
+                            ],
+                        ],
+                    ],
+                    'two' => [
+                        '_links' => [
+                            'self' => 1,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    #[DataProvider('notCompatibleArrays')]
+    public function testNotCompatibleArrays(array $array1, array $array2) {
+        assertThat($array1, logicalNot(CompatibleHalResponse::isHalCompatibleWith($array2)));
+    }
+
+    #[DataProvider('notCompatibleArrays')]
+    public function testNotCompatibleArraysIsCommutative(array $array1, array $array2) {
+        assertThat($array2, logicalNot(CompatibleHalResponse::isHalCompatibleWith($array1)));
+    }
+
+    public static function notCompatibleArrays(): \Iterator {
+        yield 'empty_and_not_empty' => [[], [2]];
+
+        yield 'one_key' => [['one' => 1], ['two' => 1]];
+
+        yield 'two_keys' => [
+            ['one' => 1, 'three' => 2],
+            ['one' => 1, 'two' => 2],
+        ];
+
+        yield 'one_embedded_one_not' => [
+            [
+                '_links' => [
+                    'two' => 'value',
+                ],
+            ],
+            [
+                '_links' => [
+                    'one' => 'value',
+                ],
+                '_embedded' => [
+                    'one' => [
+                        '_links' => [
+                            'self' => 1,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'recursive' => [
+            [
+                '_links' => [
+                    'one' => 'value',
+                ],
+                '_embedded' => [
+                    'one' => [
+                        '_links' => [
+                            'self' => 1,
+                        ],
+                        '_embedded' => [
+                            'one' => [
+                                '_links' => [
+                                    'self' => 1,
+                                ],
+                            ],
+                            'two' => [
+                                '_links' => [
+                                    'self' => 1,
+                                ],
+                            ],
+                        ],
+                    ],
+                    'two' => [
+                        '_links' => [
+                            'self' => 1,
+                        ],
+                    ],
+                ],
+            ],
+            [
+                '_links' => [
+                    'one' => 'value',
+                ],
+                '_embedded' => [
+                    'one' => [
+                        '_links' => [
+                            'self' => 1,
+                        ],
+                        '_embedded' => [
+                            'one' => [
+                                '_links' => [
+                                    'self' => 1,
+                                ],
+                            ],
+                            'three' => [
+                                '_links' => [
+                                    'self' => 1,
+                                ],
+                            ],
+                        ],
+                    ],
+                    'two' => [
+                        '_links' => [
+                            'self' => 1,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+}

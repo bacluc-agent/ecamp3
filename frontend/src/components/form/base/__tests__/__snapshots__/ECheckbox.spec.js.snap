@@ -1,0 +1,70 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`An ECheckbox > looks like a checkbox > checked 1`] = `
+<div data-app>
+     <span id>true</span>
+     <div class="e-form-container"
+          name="test"
+          value="true">
+          <div class="v-input v-input--horizontal v-input--center-affix v-input--density-default v-theme--light v-locale--is-ltr v-input--dirty v-checkbox">
+               <!---->
+               <div class="v-input__control">
+                    <div class="v-selection-control v-selection-control--dirty v-selection-control--density-default v-checkbox-btn">
+                         <div class="v-selection-control__wrapper"> undefined <div class="v-selection-control__input">
+                                   <i aria-hidden="true"
+                                      class="mdi-checkbox-marked mdi v-icon notranslate v-theme--light v-icon--size-default"></i>
+                                   <input aria-disabled="false"
+                                          aria-label="test"
+                                          checked
+                                          id
+                                          type="checkbox"
+                                          value="true">
+                              </div>
+                         </div>
+                         <label class="v-label v-label--clickable"
+                                for>
+                              <!---->
+                              test
+                         </label>
+                    </div>
+               </div>
+               <!---->
+               <!---->
+          </div>
+     </div>
+</div>
+`;
+
+exports[`An ECheckbox > looks like a checkbox > unchecked 1`] = `
+<div data-app>
+     <span id>false</span>
+     <div class="e-form-container"
+          name="test"
+          value="false">
+          <div class="v-input v-input--horizontal v-input--center-affix v-input--density-default v-theme--light v-locale--is-ltr v-input--dirty v-checkbox">
+               <!---->
+               <div class="v-input__control">
+                    <div class="v-selection-control v-selection-control--density-default v-checkbox-btn">
+                         <div class="v-selection-control__wrapper"> undefined <div class="v-selection-control__input">
+                                   <i aria-hidden="true"
+                                      class="mdi-checkbox-blank-outline mdi v-icon notranslate v-theme--light v-icon--size-default"></i>
+                                   <input aria-disabled="false"
+                                          aria-label="test"
+                                          id
+                                          type="checkbox"
+                                          value="true">
+                              </div>
+                         </div>
+                         <label class="v-label v-label--clickable"
+                                for>
+                              <!---->
+                              test
+                         </label>
+                    </div>
+               </div>
+               <!---->
+               <!---->
+          </div>
+     </div>
+</div>
+`;

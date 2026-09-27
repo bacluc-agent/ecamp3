@@ -1,0 +1,36 @@
+App\Entity\ScheduleEntry:
+  scheduleEntry1period1camp1:
+    period: '@period1'
+    activity: '@activity2'
+    startOffset: 600
+    endOffset: 660
+  scheduleEntry1period1camp2:
+    period: '@period1camp2'
+    activity: '@activity1camp2'
+    startOffset: 540
+    endOffset: 600
+  scheduleEntry1period1campUnrelated:
+    period: '@period1campUnrelated'
+    activity: '@activity1campUnrelated'
+    startOffset: 600
+    endOffset: 660
+  scheduleEntry1period1campPrototype:
+    period: '@period1campPrototype'
+    activity: '@activity1campPrototype'
+    startOffset: 660
+    endOffset: 720
+  scheduleEntry2period1campPrototype:
+    period: '@period1campPrototype'
+    activity: '@activity1campPrototype'
+    startOffset: 720
+    endOffset: 780
+  scheduleEntry1period1campShared:
+    period: '@period1campShared'
+    activity: '@activity1campShared'
+    startOffset: 660
+    endOffset: 720
+  scheduleEntry2period1campShared:
+    period: '@period1campShared'
+    activity: '@activity1campShared'
+    startOffset: 720
+    endOffset: 780

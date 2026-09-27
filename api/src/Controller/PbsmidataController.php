@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Controller;
+
+use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Attribute\Route;
+
+class PbsmidataController extends AbstractController {
+    public function __construct(private readonly ClientRegistry $clientRegistry) {}
+
+    /**
+     * Link to this controller to start the "connect" process.
+     */
+    #[Route('/auth/pbsmidata', name: 'connect_pbsmidata_start')]
+    public function connect(Request $request) {
+        return $this->clientRegistry
+            ->getClient('pbsmidata') // key used in config/packages/knpu_oauth2_client.yaml
+            ->redirect([], ['additionalData' => ['callback' => $request->query->get('callback')]])
+        ;
+    }
+
+    /**
+     * After going to Hitobito, you're redirected back here
+     * because this is the "redirect_route" you configured
+     * in config/packages/knpu_oauth2_client.yaml.
+     */
+    #[Route('/auth/pbsmidata/callback', name: 'connect_pbsmidata_check')]
+    public function connectCheck() {
+        // ** if you want to *authenticate* the user, then
+        // leave this method blank and create a custom authenticator
+    }
+}

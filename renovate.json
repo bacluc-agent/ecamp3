@@ -1,0 +1,206 @@
+{
+  "extends": [
+    "mergeConfidence:all-badges",
+    "config:recommended",
+    ":prConcurrentLimitNone",
+    ":prHourlyLimitNone"
+  ],
+  "ignorePresets": ["group:apiPlatform"],
+  "constraints": {
+    "node": "24.21.0",
+    "php": "8.5.9"
+  },
+  "automergeType": "branch",
+  "rebaseWhen": "conflicted",
+  "minimumReleaseAge": "7 days",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["on wednesday and thursday"]
+  },
+  "vulnerabilityAlerts": {
+    "automerge": true
+  },
+  "labels": ["renovate"],
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch", "pin", "lockFileMaintenance"],
+      "automerge": true
+    },
+    {
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "rebaseWhen": "behind-base"
+    },
+    {
+      "groupName": "api-platform packages",
+      "groupSlug": "api-platform",
+      "matchDatasources": ["packagist"],
+      "matchPackageNames": [
+        "api-platform/*",
+        "!api-platform/admin-meta",
+        "!api-platform/admin-pack",
+        "!api-platform/api-pack",
+        "!api-platform/api-platform",
+        "!api-platform/hydra",
+        "!api-platform/json-schema",
+        "!api-platform/metadata",
+        "!api-platform/openapi",
+        "!api-platform/parameter-validator",
+        "!api-platform/postman-collection-generator",
+        "!api-platform/schema-generator"
+      ]
+    },
+    {
+      "matchFileNames": ["frontend-old/package.json"],
+      "enabled": false
+    },
+    {
+      "matchDepNames": ["php", "dunglas/frankenphp"],
+      "automerge": false,
+      "groupName": "php"
+    },
+    {
+      "groupName": "tiptap",
+      "matchPackageNames": ["/^@tiptap//"]
+    },
+    {
+      "description": "@react-pdf/font depends on an exact pdfkit version",
+      "groupName": "react-pdf",
+      "matchPackageNames": ["@react-pdf/**", "pdfkit"]
+    },
+    {
+      "matchDepNames": [
+        "browserless/chromium",
+        "caddy",
+        "krakjoe/apcu",
+        "mailhog/mailhog",
+        "phpmyadmin/phpmyadmin",
+        "postgres",
+        "python",
+        "renovate/renovate",
+        "qoomon/docker-host"
+      ],
+      "groupName": "docker-images",
+      "schedule": ["after 10pm on sunday", "before 7am on monday"]
+    },
+    {
+      "matchDepNames": ["browserless/chromium"],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<compatibility>\\w+)-(?<build>\\d+)\\.(\\d+)\\.(\\d+)?$"
+    },
+    {
+      "matchDepNames": ["dunglas/frankenphp"],
+      "versioning": "regex:^(?<build>\\d+)\\.(?<revision>\\d+)-(?<compatibility>\\w+)(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)?$"
+    },
+    {
+      "matchDepNames": ["postgres"],
+      "allowedVersions": "18-alpine"
+    },
+    {
+      "groupName": "playwright",
+      "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"]
+    },
+    {
+      "matchPackageNames": ["mcr.microsoft.com/playwright"],
+      "minimumReleaseAge": "0 days"
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^api/phpunit.xml.dist$/"],
+      "matchStrings": [
+        "<server name=\"SYMFONY_PHPUNIT_VERSION\" value=\"(?<currentValue>[^\"]+)\" />"
+      ],
+      "depNameTemplate": "phpunit/phpunit",
+      "datasourceTemplate": "packagist"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^api/Dockerfile$/"],
+      "matchStrings": [
+        "datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\s(ENV|ARG) .*?_VERSION=(?<currentValue>.*)\\s"
+      ],
+      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^.helm/ecamp3/values.ya?ml/", "/^.ops/.*/values.ya?ml/"],
+      "matchStrings": [
+        "datasource=(?<datasource>.*?) depName=(?<depName>.*?)?\\s.*tag: \"(?<currentValue>.*)\"\\s"
+      ]
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/.+\\.ya?ml$/"],
+      "matchStrings": [
+        "datasource=(?<datasource>.*?) depName=(?<depName>.*?)?\\s.*_VERSION: \"?(?<currentValue>.*)\"?\\s"
+      ]
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^.github/workflows/.+\\.ya?ml$/"],
+      "matchStrings": ["php-version: '(?<currentValue>[0-9.]+)'"],
+      "depNameTemplate": "php",
+      "packageNameTemplate": "php/php-src",
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?<prerelease>\\w+)?$",
+      "extractVersionTemplate": "^php-(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^renovate.json$/"],
+      "matchStrings": ["\"php\": \"(?<currentValue>[^\"]+).*\".*"],
+      "depNameTemplate": "php",
+      "packageNameTemplate": "php/php-src",
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?<prerelease>\\w+)?$",
+      "extractVersionTemplate": "^php-(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^.github/workflows/.+\\.ya?ml$/"],
+      "matchStrings": ["tools: composer:(?<currentValue>[0-9.]+)"],
+      "depNameTemplate": "composer",
+      "packageNameTemplate": "composer/composer",
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(-(?<prerelease>\\w+))?$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^.github/workflows/.+\\.ya?ml$/"],
+      "matchStrings": ["node-version: '(?<currentValue>[^']+)'.*"],
+      "depNameTemplate": "node",
+      "packageNameTemplate": "nodejs/node",
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+).*?$",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/.nvmrc/"],
+      "matchStrings": ["(?<currentValue>[^'\n]+).*"],
+      "depNameTemplate": "node",
+      "packageNameTemplate": "nodejs/node",
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+).*?$",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^renovate.json$/"],
+      "matchStrings": ["\"node\": \"(?<currentValue>[^\"]+).*\".*"],
+      "depNameTemplate": "node",
+      "packageNameTemplate": "nodejs/node",
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+).*?$",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^.github/workflows/.+\\.ya?ml$/"],
+      "matchStrings": [
+        "image:\\s+'(?<depName>.*):(?<currentValue>.*)@(?<currentDigest>.*)'\\s"
+      ],
+      "datasourceTemplate": "docker"
+    }
+  ]
+}

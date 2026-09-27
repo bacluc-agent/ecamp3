@@ -1,0 +1,156 @@
+name: '[reusable only] e2e tests run'
+
+on:
+  workflow_call:
+    inputs:
+      run-identifier:
+        required: false
+        type: string
+      grep-filter:
+        required: false
+        type: string
+        default: ''
+        description: 'Playwright --grep filter, e.g. "@mature". Empty means run all tests.'
+
+jobs:
+  e2e-tests-run:
+    name: 'Tests: End-to-end'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DB_CPU_LIMIT: 4
+    strategy:
+      fail-fast: false
+      matrix:
+        browser:
+          - chromium
+          - firefox
+          - webkit
+          - behavior-tests
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - run: cp .env.ci .env
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Restore tmp folder
+        uses: actions/download-artifact@v8
+        with:
+          name: e2e-tests-images
+          path: /tmp
+
+      - name: Load images
+        run: |
+          docker load --input /tmp/ecamp3-dev-api.tar
+          docker image ls -a --digests
+
+      - name: Restore cache volumes (npm, composer)
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: .cache
+          key: docker-compose-${{ hashFiles('frontend/package-lock.json', 'print/package-lock.json', 'api/composer.lock') }}-${{ matrix.browser }}
+          restore-keys: |
+            docker-compose-
+
+      - run: |
+          jwt_passphrase=${JWT_PASSPHRASE:-$(grep ''^JWT_PASSPHRASE='' .env | cut -f 2 -d ''='')}
+          echo "Generating public / private keys for JWT"
+          mkdir -p config/jwt
+          echo "$jwt_passphrase" | openssl genpkey -out config/jwt/private.pem -pass stdin -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096
+          echo "$jwt_passphrase" | openssl pkey -in config/jwt/private.pem -passin stdin -out config/jwt/public.pem -pubout
+          setfacl -R -m u:www-data:rX -m u:"$(whoami)":rwX config/jwt
+          setfacl -dR -m u:www-data:rX -m u:"$(whoami)":rwX config/jwt
+        working-directory: api
+
+      - run: docker compose up --wait -d database
+
+      - run: docker compose -f docker-compose.yml run --rm api migrate-database
+
+      # start necessary containers
+      - run: docker compose -f docker-compose.yml up -d api frontend print browserless database docker-host http-cache http-cache-logs mail pg-admin reverse-proxy
+
+      # pull playwright while container are starting up
+      - run: docker compose pull e2e
+
+      - run: docker compose run --entrypoint="npm ci" --rm e2e
+
+      - run: sh -x wait-for-container-startup.sh
+
+      - run: >
+          docker compose --profile e2e run
+          -e CI=true
+          -e PLAYWRIGHT_BLOB_OUTPUT_NAME=report-${{ matrix.browser }}${{ inputs.run-identifier != '' && format('-{0}', inputs.run-identifier) || '' }}.zip
+          --rm e2e npx playwright test --project ${{ matrix.browser }}
+          ${{ inputs.grep-filter != '' && format('--grep "{0}"', inputs.grep-filter) || '' }}
+
+      - run: sudo chown -R $USER e2e
+        if: always()
+
+      # store screenshots and videos on GitHub as artifacts, for downloading and debugging in case of problems
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: blob-report${{ inputs.run-identifier != '' && format('-{0}', inputs.run-identifier) || '' }}-${{ matrix.browser }}
+          path: e2e/blob-report/
+          retention-days: 1
+
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: traces-${{ matrix.browser }}${{ inputs.run-identifier != null && format('-{0}', inputs.run-identifier) }}
+          path: e2e/test-results
+
+      # print running containers
+      - run: docker ps -a
+        if: always()
+
+      # print docker container logs (good for debugging; can be disabled again later on)
+      - run: docker compose logs --tail="all"
+        if: always()
+
+  e2e-tests-merge-reports:
+    name: 'Tests: Merge e2e reports'
+    if: ${{ !cancelled() }}
+    needs: [e2e-tests-run]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24.21.0'
+
+      - name: Install dependencies
+        working-directory: e2e
+        run: npm ci
+
+      - name: Download blob reports from GitHub Actions Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: e2e/all-blob-reports
+          pattern: blob-report${{ inputs.run-identifier != '' && format('-{0}', inputs.run-identifier) || '' }}-*
+          merge-multiple: true
+
+      - run: mkdir -p e2e/all-blob-reports
+
+      - name: Inspect the folder
+        run: ls -la e2e/all-blob-reports
+
+      - name: Merge into HTML Report
+        working-directory: e2e
+        run: npx playwright merge-reports --reporter html ./all-blob-reports
+
+      - name:
+        uses: geekyeggo/delete-artifact@v6
+        with:
+          name: blob-report${{ inputs.run-identifier != '' && format('-{0}', inputs.run-identifier) || '' }}-*
+          failOnError: false
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report${{ inputs.run-identifier != '' && format('-{0}', inputs.run-identifier) || '' }}
+          path: e2e/playwright-report
+          retention-days: 30

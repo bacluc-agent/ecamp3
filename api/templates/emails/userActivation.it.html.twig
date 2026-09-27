@@ -1,0 +1,20 @@
+{% set preheader = 'Benvenuto su eCamp v3' %}
+{% extends 'emails/baseLayout.twig' %}
+
+{% block content %}
+    <h1>Benvenuto su eCamp v3</h1>
+    <p>Ciao {{ name }},</p>
+    <p>
+        La tua registrazione su eCamp è stata appena ricevuta. <br />
+        Conferma il tuo indirizzo e-mail facendo clic sul link sottostante:
+    </p>
+
+    {% with { title: 'Conferma', url: url } %}
+        {% include 'emails/button.twig' %}
+    {% endwith %}
+
+    <p>
+        Cordiali saluti,<br />
+        il team di eCamp
+    </p>
+{% endblock %}

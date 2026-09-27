@@ -1,0 +1,13 @@
+{
+  "global": {
+    "margin": {
+      "pageCounter": {
+        "of": "von",
+        "page": "Seite"
+      }
+    },
+    "page": {
+      "counter": "Seite ${index} von ${total}"
+    }
+  }
+}

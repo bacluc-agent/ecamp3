@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Tests\Api\ContentNodes\SingleText;
+
+use App\Entity\ContentNode\SingleText;
+use App\Tests\Api\ContentNodes\ReadContentNodeTestCase;
+
+/**
+ * @internal
+ */
+class ReadSingleTextTest extends ReadContentNodeTestCase {
+    #[\Override]
+    public function setUp(): void {
+        parent::setUp();
+
+        $this->endpoint = '/content_node/single_texts';
+        $this->defaultEntity = static::getFixture('singleText1');
+        $this->campPrototypeEntity = static::getFixture('singleTextCampPrototype');
+        $this->sharedCampEntity = static::getFixture('singleTextCampShared');
+    }
+
+    public function testGetSingleText() {
+        // given
+        /** @var SingleText $contentNode */
+        $contentNode = $this->defaultEntity;
+
+        // when
+        $this->get($contentNode);
+
+        // then
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains(['data' => $contentNode->data]);
+    }
+}

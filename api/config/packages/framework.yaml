@@ -1,0 +1,26 @@
+# see https://symfony.com/doc/current/reference/configuration/framework.html
+framework:
+    secret: '%env(APP_SECRET)%'
+    #csrf_protection: true
+    trusted_proxies: '%env(TRUSTED_PROXIES)%'
+    trusted_hosts:
+        - localhost
+        - '%env(ADDITIONAL_TRUSTED_HOSTS)%'
+    # See https://caddyserver.com/docs/caddyfile/directives/reverse_proxy#headers
+    trusted_headers:
+        - 'x-forwarded-for'
+        - 'x-forwarded-host'
+        - 'x-forwarded-prefix'
+        - 'x-forwarded-proto'
+
+    disallow_search_engine_index: true
+
+    #esi: true
+    #fragments: true
+
+    property_info:
+        with_constructor_extractor: false
+
+when@test:
+    framework:
+        test: true

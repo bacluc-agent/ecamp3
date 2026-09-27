@@ -1,0 +1,24 @@
+{% set preheader = 'Abbiamo ricevuto una richiesta di modifica del tuo indirizzo e-mail su eCamp.' %}
+{% extends 'emails/baseLayout.twig' %}
+
+{% block content %}
+    <h1>Modifica del tuo indirizzo e-mail</h1>
+    <p>Ciao {{ name }},</p>
+    <p>
+        Abbiamo ricevuto una richiesta di modifica del tuo indirizzo e-mail su eCamp.<br/>
+        Se sei stato tu, conferma il tuo nuovo indirizzo e-mail facendo clic sul link sottostante.
+    </p>
+    <p>
+        <strong>Vecchio indirizzo e-mail :</strong>  {{ oldMail }}<br />
+        <strong>Nuovo indirizzo e-mail :</strong> {{ newMail }} 
+    </p>
+    
+    {% with { title: 'Conferma', url: url } %}
+        {% include 'emails/button.twig' %}
+    {% endwith %}
+
+    <p>
+        Cordiali saluti,<br />
+        il team di eCamp
+    </p>
+{% endblock %}

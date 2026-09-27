@@ -1,0 +1,25 @@
+App\Entity\ContentNode\SingleText:
+  singleTextCampUnrelated:
+    root: '@columnLayout1campUnrelated'
+    parent: '@columnLayout1campUnrelated'
+    slot: '1'
+    position: 1
+    instanceName: <word()>
+    contentType: '@contentTypeNotes'
+    data: { html: <word()> }
+  singleTextCampPrototype:
+    root: '@columnLayout1campPrototype'
+    parent: '@columnLayout1campPrototype'
+    slot: '1'
+    position: 1
+    instanceName: <word()>
+    contentType: '@contentTypeNotes'
+    data: { html: <word()> }
+  singleTextCampShared:
+    root: '@columnLayout1campShared'
+    parent: '@columnLayout1campShared'
+    slot: '1'
+    position: 1
+    instanceName: <word()>
+    contentType: '@contentTypeNotes'
+    data: { html: <word()> }

@@ -1,0 +1,78 @@
+App\Entity\Camp:
+  camp1:
+    shortTitle: Camp1
+    title: <word()>
+    motto: <sentence()>
+    addressName: <word()>
+    addressStreet: <address()>
+    addressZipcode: <postcode()>
+    addressCity: <city()>
+    owner: '@user1manager'
+    creator: '@user2member'
+    isPrototype: false
+    isShared: false
+    sharedBy: null
+    sharedSince: null
+    campPrototypeId: null
+  camp2:
+    shortTitle: Camp2
+    title: <word()>
+    motto: <sentence()>
+    addressName: <word()>
+    addressStreet: <address()>
+    addressZipcode: <postcode()>
+    addressCity: <city()>
+    owner: '@admin'
+    creator: '@user4unrelated'
+    isPrototype: false
+    isShared: false
+    sharedBy: null
+    sharedSince: null
+    campPrototypeId: null
+  campUnrelated:
+    shortTitle: CampUnrelated
+    title: <word()>
+    motto: <sentence()>
+    addressName: <word()>
+    addressStreet: <address()>
+    addressZipcode: <postcode()>
+    addressCity: <city()>
+    owner: '@admin'
+    creator: '@admin'
+    isPrototype: false
+    isShared: false
+    sharedBy: null
+    sharedSince: null
+    campPrototypeId: null
+  campPrototype:
+    shortTitle: CampPrototype
+    title: <word()>
+    motto: <sentence()>
+    addressName: <word()>
+    addressStreet: <address()>
+    addressZipcode: <postcode()>
+    addressCity: <city()>
+    owner: '@admin'
+    creator: '@admin'
+    isPublic: true
+    isPrototype: true
+    isShared: false
+    sharedBy: null
+    sharedSince: null
+    campPrototypeId: null
+  campShared:
+    shortTitle: CampPrototype
+    title: <word()>
+    motto: <sentence()>
+    addressName: <word()>
+    addressStreet: <address()>
+    addressZipcode: <postcode()>
+    addressCity: <city()>
+    owner: '@admin'
+    creator: '@admin'
+    isPublic: true
+    isPrototype: false
+    isShared: true
+    sharedBy: '@admin'
+    sharedSince: '<(new DateTime("2025-09-03 12:00:00"))>'
+    campPrototypeId: null

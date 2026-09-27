@@ -1,0 +1,103 @@
+App\Entity\CampCollaboration:
+  campCollaboration1manager:
+    user: '@user1manager'
+    camp: '@camp1'
+    status: established
+    role: manager
+  campCollaboration2member:
+    user: '@user2member'
+    camp: '@camp1'
+    status: established
+    role: member
+    abbreviation: '🧑🏽‍🚀'
+    color: '#11a1e1'
+  campCollaboration3guest:
+    user: '@user3guest'
+    camp: '@camp1'
+    status: established
+    role: guest
+  campCollaboration4invited:
+    camp: '@camp1'
+    inviteKey: 'myInviteKey'
+    inviteKeyHash: 'sl3hC12VkIUzT89mMggYyoMmFuo='
+    inviteEmail: 'e.mail@test.com'
+    status: invited
+    role: member
+  campCollaboration5inactive:
+    user: '@user5inactive'
+    camp: '@camp1'
+    status: inactive
+    role: manager
+  campCollaboration6manager:
+    user: '@user7manager'
+    camp: '@camp1'
+    status: established
+    role: manager
+  campCollaboration1camp2manager:
+    user: '@user1manager'
+    camp: '@camp2'
+    status: established
+    role: manager
+  campCollaboration2camp2member:
+    user: '@user2member'
+    camp: '@camp2'
+    status: established
+    role: member
+  campCollaboration3camp2guest:
+    user: '@user3guest'
+    camp: '@camp2'
+    status: established
+    role: guest
+  campCollaboration4camp2member:
+    user: '@user8memberOnlyInCamp2'
+    camp: '@camp2'
+    status: established
+    role: member
+  campCollaboration2invitedCampUnrelated:
+    camp: '@campUnrelated'
+    inviteKey: 'myInviteKey2'
+    inviteKeyHash: 'oNp2IShH2P5DIgvcdBZOwCqExZ0='
+    inviteEmail: 'e.mail2@test.com'
+    status: invited
+    role: member
+  campCollaboration1campUnrelated:
+    user: '@user4unrelated'
+    camp: '@campUnrelated'
+    status: established
+    role: manager
+  campCollaboration6invitedWithUser:
+    user: '@user6invited'
+    camp: '@camp2'
+    inviteKey: 'myInviteKeyCamp2'
+    inviteKeyHash: 'ufVn1nkIodzMXLPB/ZI4JwNwSRg='
+    status: invited
+    role: member
+  campCollaboration1campPrototype:
+    user: '@admin'
+    camp: '@campPrototype'
+    status: established
+    role: manager
+  campCollaboration1campShared:
+    user: '@user4unrelated'
+    camp: '@campShared'
+    status: established
+    role: manager
+  campCollaboration2invitedCampShared:
+    user: '@user6invited'
+    camp: '@campShared'
+    inviteKey: 'myInviteKeyCampShared'
+    inviteKeyHash: 'sl3hC12VkIUzT89mMggYyoMmFup='
+    status: invited
+    role: manager
+  campCollaboration3inactiveCampShared:
+    user: '@user5inactive'
+    camp: '@campShared'
+    status: inactive
+    role: manager
+  campCollaboration4invitedCampShared:
+    camp: '@campShared'
+    inviteKey: 'myInviteKeyCampShared'
+    inviteKeyHash: 'sl3hC12VkIUzT89mMggYyoMmFuq='
+    inviteEmail: 'e.mail@test.com'
+    status: invited
+    role: manager

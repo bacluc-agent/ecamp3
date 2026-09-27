@@ -1,0 +1,94 @@
+<?php
+
+namespace App\Entity;
+
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Post;
+use App\Repository\DayResponsibleRepository;
+use App\Validator\AssertBelongsToSameCamp;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/**
+ * A person that has some whole-day responsibility on a day in the camp.
+ */
+#[ApiResource(
+    operations: [
+        new Get(
+            security: 'is_granted("CAMP_COLLABORATOR", object) or
+                       is_granted("CAMP_IS_PUBLIC", object)'
+        ),
+        new Delete(
+            security: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object)'
+        ),
+        new GetCollection(
+            security: 'is_authenticated()',
+            extraProperties: [
+                'scoping_filters' => ['day', 'day.period'],
+            ]
+        ),
+        new GetCollection(
+            uriTemplate: self::DAY_SUBRESOURCE_URI_TEMPLATE,
+            uriVariables: [
+                'dayId' => new Link(
+                    toProperty: 'day',
+                    fromClass: Day::class,
+                    security: 'is_granted("CAMP_COLLABORATOR", day) or
+                               is_granted("CAMP_IS_PUBLIC", day)'
+                ),
+            ],
+            extraProperties: [
+                'filter_by_current_user' => false,
+            ]
+        ),
+        new Post(
+            securityPostDenormalize: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object) or object.day === null'
+        ),
+    ],
+    normalizationContext: ['groups' => ['read']],
+    denormalizationContext: ['groups' => ['write']],
+)]
+#[ApiFilter(filterClass: SearchFilter::class, properties: ['day', 'day.period'])]
+#[UniqueEntity(
+    fields: ['campCollaboration', 'day'],
+    message: 'This campCollaboration (user) is already responsible for this day.',
+)]
+#[ORM\Entity(repositoryClass: DayResponsibleRepository::class)]
+#[ORM\UniqueConstraint(name: 'day_campCollaboration_unique', columns: ['dayId', 'campCollaborationId'])]
+class DayResponsible extends BaseEntity implements BelongsToCampInterface {
+    public const DAY_SUBRESOURCE_URI_TEMPLATE = '/days/{dayId}/day_responsibles{._format}';
+
+    /**
+     * The day on which the person is responsible.
+     */
+    #[Assert\NotNull]
+    #[ApiProperty(example: '/days/1a2b3c4d')]
+    #[Groups(['read', 'write'])]
+    #[ORM\ManyToOne(targetEntity: Day::class, inversedBy: 'dayResponsibles')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'cascade')]
+    public ?Day $day = null;
+
+    /**
+     * The person that is responsible. Must belong to the same camp as the day's period.
+     */
+    #[AssertBelongsToSameCamp]
+    #[ApiProperty(example: '/camp_collaborations/1a2b3c4d')]
+    #[Groups(['read', 'write'])]
+    #[ORM\ManyToOne(targetEntity: CampCollaboration::class, inversedBy: 'dayResponsibles')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'cascade')]
+    public ?CampCollaboration $campCollaboration = null;
+
+    #[ApiProperty(readable: false)]
+    public function getCamp(): ?Camp {
+        return $this->day?->getCamp();
+    }
+}

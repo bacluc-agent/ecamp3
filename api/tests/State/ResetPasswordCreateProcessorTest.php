@@ -1,0 +1,123 @@
+<?php
+
+namespace App\Tests\State;
+
+use ApiPlatform\Metadata\Post;
+use App\DTO\ResetPassword;
+use App\Entity\User;
+use App\Repository\UserRepository;
+use App\Security\ReCaptcha\ReCaptchaWrapper;
+use App\Service\MailService;
+use App\State\ResetPasswordCreateProcessor;
+use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use ReCaptcha\Response;
+use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactory;
+use Symfony\Component\PasswordHasher\PasswordHasherInterface;
+
+/**
+ * @internal
+ */
+class ResetPasswordCreateProcessorTest extends TestCase {
+    public const EMAIL = 'a@b.com';
+    public const EMAILBASE64 = 'YUBiLmNvbQ==';
+
+    private ResetPassword $resetPassword;
+    private MockObject|Response $recaptchaResponse;
+    private MockObject|UserRepository $userRepository;
+    private MockObject|PasswordHasherInterface $pwHasher;
+    private MailService|MockObject $mailService;
+    private ResetPasswordCreateProcessor $processor;
+
+    /**
+     * @throws \ReflectionException
+     */
+    protected function setUp(): void {
+        $this->resetPassword = new ResetPassword();
+
+        $this->recaptchaResponse = $this->createMock(Response::class);
+        $recaptcha = $this->createMock(ReCaptchaWrapper::class);
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+        $this->userRepository = $this->createMock(UserRepository::class);
+        $pwHasherFactory = $this->createMock(PasswordHasherFactory::class);
+        $this->pwHasher = $this->createMock(PasswordHasherInterface::class);
+        $this->mailService = $this->createMock(MailService::class);
+
+        $recaptcha->method('verify')->willReturn($this->recaptchaResponse);
+        $pwHasherFactory->method('getPasswordHasher')->willReturn($this->pwHasher);
+
+        $this->processor = new ResetPasswordCreateProcessor(
+            $recaptcha,
+            $entityManager,
+            $this->userRepository,
+            $pwHasherFactory,
+            $this->mailService
+        );
+    }
+
+    #[AllowMockObjectsWithoutExpectations]
+    public function testCreateRequiresReCaptcha() {
+        $this->recaptchaResponse->expects(self::once())
+            ->method('isSuccess')
+            ->willReturn(false)
+        ;
+        $this->resetPassword->recaptchaToken = 'token';
+
+        $this->expectException(\Exception::class);
+        $this->processor->process($this->resetPassword, new Post());
+    }
+
+    #[AllowMockObjectsWithoutExpectations]
+    public function testCreateWithUnknownEmailDoesNotCreateResetKey() {
+        $this->recaptchaResponse->expects(self::once())
+            ->method('isSuccess')
+            ->willReturn(true)
+        ;
+        $this->userRepository->expects(self::once())
+            ->method('loadUserByIdentifier')
+            ->willReturn(null)
+        ;
+        $this->mailService->expects(self::never())
+            ->method('sendPasswordResetLink')
+        ;
+
+        $this->resetPassword->recaptchaToken = 'token';
+        $this->resetPassword->email = self::EMAIL;
+
+        $data = $this->processor->process($this->resetPassword, new Post());
+
+        self::assertThat($data, self::isNull());
+    }
+
+    #[AllowMockObjectsWithoutExpectations]
+    public function testCreateWithKnowneMailCreatesResetKey() {
+        $this->recaptchaResponse->expects(self::once())
+            ->method('isSuccess')
+            ->willReturn(true)
+        ;
+        $user = new User();
+        $this->userRepository->expects(self::once())
+            ->method('loadUserByIdentifier')
+            ->with(self::EMAIL)
+            ->willReturn($user)
+        ;
+
+        $this->pwHasher->expects(self::once())
+            ->method('hash')
+            ->willReturnCallback(md5(...))
+        ;
+
+        $this->mailService->expects(self::once())
+            ->method('sendPasswordResetLink')
+            ->with($user, $this->resetPassword)
+        ;
+
+        $this->resetPassword->recaptchaToken = 'token';
+        $this->resetPassword->email = self::EMAIL;
+        $data = $this->processor->process($this->resetPassword, new Post());
+
+        self::assertThat($data, self::isNull());
+    }
+}

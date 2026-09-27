@@ -1,0 +1,45 @@
+App\Entity\User:
+  user1manager:
+    profile: '@profile1manager'
+    state: activated
+    password: '\$argon2id\$v=19\$m=65536,t=4,p=1\$/RC8YWMDDXR19wB4or6bBA\$Kq5haK2SACQgo4CB7eDUibsD3QXCE32w25ZwhKg1SGw' # test
+  user2member:
+    profile: '@profile2member'
+    state: activated
+    password: '\$argon2id\$v=19\$m=65536,t=4,p=1\$/RC8YWMDDXR19wB4or6bBA\$Kq5haK2SACQgo4CB7eDUibsD3QXCE32w25ZwhKg1SGw' # test
+  user3guest:
+    profile: '@profile3guest'
+    state: activated
+    password: '\$argon2id\$v=19\$m=65536,t=4,p=1\$/RC8YWMDDXR19wB4or6bBA\$Kq5haK2SACQgo4CB7eDUibsD3QXCE32w25ZwhKg1SGw' # test
+  user4unrelated:
+    profile: '@profile4unrelated'
+    state: activated
+    password: '\$argon2id\$v=19\$m=65536,t=4,p=1\$/RC8YWMDDXR19wB4or6bBA\$Kq5haK2SACQgo4CB7eDUibsD3QXCE32w25ZwhKg1SGw' # test
+  user5inactive:
+    profile: '@profile5inactive'
+    state: activated
+    password: '\$argon2id\$v=19\$m=65536,t=4,p=1\$/RC8YWMDDXR19wB4or6bBA\$Kq5haK2SACQgo4CB7eDUibsD3QXCE32w25ZwhKg1SGw' # test
+  user6invited:
+    profile: '@profile6invited'
+    state: activated
+    password: '\$argon2id\$v=19\$m=65536,t=4,p=1\$/RC8YWMDDXR19wB4or6bBA\$Kq5haK2SACQgo4CB7eDUibsD3QXCE32w25ZwhKg1SGw' # test
+  user7manager:
+    profile: '@profile7manager'
+    state: activated
+    password: '\$argon2id\$v=19\$m=65536,t=4,p=1\$/RC8YWMDDXR19wB4or6bBA\$Kq5haK2SACQgo4CB7eDUibsD3QXCE32w25ZwhKg1SGw' # test
+  user8memberOnlyInCamp2:
+    profile: '@profile8memberOnlyInCamp2'
+    state: activated
+    password: '\$argon2id\$v=19\$m=65536,t=4,p=1\$/RC8YWMDDXR19wB4or6bBA\$Kq5haK2SACQgo4CB7eDUibsD3QXCE32w25ZwhKg1SGw' # test
+  admin:
+    profile: '@profileAdmin'
+    state: activated
+    password: '\$argon2id\$v=19\$m=65536,t=4,p=1\$/RC8YWMDDXR19wB4or6bBA\$Kq5haK2SACQgo4CB7eDUibsD3QXCE32w25ZwhKg1SGw' # test
+  userWithoutCampCollaborations:
+    profile: '@profileWithoutCampCollaborations'
+    state: activated
+    password: '\$argon2id\$v=19\$m=65536,t=4,p=1\$/RC8YWMDDXR19wB4or6bBA\$Kq5haK2SACQgo4CB7eDUibsD3QXCE32w25ZwhKg1SGw' # test
+  userWithStateDeleted:
+    profile: '@profileWithStateDeleted'
+    state: deleted
+    password: '\$argon2id\$v=19\$m=65536,t=4,p=1\$/RC8YWMDDXR19wB4or6bBA\$Kq5haK2SACQgo4CB7eDUibsD3QXCE32w25ZwhKg1SGw' # test

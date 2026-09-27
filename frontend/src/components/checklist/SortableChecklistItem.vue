@@ -1,0 +1,111 @@
+<template>
+  <div class="e-sortable-checklist-item" @dragstart="startDragging">
+    <v-list-item v-if="disabled" class="px-2 rounded min-h-0 py-1">
+      <template #prepend>
+        <v-avatar color="rgba(0,0,0,0.12)" size="32">{{ itemPosition + 1 }}</v-avatar>
+      </template>
+      <v-list-item-title :class="{ 'font-weight-bold': item?.parent == null }">{{
+        item.text
+      }}</v-list-item-title>
+    </v-list-item>
+    <ChecklistItemEdit v-else :checklist="checklist" :checklist-item="item">
+      <template #activator="{ props }">
+        <v-list-item
+          class="px-2 rounded min-h-0 py-1 drag-and-drop-handle"
+          v-bind="props"
+        >
+          <template #prepend>
+            <v-btn variant="plain" icon size="32" class="my-n1 pointer-events-none">
+              <v-icon size="24">mdi-drag</v-icon>
+            </v-btn>
+            <v-avatar color="rgba(0,0,0,0.12)" size="32">{{ itemPosition + 1 }}</v-avatar>
+          </template>
+          <v-list-item-title :class="{ 'font-weight-bold': item?.parent == null }">{{
+            item.text
+          }}</v-list-item-title>
+          <ButtonEdit
+            color="primary--text"
+            dense
+            text
+            class="e-sortable-checklist-item__edit my-n1"
+          />
+        </v-list-item>
+      </template>
+    </ChecklistItemEdit>
+    <SortableChecklist
+      class="ml-8"
+      :checklist="checklist"
+      :parent="item"
+      :disabled="disabled"
+      @drag-start="$emit('dragStart')"
+      @drag-end="$emit('dragEnd')"
+    />
+  </div>
+</template>
+
+<script>
+import ChecklistItemEdit from '@/components/checklist/ChecklistItemEdit.vue'
+import ButtonEdit from '@/components/buttons/ButtonEdit.vue'
+
+export default {
+  name: 'SortableChecklistItem',
+  components: {
+    ButtonEdit,
+    ChecklistItemEdit,
+    SortableChecklist: () => import('@/components/checklist/SortableChecklist.vue'),
+  },
+  props: {
+    itemPosition: { type: Number, required: true },
+    item: { type: Object, required: true },
+    checklist: { type: Object, required: true },
+    disabled: { type: Boolean, default: false },
+  },
+  emits: ['dragStart', 'dragEnd'],
+  data() {
+    return {
+      hover: false,
+    }
+  },
+  methods: {
+    startDragging(event) {
+      event.target.classList.add('e-sortable-checklist-item--drag-preview')
+
+      requestAnimationFrame(() => {
+        event.target.classList.remove('e-sortable-checklist-item--drag-preview')
+      })
+    },
+  },
+}
+</script>
+
+<style scoped>
+.e-sortable-checklist-item--drag-preview {
+  background: white;
+  border-radius: 4px;
+}
+
+.drag-and-drop-handle {
+  --v-list-prepend-gap: 8px;
+}
+.e-sortable-checklist-item--drag-preview:deep(.e-sortable-checklist-item__add) {
+  display: none;
+}
+.e-sortable-checklist-item--drag-preview:deep(.e-checklist-dragarea) {
+  padding: 0;
+  min-height: 0;
+}
+.e-sortable-checklist-item--drag-preview .e-sortable-checklist-item__edit {
+  display: none !important;
+}
+.e-sortable-checklist-item__edit {
+  display: none;
+}
+/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
+.e-sortable-checklist-item:is(:hover, :focus-visible):not(
+    :has(.e-sortable-checklist-item:hover)
+  ):not(:has(.e-sortable-checklist-item__add:hover))
+  > .v-list-item
+  > .e-sortable-checklist-item__edit {
+  display: block;
+}
+</style>

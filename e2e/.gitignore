@@ -1,0 +1,31 @@
+.DS_Store
+node_modules
+/data
+/dist
+/core
+
+playwright-report/
+blob-report/
+test-results/
+
+
+/reports/
+selenium-debug.log
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw*
+
+# yalc
+.yalc
+yalc.lock

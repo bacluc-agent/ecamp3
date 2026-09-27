@@ -1,0 +1,373 @@
+<?php
+
+namespace App\Entity;
+
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use App\Doctrine\Filter\ExpressionDateTimeFilter;
+use App\HttpCache\CanGenerateTagsInterface;
+use App\Repository\ScheduleEntryRepository;
+use App\Util\DateTimeUtil;
+use App\Validator\AssertBelongsToSameCamp;
+use App\Validator\ScheduleEntryPostGroupSequence;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/**
+ * A calendar event in a period of the camp, at which some activity will take place. The start time
+ * is specified as an offset in minutes from the period's start time.
+ */
+#[ApiResource(
+    operations: [
+        new Get(
+            normalizationContext: self::ITEM_NORMALIZATION_CONTEXT,
+            security: 'is_granted("CAMP_COLLABORATOR", object) or
+                       is_granted("CAMP_IS_PUBLIC", object)'
+        ),
+        new Patch(
+            normalizationContext: self::ITEM_NORMALIZATION_CONTEXT,
+            security: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object)'
+        ),
+        new Delete(
+            security: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object)',
+            validationContext: ['groups' => ['delete', 'ScheduleEntry:delete']],
+            validate: true
+        ),
+        new GetCollection(
+            security: 'is_authenticated()',
+            extraProperties: [
+                'scoping_filters' => ['period', 'activity'],
+            ]
+        ),
+        new GetCollection(
+            uriTemplate: self::PERIOD_SUBRESOURCE_URI_TEMPLATE,
+            uriVariables: [
+                'periodId' => new Link(
+                    toProperty: 'period',
+                    fromClass: Period::class,
+                    security: 'is_granted("CAMP_COLLABORATOR", period) or
+                               is_granted("CAMP_IS_PUBLIC", period)'
+                ),
+            ],
+            security: 'is_fully_authenticated()',
+            extraProperties: [
+                'filter_by_current_user' => false,
+            ]
+        ),
+        new Post(
+            normalizationContext: self::ITEM_NORMALIZATION_CONTEXT,
+            denormalizationContext: ['groups' => ['write', 'create']],
+            securityPostDenormalize: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object) or object.activity === null',
+            validationContext: ['groups' => ScheduleEntryPostGroupSequence::class]
+        ),
+    ],
+    normalizationContext: ['groups' => ['read']],
+    denormalizationContext: ['groups' => ['write']],
+)]
+#[ApiFilter(filterClass: SearchFilter::class, properties: ['period', 'activity'])]
+#[ApiFilter(filterClass: ExpressionDateTimeFilter::class, properties: [
+    'start' => 'DATE_ADD({period.start}, {}.startOffset, \'minute\')',
+    'end' => 'DATE_ADD({period.start}, {}.endOffset, \'minute\')',
+])]
+#[ORM\Entity(repositoryClass: ScheduleEntryRepository::class)]
+#[ORM\Index(columns: ['startOffset'])]
+#[ORM\Index(columns: ['endOffset'])]
+class ScheduleEntry extends BaseEntity implements BelongsToCampInterface, CanGenerateTagsInterface {
+    public const PERIOD_SUBRESOURCE_URI_TEMPLATE = '/periods/{periodId}/schedule_entries{._format}';
+
+    public const ITEM_NORMALIZATION_CONTEXT = [
+        'groups' => ['read', 'ScheduleEntry:Activity'],
+        'swagger_definition_name' => 'read',
+    ];
+
+    /**
+     * The time period which this schedule entry is part of. Must belong to the same camp as the activity.
+     */
+    #[Assert\NotNull(groups: ['validPeriod'])] // this is validated before all others
+    #[AssertBelongsToSameCamp]
+    #[ApiProperty(example: '/periods/1a2b3c4d')]
+    #[Groups(['read', 'write'])]
+    #[ORM\ManyToOne(targetEntity: Period::class, fetch: 'EAGER', inversedBy: 'scheduleEntries')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'cascade')]
+    public ?Period $period = null;
+
+    /**
+     * The activity that will take place at the time defined by this schedule entry. Can not be changed
+     * once the schedule entry is created.
+     *
+     * @internal Do not set the {@see Activity} directly on the ScheduleEntry. Instead use {@see Activity::addScheduleEntry()}
+     */
+    #[Assert\Valid(groups: ['ScheduleEntry:delete'])]
+    #[ApiProperty(example: '/activities/1a2b3c4d')]
+    #[Groups(['read', 'create'])]
+    #[ORM\ManyToOne(targetEntity: Activity::class, inversedBy: 'scheduleEntries')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'cascade')]
+    public ?Activity $activity = null;
+
+    /**
+     * The offset in minutes between start of the period and start of this scheduleEntry.
+     * This property is not exposed via API (use `start` instead).
+     */
+    #[ORM\Column(type: 'integer', nullable: false)]
+    public int $startOffset = 0;
+
+    /**
+     * The offset in minutes between start of the period and end of this scheduleEntry.
+     * This property is not exposed via API (use `end` instead).
+     */
+    #[ORM\Column(type: 'integer', nullable: false)]
+    public int $endOffset = 60;
+
+    /**
+     * When rendering a period in a calendar view: Specifies how far offset the rendered calendar event
+     * should be from the left border of the day column, as a fractional amount of the width of the whole
+     * day. This is useful to arrange multiple overlapping schedule entries such that all of them are
+     * visible. Should be a decimal number between 0 and 1, and left+width should not exceed 1, but the
+     * API currently does not enforce this.
+     */
+    #[ApiProperty(example: 0.6)]
+    #[Groups(['read', 'write'])]
+    #[ORM\Column(name: '`left`', type: 'float', nullable: true)]
+    public ?float $left = 0;
+
+    /**
+     * When rendering a period in a calendar view: Specifies how wide the rendered calendar event should
+     * be, as a fractional amount of the width of the whole day. This is useful to arrange multiple
+     * overlapping schedule entries such that all of them are visible. Should be a decimal number
+     * between 0 and 1, and left+width should not exceed 1, but the API currently does not enforce this.
+     */
+    #[ApiProperty(example: 0.4)]
+    #[Groups(['read', 'write'])]
+    #[ORM\Column(type: 'float', nullable: true)]
+    public ?float $width = 1;
+
+    /**
+     * internal cache of 'start' and 'end' property during denormalization
+     * this is necessary in case period is denormalized after 'start' or 'end'.
+     */
+    private ?\DateTimeInterface $_start = null;
+    private ?\DateTimeInterface $_end = null;
+
+    #[ApiProperty(readable: false)]
+    public function getCamp(): ?Camp {
+        return $this->activity?->getCamp();
+    }
+
+    public function getPeriod(): ?Period {
+        return $this->period;
+    }
+
+    public function setPeriod(Period $period): void {
+        $this->period = $period;
+
+        // if start has been denormalized, calculate startOffset
+        if (null !== $this->_start) {
+            $this->setStart($this->_start);
+        }
+        // if end has been denormalized, calculate endOffset
+        if (null !== $this->_end) {
+            $this->setEnd($this->_end);
+        }
+    }
+
+    /**
+     * Start date and time of the schedule entry.
+     */
+    #[ApiProperty(required: true, example: '2022-01-02T00:00:00+00:00', openapiContext: ['format' => 'date-time'])]
+    #[Assert\GreaterThanOrEqual(propertyPath: 'period.start')]
+    #[Groups(['read'])]
+    public function getStart(): ?\DateTimeInterface {
+        if (null === $this->period?->start) {
+            return $this->_start;
+        }
+
+        $start = \DateTime::createFromInterface($this->period->start);
+        $start->modify("{$this->startOffset} minutes");
+
+        return $start;
+    }
+
+    #[Groups(['write'])]
+    public function setStart(\DateTimeInterface $start): void {
+        $this->_start = $start;
+
+        if (null !== $this->period?->start) {
+            $this->startOffset = DateTimeUtil::differenceInMinutes($this->period->start, $start);
+        }
+    }
+
+    /**
+     * End date and time of the schedule entry.
+     */
+    #[ApiProperty(required: true, example: '2022-01-02T01:30:00+00:00', openapiContext: ['format' => 'date-time'])]
+    #[Assert\GreaterThan(propertyPath: 'start')]
+    #[Assert\LessThanOrEqual(propertyPath: 'period.endOfLastDay')]
+    #[Groups(['read'])]
+    public function getEnd(): ?\DateTimeInterface {
+        if (null === $this->period?->start) {
+            return $this->_end;
+        }
+
+        $end = \DateTime::createFromInterface($this->period->start);
+        $end->modify("{$this->endOffset} minutes");
+
+        return $end;
+    }
+
+    #[Groups(['write'])]
+    public function setEnd(\DateTimeInterface $end): void {
+        $this->_end = $end;
+
+        if (null !== $this->period?->start) {
+            $this->endOffset = DateTimeUtil::differenceInMinutes($this->period->start, $end);
+        }
+    }
+
+    #[ApiProperty(readableLink: true)]
+    #[SerializedName('activity')]
+    #[Groups('ScheduleEntry:Activity')]
+    public function getEmbeddedActivity(): ?Activity {
+        return $this->activity;
+    }
+
+    /**
+     * The day on which this schedule entry starts.
+     */
+    #[ApiProperty(writable: false, example: '/days/1a2b3c4d')]
+    #[Groups(['read'])]
+    public function getDay(): ?Day {
+        $dayOffset = $this->getDayOffset();
+
+        $filteredDays = $this->period->days->filter(function (Day $day) use ($dayOffset) {
+            return $day->dayOffset === $dayOffset;
+        });
+
+        if ($filteredDays->isEmpty()) {
+            return null;
+        }
+
+        return $filteredDays->first();
+    }
+
+    #[ApiProperty(readable: false)]
+    public function getNumberingStyle(): ?string {
+        return $this->activity?->category?->numberingStyle;
+    }
+
+    /**
+     * The day number of the day on which this schedule entry starts.
+     */
+    #[ApiProperty(example: '1')]
+    #[Groups(['read'])]
+    public function getDayNumber(): int {
+        return $this->period->getFirstDayNumber() + $this->getDayOffset();
+    }
+
+    /**
+     * The cardinal number of this schedule entry, when chronologically ordering all
+     * schedule entries WITH THE SAME NUMBERING STYLE that start on the same day. I.e. if
+     * the schedule entry is the second entry with roman numbering on a given day, its
+     * number will be 2.
+     */
+    #[ApiProperty(example: '2')]
+    #[Groups(['read'])]
+    public function getScheduleEntryNumber(): int {
+        $dayOffsetInMinutes = $this->getDayOffset() * 24 * 60;
+
+        return 1 + $this->period->scheduleEntries->filter(function (ScheduleEntry $scheduleEntry) use ($dayOffsetInMinutes) {
+            // don't count self
+            if ($scheduleEntry->getId() === $this->getId()) {
+                return false;
+            }
+
+            // don't count scheduleEntries of previous days
+            if ($scheduleEntry->startOffset < $dayOffsetInMinutes) {
+                return false;
+            }
+
+            // don't count scheduleEntries starting later
+            if ($scheduleEntry->startOffset > $this->startOffset) {
+                return false;
+            }
+
+            // don't count scheduleEntries of different numbering styles
+            if ($scheduleEntry->getNumberingStyle() !== $this->getNumberingStyle()) {
+                return false;
+            }
+
+            // count scheduleEntries starting earlier
+            if ($scheduleEntry->startOffset < $this->startOffset) {
+                return true;
+            }
+
+            // for scheduleEntries starting at same time: count lower 'left'
+            if ($scheduleEntry->left < $this->left) {
+                return true;
+            }
+
+            if ($scheduleEntry->left === $this->left) {
+                // for scheduleEntries starting at same time & same left value: count longer entries
+                if ($scheduleEntry->endOffset > $this->endOffset) {
+                    return true;
+                }
+                if ($scheduleEntry->endOffset === $this->endOffset) {
+                    // for scheduleEntries starting at same time & same left value & same duration:
+                    // sort by createTime, so that the users have the ability to choose which one comes first
+                    if ($scheduleEntry->createTime < $this->createTime) {
+                        return true;
+                    }
+
+                    // as a last resort fallback, sort by ID
+                    if ($scheduleEntry->createTime == $this->createTime
+                        && $scheduleEntry->getId() < $this->getId()) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        })->count();
+    }
+
+    /**
+     * Uniquely identifies this schedule entry in the period. This uses the day number, followed
+     * by a period, followed by the cardinal number of the schedule entry in the numbering scheme
+     * defined by the activity's category.
+     */
+    #[ApiProperty(example: '1.b')]
+    #[Groups(['read'])]
+    public function getNumber(): string {
+        if ('-' === $this->getNumberingStyle()) {
+            return '';
+        }
+
+        $dayNumber = $this->getDayNumber();
+        $scheduleEntryNumber = $this->getScheduleEntryNumber();
+
+        $scheduleEntryStyledNumber = $this->activity?->category?->getStyledNumber($scheduleEntryNumber) ?? $scheduleEntryNumber;
+
+        return $dayNumber.'.'.$scheduleEntryStyledNumber;
+    }
+
+    public function getCacheTags(): array {
+        return [$this->getPeriod()->getId()];
+    }
+
+    /**
+     * The dayOffset within the period (zero-based)
+     * First day has an offset of zero.
+     */
+    private function getDayOffset(): int {
+        return (int) floor($this->startOffset / (24 * 60));
+    }
+}

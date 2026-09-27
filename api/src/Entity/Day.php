@@ -1,0 +1,233 @@
+<?php
+
+namespace App\Entity;
+
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
+use App\HttpCache\CanGenerateTagsInterface;
+use App\Repository\DayRepository;
+use App\Serializer\Normalizer\RelatedCollectionLink;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\SerializedName;
+
+/**
+ * A day in a time period of a camp. This is represented as a reference to the time period
+ * along with a number of days offset from the period's starting date. This is to make it
+ * easier to move the whole periods to different dates. Days are created automatically when
+ * creating or updating periods, and are not writable through the API directly.
+ */
+#[ApiResource(
+    operations: [
+        new Get(
+            normalizationContext: self::ITEM_NORMALIZATION_CONTEXT,
+            security: 'is_granted("CAMP_COLLABORATOR", object) or
+                       is_granted("CAMP_IS_PUBLIC", object)'
+        ),
+        new GetCollection(
+            normalizationContext: self::COLLECTION_NORMALIZATION_CONTEXT,
+            security: 'is_authenticated()',
+            extraProperties: [
+                'scoping_filters' => ['period', 'period.camp'],
+            ]
+        ),
+        new GetCollection(
+            uriTemplate: self::PERIOD_SUBRESOURCE_URI_TEMPLATE,
+            uriVariables: [
+                'periodId' => new Link(
+                    toProperty: 'period',
+                    fromClass: Period::class,
+                    security: 'is_granted("CAMP_COLLABORATOR", period) or
+                               is_granted("CAMP_IS_PUBLIC", period)'
+                ),
+            ],
+            normalizationContext: self::COLLECTION_NORMALIZATION_CONTEXT,
+            security: 'is_fully_authenticated()',
+            extraProperties: [
+                'filter_by_current_user' => false,
+            ]
+        ),
+    ],
+    normalizationContext: ['groups' => ['read']],
+    denormalizationContext: ['groups' => ['write']],
+    order: ['period.start', 'dayOffset']
+)]
+#[ApiFilter(filterClass: SearchFilter::class, properties: ['period', 'period.camp'])]
+#[UniqueEntity(fields: ['period', 'dayOffset'])]
+#[ORM\Entity(repositoryClass: DayRepository::class)]
+#[ORM\UniqueConstraint(name: 'offset_period_idx', columns: ['periodId', 'dayOffset'])]
+class Day extends BaseEntity implements BelongsToCampInterface, CanGenerateTagsInterface {
+    public const PERIOD_SUBRESOURCE_URI_TEMPLATE = '/periods/{periodId}/days{._format}';
+
+    public const ITEM_NORMALIZATION_CONTEXT = [
+        'groups' => [
+            'read',
+            'Day:DayResponsibles',
+        ],
+        'swagger_definition_name' => 'read',
+    ];
+
+    public const COLLECTION_NORMALIZATION_CONTEXT = [
+        'groups' => [
+            'read',
+            'Day:DayResponsibles',
+        ],
+    ];
+
+    /**
+     * The list of people who have a whole-day responsibility on this day.
+     */
+    #[ApiProperty(
+        writable: false,
+        example: '/days/1a2b3c4d/day_responsibles',
+        uriTemplate: DayResponsible::DAY_SUBRESOURCE_URI_TEMPLATE
+    )]
+    #[Groups(['read'])]
+    #[ORM\OneToMany(targetEntity: DayResponsible::class, mappedBy: 'day', orphanRemoval: true)]
+    #[ORM\OrderBy(['createTime' => 'ASC'])]
+    public Collection $dayResponsibles;
+
+    /**
+     * The time period that this day belongs to.
+     */
+    #[ApiProperty(example: '/periods/1a2b3c4d')]
+    #[Groups(['read'])]
+    #[ORM\ManyToOne(targetEntity: Period::class, inversedBy: 'days')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'cascade')]
+    public ?Period $period = null;
+
+    /**
+     * The 0-based offset in days from the period's start date when this day starts.
+     */
+    #[ApiProperty(writable: false, example: '1')]
+    #[Groups(['read'])]
+    #[ORM\Column(type: 'integer')]
+    public int $dayOffset = 0;
+
+    public function __construct() {
+        parent::__construct();
+        $this->dayResponsibles = new ArrayCollection();
+    }
+
+    #[ApiProperty(readable: false)]
+    public function getCamp(): ?Camp {
+        return $this->period?->camp;
+    }
+
+    /**
+     * The 1-based cardinal number of the day in the period. Not unique within the camp.
+     */
+    #[ApiProperty(example: '2')]
+    #[SerializedName('number')]
+    #[Groups(['read'])]
+    public function getDayNumber(): int {
+        return $this->period->getFirstDayNumber() + $this->dayOffset;
+    }
+
+    /**
+     * All scheduleEntries in this day's period which overlap with this day (using midnight as cutoff).
+     *
+     * @return ScheduleEntry[]
+     */
+    #[ApiProperty(example: '/schedule_entries?period=%2Fperiods%2F1a2b3c4d&start%5Bstrictly_before%5D=2022-01-03T00%3A00%3A00%2B00%3A00&end%5Bafter%5D=2022-01-02T00%3A00%3A00%2B00%3A00')]
+    #[RelatedCollectionLink(ScheduleEntry::class, ['period' => 'period', 'start[strictly_before]' => 'end', 'end[after]' => 'start'])]
+    #[Groups(['read'])]
+    public function getScheduleEntries(): array {
+        return array_filter(
+            $this->period->getScheduleEntries(),
+            // filters all scheduleEntries which overlap with the current day
+            function (ScheduleEntry $scheduleEntry) {
+                return $scheduleEntry->getStart() >= $this->getEnd()     // starts at or after midnight of current day
+                        && $scheduleEntry->getEnd() < $this->getStart(); // ends strictly before midnight of next day
+            }
+        );
+    }
+
+    /**
+     * The start date and time of the day. This is a read-only convenience property.
+     */
+    #[ApiProperty(example: '2022-01-02T00:00:00+00:00', openapiContext: ['format' => 'date'])]
+    #[Groups(['read'])]
+    public function getStart(): ?\DateTime {
+        try {
+            $start = $this->period?->start ? \DateTime::createFromInterface($this->period->start) : null;
+            $start?->add(new \DateInterval('P'.$this->dayOffset.'D'));
+
+            return $start;
+        } catch (\Exception) {
+            return null;
+        }
+    }
+
+    /**
+     * The end date and time of the day. This is a read-only convenience property.
+     */
+    #[ApiProperty(example: '2022-01-03T00:00:00+00:00', openapiContext: ['format' => 'date'])]
+    #[Groups(['read'])]
+    public function getEnd(): ?\DateTime {
+        try {
+            $end = $this->period?->start ? \DateTime::createFromInterface($this->period->start) : null;
+            $end?->add(new \DateInterval('P'.($this->dayOffset + 1).'D'));
+
+            return $end;
+        } catch (\Exception) {
+            return null;
+        }
+    }
+
+    /**
+     * DayResponsible.
+     */
+
+    /**
+     * @return DayResponsible[]
+     */
+    #[ApiProperty(
+        readableLink: true,
+        uriTemplate: DayResponsible::DAY_SUBRESOURCE_URI_TEMPLATE,
+        extraProperties: ['cacheDependencies' => ['dayResponsibles']]
+    )]
+    #[SerializedName('dayResponsibles')]
+    #[Groups(['Day:DayResponsibles'])]
+    public function getEmbeddedDayResponsibles(): array {
+        return $this->getDayResponsibles();
+    }
+
+    /**
+     * @return DayResponsible[]
+     */
+    public function getDayResponsibles(): array {
+        return $this->dayResponsibles->getValues();
+    }
+
+    public function addDayResponsible(DayResponsible $dayResponsible): self {
+        if (!$this->dayResponsibles->contains($dayResponsible)) {
+            $this->dayResponsibles[] = $dayResponsible;
+            $dayResponsible->day = $this;
+        }
+
+        return $this;
+    }
+
+    public function removeDayResponsible(DayResponsible $dayResponsible): self {
+        if ($this->dayResponsibles->removeElement($dayResponsible)) {
+            if ($dayResponsible->day === $this) {
+                $dayResponsible->day = null;
+            }
+        }
+
+        return $this;
+    }
+
+    public function getCacheTags(): array {
+        return [$this->period->getId()];
+    }
+}

@@ -1,0 +1,25 @@
+App\Entity\ContentNode\MultiSelect:
+  multiSelectCampUnrelated:
+    root: '@columnLayout1campUnrelated'
+    parent: '@columnLayout1campUnrelated'
+    slot: '1'
+    position: 3
+    instanceName: <word()>
+    contentType: '@contentTypeMultiSelect'
+    data: { options: { 'key1': { 'checked': true } } }
+  multiSelectCampPrototype:
+    root: '@columnLayout1campPrototype'
+    parent: '@columnLayout1campPrototype'
+    slot: '1'
+    position: 3
+    instanceName: <word()>
+    contentType: '@contentTypeMultiSelect'
+    data: { options: { 'key1': { 'checked': true } } }
+  multiSelectCampShared:
+    root: '@columnLayout1campShared'
+    parent: '@columnLayout1campShared'
+    slot: '1'
+    position: 3
+    instanceName: <word()>
+    contentType: '@contentTypeMultiSelect'
+    data: { options: { 'key1': { 'checked': true } } }

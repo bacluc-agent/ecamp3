@@ -1,0 +1,31 @@
+App\Entity\Comment:
+  comment1:
+    camp: '@camp1'
+    activity: '@activity1'
+    textHtml: <sentence()>
+    author: '@user1manager'
+    orphanDescription: null
+  comment2:
+    camp: '@camp1'
+    activity: '@activity1'
+    textHtml: <sentence()>
+    author: '@user4unrelated'
+    orphanDescription: null
+  comment3:
+    camp: '@camp1'
+    activity: '@activity2'
+    textHtml: <sentence()>
+    author: '@user1manager'
+    orphanDescription: null
+  comment1campPrototype:
+    camp: '@campPrototype'
+    activity: '@activity1campPrototype'
+    textHtml: <sentence()>
+    author: '@user4unrelated'
+    orphanDescription: null
+  comment1campShared:
+    camp: '@campShared'
+    activity: '@activity1campShared'
+    textHtml: <sentence()>
+    author: '@user4unrelated'
+    orphanDescription: null

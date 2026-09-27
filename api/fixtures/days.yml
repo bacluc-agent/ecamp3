@@ -1,0 +1,40 @@
+App\Entity\Day:
+  day1period1:
+    period: '@period1'
+    dayOffset: 0
+  day2period1:
+    period: '@period1'
+    dayOffset: 1
+  day3period1:
+    period: '@period1'
+    dayOffset: 2
+  day1period2:
+    period: '@period2'
+    dayOffset: 0
+  day2period2:
+    period: '@period2'
+    dayOffset: 1
+  day3period2:
+    period: '@period2'
+    dayOffset: 2
+  day1period1camp2:
+    period: '@period1camp2'
+    dayOffset: 0
+  day2period1camp2:
+    period: '@period1camp2'
+    dayOffset: 1
+  day1period1campUnrelated:
+    period: '@period1campUnrelated'
+    dayOffset: 0
+  day1period1campPrototype:
+    period: '@period1campPrototype'
+    dayOffset: 0
+  day1period1campShared:
+    period: '@period1campShared'
+    dayOffset: 0
+  day2period1campShared:
+    period: '@period1campShared'
+    dayOffset: 1
+  day3period1campShared:
+    period: '@period1campShared'
+    dayOffset: 2

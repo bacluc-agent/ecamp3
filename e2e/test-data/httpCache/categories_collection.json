@@ -1,0 +1,423 @@
+{
+  "_links": {
+    "self": {
+      "href": "/api/camps/3c79b99ab424/categories.jsonhal"
+    },
+    "items": [
+      {
+        "href": "/api/categories/ebfd46a1c181"
+      },
+      {
+        "href": "/api/categories/1a869b162875"
+      },
+      {
+        "href": "/api/categories/dfa531302823"
+      },
+      {
+        "href": "/api/categories/a023e85227ac"
+      }
+    ]
+  },
+  "totalItems": 4,
+  "_embedded": {
+    "items": [
+      {
+        "_links": {
+          "self": {
+            "href": "/api/categories/ebfd46a1c181"
+          },
+          "camp": {
+            "href": "/api/camps/3c79b99ab424"
+          },
+          "preferredContentTypes": {
+            "href": "/api/content_types?categories=%2Fapi%2Fcategories%2Febfd46a1c181"
+          },
+          "rootContentNode": {
+            "href": "/api/content_node/column_layouts/9d7b3a220fb4"
+          },
+          "contentNodes": {
+            "href": "/api/content_nodes?root=%2Fapi%2Fcontent_node%2Fcolumn_layouts%2F9d7b3a220fb4"
+          }
+        },
+        "_embedded": {
+          "preferredContentTypes": []
+        },
+        "short": "ES",
+        "name": "Essen",
+        "color": "#BBBBBB",
+        "numberingStyle": "-",
+        "id": "ebfd46a1c181"
+      },
+      {
+        "_links": {
+          "self": {
+            "href": "/api/categories/1a869b162875"
+          },
+          "camp": {
+            "href": "/api/camps/3c79b99ab424"
+          },
+          "preferredContentTypes": {
+            "href": "/api/content_types?categories=%2Fapi%2Fcategories%2F1a869b162875"
+          },
+          "rootContentNode": {
+            "href": "/api/content_node/column_layouts/be9b6b7f23f6"
+          },
+          "contentNodes": {
+            "href": "/api/content_nodes?root=%2Fapi%2Fcontent_node%2Fcolumn_layouts%2Fbe9b6b7f23f6"
+          }
+        },
+        "_embedded": {
+          "preferredContentTypes": [
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/f17470519474"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/column_layouts?contentType=%2Fapi%2Fcontent_types%2Ff17470519474"
+                }
+              },
+              "name": "ColumnLayout",
+              "active": true,
+              "id": "f17470519474"
+            },
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/1a0f84e322c8"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/multi_selects?contentType=%2Fapi%2Fcontent_types%2F1a0f84e322c8"
+                }
+              },
+              "name": "LAThematicArea",
+              "active": true,
+              "id": "1a0f84e322c8"
+            },
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/3ef17bd1df72"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/material_nodes?contentType=%2Fapi%2Fcontent_types%2F3ef17bd1df72"
+                }
+              },
+              "name": "Material",
+              "active": true,
+              "id": "3ef17bd1df72"
+            },
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/4f0c657fecef"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/single_texts?contentType=%2Fapi%2Fcontent_types%2F4f0c657fecef"
+                }
+              },
+              "name": "Notes",
+              "active": true,
+              "id": "4f0c657fecef"
+            },
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/a4211c112939"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/responsive_layouts?contentType=%2Fapi%2Fcontent_types%2Fa4211c112939"
+                }
+              },
+              "name": "ResponsiveLayout",
+              "active": true,
+              "id": "a4211c112939"
+            },
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/44dcc7493c65"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/single_texts?contentType=%2Fapi%2Fcontent_types%2F44dcc7493c65"
+                }
+              },
+              "name": "SafetyConsiderations",
+              "active": true,
+              "id": "44dcc7493c65"
+            },
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/cfccaecd4bad"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/storyboards?contentType=%2Fapi%2Fcontent_types%2Fcfccaecd4bad"
+                }
+              },
+              "name": "Storyboard",
+              "active": true,
+              "id": "cfccaecd4bad"
+            },
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/318e064ea0c9"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/single_texts?contentType=%2Fapi%2Fcontent_types%2F318e064ea0c9"
+                }
+              },
+              "name": "Storycontext",
+              "active": true,
+              "id": "318e064ea0c9"
+            }
+          ]
+        },
+        "short": "LA",
+        "name": "Lageraktivität",
+        "color": "#FF9800",
+        "numberingStyle": "A",
+        "id": "1a869b162875"
+      },
+      {
+        "_links": {
+          "self": {
+            "href": "/api/categories/dfa531302823"
+          },
+          "camp": {
+            "href": "/api/camps/3c79b99ab424"
+          },
+          "preferredContentTypes": {
+            "href": "/api/content_types?categories=%2Fapi%2Fcategories%2Fdfa531302823"
+          },
+          "rootContentNode": {
+            "href": "/api/content_node/column_layouts/63cbc734fa04"
+          },
+          "contentNodes": {
+            "href": "/api/content_nodes?root=%2Fapi%2Fcontent_node%2Fcolumn_layouts%2F63cbc734fa04"
+          }
+        },
+        "_embedded": {
+          "preferredContentTypes": [
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/f17470519474"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/column_layouts?contentType=%2Fapi%2Fcontent_types%2Ff17470519474"
+                }
+              },
+              "name": "ColumnLayout",
+              "active": true,
+              "id": "f17470519474"
+            },
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/3ef17bd1df72"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/material_nodes?contentType=%2Fapi%2Fcontent_types%2F3ef17bd1df72"
+                }
+              },
+              "name": "Material",
+              "active": true,
+              "id": "3ef17bd1df72"
+            },
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/4f0c657fecef"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/single_texts?contentType=%2Fapi%2Fcontent_types%2F4f0c657fecef"
+                }
+              },
+              "name": "Notes",
+              "active": true,
+              "id": "4f0c657fecef"
+            },
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/a4211c112939"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/responsive_layouts?contentType=%2Fapi%2Fcontent_types%2Fa4211c112939"
+                }
+              },
+              "name": "ResponsiveLayout",
+              "active": true,
+              "id": "a4211c112939"
+            },
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/44dcc7493c65"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/single_texts?contentType=%2Fapi%2Fcontent_types%2F44dcc7493c65"
+                }
+              },
+              "name": "SafetyConsiderations",
+              "active": true,
+              "id": "44dcc7493c65"
+            },
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/cfccaecd4bad"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/storyboards?contentType=%2Fapi%2Fcontent_types%2Fcfccaecd4bad"
+                }
+              },
+              "name": "Storyboard",
+              "active": true,
+              "id": "cfccaecd4bad"
+            },
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/318e064ea0c9"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/single_texts?contentType=%2Fapi%2Fcontent_types%2F318e064ea0c9"
+                }
+              },
+              "name": "Storycontext",
+              "active": true,
+              "id": "318e064ea0c9"
+            }
+          ]
+        },
+        "short": "LP",
+        "name": "Lagerprogramm",
+        "color": "#90B7E4",
+        "numberingStyle": "1",
+        "id": "dfa531302823"
+      },
+      {
+        "_links": {
+          "self": {
+            "href": "/api/categories/a023e85227ac"
+          },
+          "camp": {
+            "href": "/api/camps/3c79b99ab424"
+          },
+          "preferredContentTypes": {
+            "href": "/api/content_types?categories=%2Fapi%2Fcategories%2Fa023e85227ac"
+          },
+          "rootContentNode": {
+            "href": "/api/content_node/column_layouts/2cce9e17a368"
+          },
+          "contentNodes": {
+            "href": "/api/content_nodes?root=%2Fapi%2Fcontent_node%2Fcolumn_layouts%2F2cce9e17a368"
+          }
+        },
+        "_embedded": {
+          "preferredContentTypes": [
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/f17470519474"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/column_layouts?contentType=%2Fapi%2Fcontent_types%2Ff17470519474"
+                }
+              },
+              "name": "ColumnLayout",
+              "active": true,
+              "id": "f17470519474"
+            },
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/3ef17bd1df72"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/material_nodes?contentType=%2Fapi%2Fcontent_types%2F3ef17bd1df72"
+                }
+              },
+              "name": "Material",
+              "active": true,
+              "id": "3ef17bd1df72"
+            },
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/4f0c657fecef"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/single_texts?contentType=%2Fapi%2Fcontent_types%2F4f0c657fecef"
+                }
+              },
+              "name": "Notes",
+              "active": true,
+              "id": "4f0c657fecef"
+            },
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/a4211c112939"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/responsive_layouts?contentType=%2Fapi%2Fcontent_types%2Fa4211c112939"
+                }
+              },
+              "name": "ResponsiveLayout",
+              "active": true,
+              "id": "a4211c112939"
+            },
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/44dcc7493c65"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/single_texts?contentType=%2Fapi%2Fcontent_types%2F44dcc7493c65"
+                }
+              },
+              "name": "SafetyConsiderations",
+              "active": true,
+              "id": "44dcc7493c65"
+            },
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/cfccaecd4bad"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/storyboards?contentType=%2Fapi%2Fcontent_types%2Fcfccaecd4bad"
+                }
+              },
+              "name": "Storyboard",
+              "active": true,
+              "id": "cfccaecd4bad"
+            },
+            {
+              "_links": {
+                "self": {
+                  "href": "/api/content_types/318e064ea0c9"
+                },
+                "contentNodes": {
+                  "href": "/api/content_node/single_texts?contentType=%2Fapi%2Fcontent_types%2F318e064ea0c9"
+                }
+              },
+              "name": "Storycontext",
+              "active": true,
+              "id": "318e064ea0c9"
+            }
+          ]
+        },
+        "short": "LS",
+        "name": "Lagersport",
+        "color": "#4DBB52",
+        "numberingStyle": "1",
+        "id": "a023e85227ac"
+      }
+    ]
+  }
+}

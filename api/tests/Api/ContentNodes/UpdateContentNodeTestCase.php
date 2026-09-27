@@ -1,0 +1,238 @@
+<?php
+
+namespace App\Tests\Api\ContentNodes;
+
+use App\Entity\BaseEntity;
+use App\Entity\ContentNode;
+use App\Entity\ContentNode\ColumnLayout;
+use App\Entity\ContentNode\ResponsiveLayout;
+use App\Tests\Api\ECampApiTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
+
+/**
+ * Base UPDATE (patch) test case to be used for various ContentNode types.
+ *
+ * This test class covers all tests that are the same across all content node implementations
+ *
+ * @internal
+ */
+abstract class UpdateContentNodeTestCase extends ECampApiTestCase {
+    protected BaseEntity $campPrototypeEntity;
+    protected BaseEntity $sharedCampEntity;
+
+    #[\Override]
+    public function setUp(): void {
+        parent::setUp();
+    }
+
+    public function testPatchIsDeniedForAnonymousUser() {
+        static::createBasicClient()->request('PATCH', $this->endpoint.'/'.$this->defaultEntity->getId(), ['json' => [], 'headers' => ['Content-Type' => 'application/merge-patch+json']]);
+        $this->assertResponseStatusCodeSame(401);
+        $this->assertJsonContains([
+            'code' => 401,
+            'message' => 'JWT Token not found',
+        ]);
+    }
+
+    public function testPatchIsDeniedForInvitedCollaborator() {
+        $this->patch(user: static::$fixtures['user6invited']);
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testPatchIsDeniedForInactiveCollaborator() {
+        $this->patch(user: static::$fixtures['user5inactive']);
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testPatchIsDeniedForUnrelatedUser() {
+        $this->patch(user: static::$fixtures['user4unrelated']);
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testPatchIsDeniedForGuest() {
+        $this->patch(user: static::$fixtures['user3guest']);
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testPatchIsAllowedForMember() {
+        $this->patch(user: static::$fixtures['user2member']);
+        $this->assertResponseStatusCodeSame(200);
+    }
+
+    public function testPatchIsAllowedForManager() {
+        $this->patch(user: static::$fixtures['user1manager']);
+        $this->assertResponseStatusCodeSame(200);
+    }
+
+    public function testPatchInCampPrototypeIsDeniedForUnrelatedUser() {
+        $this->patch($this->campPrototypeEntity);
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testPatchInSharedCampIsDeniedForUnrelatedUser() {
+        $this->patch($this->sharedCampEntity);
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testPatchInSharedCampIsDeniedForInactiveUser() {
+        $this->patch($this->sharedCampEntity, user: static::$fixtures['user5inactive']);
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testPatchInSharedCampIsDeniedForInvitedUser() {
+        $this->patch($this->sharedCampEntity, user: static::$fixtures['user6invited']);
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    #[DataProvider('getContentNodesWhichCannotHaveChildren')]
+    public function testPatchRejectsParentsWhichDontSupportChildren(string $idOfParentFixture) {
+        $parentIri = static::getIriFor($idOfParentFixture);
+
+        $this->patch(payload: ['parent' => $parentIri], user: static::$fixtures['user2member']);
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertJsonContains([
+            'violations' => [
+                0 => [
+                    'propertyPath' => 'parent',
+                    'message' => 'This parent does not support children, only content_nodes of type column_layout or responsive_layout support children.',
+                ],
+            ],
+        ]);
+    }
+
+    public static function getContentNodesWhichCannotHaveChildren(): \Iterator {
+        yield ContentNode\MaterialNode::class => [
+            'materialNode1',
+        ];
+
+        yield ContentNode\MultiSelect::class => [
+            'multiSelect1',
+        ];
+
+        yield ContentNode\SingleText::class => [
+            'singleText1',
+        ];
+
+        yield ContentNode\StoryBoard::class => [
+            'storyboard1',
+        ];
+    }
+
+    public function testPatchValidatesThatParentSupportsSlotName() {
+        $this->patch(payload: ['slot' => 'invalidSlot']);
+
+        $this->assertResponseStatusCodeSame(422);
+
+        if ($this->defaultEntity->parent instanceof ColumnLayout) {
+            $this->assertJsonContains([
+                'violations' => [
+                    0 => [
+                        'propertyPath' => 'slot',
+                        'message' => 'This value should be one of [1], was invalidSlot.',
+                    ],
+                ],
+            ]);
+        } elseif ($this->defaultEntity->parent instanceof ResponsiveLayout) {
+            $this->assertJsonContains([
+                'violations' => [
+                    0 => [
+                        'propertyPath' => 'slot',
+                        'message' => 'This value should be one of [main,aside-top,aside-bottom], was invalidSlot.',
+                    ],
+                ],
+            ]);
+        }
+    }
+
+    public function testPatchRejectsNullSlotOnNonRootNodes() {
+        if ($this->defaultEntity instanceof ColumnLayout) {
+            $this->defaultEntity = static::getFixture('columnLayoutChild1');
+        }
+        $this->patch(
+            payload: [
+                'slot' => null,
+            ]
+        );
+
+        $this->assertResponseStatusCodeSame(422);
+
+        if ($this->defaultEntity->parent instanceof ColumnLayout) {
+            $this->assertJsonContains([
+                'violations' => [
+                    [
+                        'propertyPath' => 'slot',
+                        'message' => 'This value should be one of [1], was null.',
+                    ],
+                ],
+            ]);
+        } elseif ($this->defaultEntity->parent instanceof ResponsiveLayout) {
+            $this->assertJsonContains([
+                'violations' => [
+                    [
+                        'propertyPath' => 'slot',
+                        'message' => 'This value should be one of [main,aside-top,aside-bottom], was null.',
+                    ],
+                ],
+            ]);
+        }
+    }
+
+    public function testPatchResortsEntriesIfExistingPositionWasUsed() {
+        if ($this->defaultEntity instanceof ColumnLayout) {
+            $this->defaultEntity = static::getFixture('columnLayoutChild1');
+        }
+        $this->patch(
+            payload: [
+                'parent' => $this->getIriFor('columnLayout1'),
+                'slot' => '1',
+                'position' => 0,
+            ]
+        );
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains([
+            'slot' => '1',
+            'position' => 0,
+        ]);
+    }
+
+    public function testPatchRejectsTooLongInstanceName() {
+        $this->patch(
+            payload: [
+                'instanceName' => str_repeat('a', 33),
+            ]
+        );
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertJsonContains([
+            'title' => 'An error occurred',
+            'detail' => 'instanceName: This value is too long. It should have 32 characters or less.',
+        ]);
+    }
+
+    public function testPatchTrimsInstanceName() {
+        $this->patch(
+            payload: [
+                'instanceName' => " SchlechtwetterProgramm\t\t",
+            ]
+        );
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains([
+            'instanceName' => 'SchlechtwetterProgramm',
+        ]);
+    }
+
+    public function testPatchCleansTextOfInstanceName() {
+        $this->patch(
+            payload: [
+                'instanceName' => "\u{000A}control\u{0007}",
+            ]
+        );
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains([
+            'instanceName' => 'control',
+        ]);
+    }
+}
