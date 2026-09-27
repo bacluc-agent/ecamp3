@@ -70,6 +70,10 @@ class EndpointPerformanceTest extends ECampApiTestCase {
         $not200Responses = array_filter($responseCodes, fn ($value) => 200 != $value);
         assertThat($not200Responses, equalTo([]));
 
+        if (self::isPerformanceTestDebugOutput()) {
+            var_dump($queryExecutionTime);
+        }
+
         $endpointsWithTooLongExecutionTime = array_filter($queryExecutionTime, fn ($value) => MAX_EXECUTION_TIME_SECONDS < $value);
 
         $this->assertMatchesSnapshot($numberOfQueries, new ECampYamlSnapshotDriver());
@@ -94,6 +98,10 @@ class EndpointPerformanceTest extends ECampApiTestCase {
             = $this->measurePerformanceFor($collectionEndpoint.'?camp=/camps/'.self::getFixtureFor('/camps')->getId());
 
         assertThat($statusCode, equalTo(200));
+
+        if (self::isPerformanceTestDebugOutput()) {
+            echo "{$collectionEndpoint}: {$executionTimeSeconds}\n";
+        }
 
         $queryCountRanges = self::getContentNodeEndpointQueryCountRanges()[$collectionEndpoint];
         assertThat(
@@ -124,6 +132,10 @@ class EndpointPerformanceTest extends ECampApiTestCase {
         [$statusCode, $queryCount, $executionTimeSeconds] = $this->measurePerformanceFor("{$collectionEndpoint}/{$fixtureFor->getId()}");
 
         assertThat($statusCode, equalTo(200));
+
+        if (self::isPerformanceTestDebugOutput()) {
+            echo "{$collectionEndpoint}: {$executionTimeSeconds}\n";
+        }
 
         $queryCountRanges = self::getContentNodeEndpointQueryCountRanges()[$collectionEndpoint.'/item'];
         assertThat(
@@ -308,5 +320,9 @@ class EndpointPerformanceTest extends ECampApiTestCase {
 
     private function getEnvironment(): string {
         return static::$kernel->getContainer()->getParameter('kernel.environment');
+    }
+
+    private static function isPerformanceTestDebugOutput(): bool {
+        return 'true' === getenv('PERFORMANCE_TEST_DEBUG_OUTPUT');
     }
 }
