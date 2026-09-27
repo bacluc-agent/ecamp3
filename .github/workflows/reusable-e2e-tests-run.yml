@@ -65,15 +65,18 @@ jobs:
           setfacl -dR -m u:www-data:rX -m u:"$(whoami)":rwX config/jwt
         working-directory: api
 
-      - run: docker compose up --wait -d database
+      # guard the retry helper before the first image is pulled
+      - run: bash retry-self-test.sh
 
-      - run: docker compose -f docker-compose.yml run --rm api migrate-database
+      - run: bash retry.sh 3 10 docker compose up --wait -d database
+
+      - run: bash retry.sh 3 10 docker compose -f docker-compose.yml run --rm api migrate-database
 
       # start necessary containers
-      - run: docker compose -f docker-compose.yml up -d api frontend print browserless database docker-host http-cache http-cache-logs mail pg-admin reverse-proxy
+      - run: bash retry.sh 3 10 docker compose -f docker-compose.yml up -d api frontend print browserless database docker-host http-cache http-cache-logs mail pg-admin reverse-proxy
 
       # pull playwright while container are starting up
-      - run: docker compose pull e2e
+      - run: bash retry.sh 3 10 docker compose pull e2e
 
       - run: docker compose run --entrypoint="npm ci" --rm e2e
 
