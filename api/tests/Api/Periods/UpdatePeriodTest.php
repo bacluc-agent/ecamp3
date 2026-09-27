@@ -259,6 +259,12 @@ class UpdatePeriodTest extends ECampApiTestCase {
         $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains([
             'detail' => 'start: This value should be of type string.',
+            'violations' => [
+                [
+                    'propertyPath' => 'start',
+                    'message' => 'This value should be of type string.',
+                ],
+            ],
         ]);
     }
 
@@ -271,6 +277,12 @@ class UpdatePeriodTest extends ECampApiTestCase {
         $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains([
             'detail' => 'start: This value should be of type string.',
+            'violations' => [
+                [
+                    'propertyPath' => 'start',
+                    'message' => 'This value should be of type string.',
+                ],
+            ],
         ]);
     }
 
@@ -283,6 +295,12 @@ class UpdatePeriodTest extends ECampApiTestCase {
         $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains([
             'detail' => 'end: This value should be of type string.',
+            'violations' => [
+                [
+                    'propertyPath' => 'end',
+                    'message' => 'This value should be of type string.',
+                ],
+            ],
         ]);
     }
 
@@ -295,6 +313,12 @@ class UpdatePeriodTest extends ECampApiTestCase {
         $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains([
             'detail' => 'end: This value should be of type string.',
+            'violations' => [
+                [
+                    'propertyPath' => 'end',
+                    'message' => 'This value should be of type string.',
+                ],
+            ],
         ]);
     }
 

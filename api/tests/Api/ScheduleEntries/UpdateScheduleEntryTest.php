@@ -229,6 +229,12 @@ class UpdateScheduleEntryTest extends ECampApiTestCase {
         $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains([
             'detail' => 'start: This value should be of type string.',
+            'violations' => [
+                [
+                    'propertyPath' => 'start',
+                    'message' => 'This value should be of type string.',
+                ],
+            ],
         ]);
     }
 
@@ -258,6 +264,12 @@ class UpdateScheduleEntryTest extends ECampApiTestCase {
         $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains([
             'detail' => 'end: This value should be of type string.',
+            'violations' => [
+                [
+                    'propertyPath' => 'end',
+                    'message' => 'This value should be of type string.',
+                ],
+            ],
         ]);
     }
 
@@ -326,6 +338,15 @@ class UpdateScheduleEntryTest extends ECampApiTestCase {
         ], 'headers' => ['Content-Type' => 'application/merge-patch+json']]);
 
         $this->assertResponseStatusCodeSame(422);
+        $this->assertJsonContains([
+            'detail' => 'start: This value should be of type string.',
+            'violations' => [
+                [
+                    'propertyPath' => 'start',
+                    'message' => 'This value should be of type string.',
+                ],
+            ],
+        ]);
     }
 
     #[TestWith(['20206-01-01T00:00:00'])]
@@ -337,6 +358,15 @@ class UpdateScheduleEntryTest extends ECampApiTestCase {
         ], 'headers' => ['Content-Type' => 'application/merge-patch+json']]);
 
         $this->assertResponseStatusCodeSame(422);
+        $this->assertJsonContains([
+            'detail' => 'start: This value should be of type string.',
+            'violations' => [
+                [
+                    'propertyPath' => 'start',
+                    'message' => 'This value should be of type string.',
+                ],
+            ],
+        ]);
     }
 
     public function testPatchScheduleEntryAllowsToEndAtMidnightOfLastDay() {
