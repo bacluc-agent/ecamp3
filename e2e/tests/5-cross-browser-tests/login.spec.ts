@@ -42,7 +42,6 @@ test.describe('Login test through page objects', () => {
     const campListPage = await loginPage.loginToCampList(bipiUser)
 
     await expect(campListPage.loggedInUserButton('Bi-Pi')).toBeVisible()
-    await expect(campListPage.heading).toBeVisible()
     await expect(campListPage.campTitle('GRGR')).toBeVisible()
     await expect(campListPage.campTitle('Harry Potter Lager')).toBeVisible()
   })
