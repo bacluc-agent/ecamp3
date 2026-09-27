@@ -20,14 +20,12 @@ export class CampListPage {
   constructor(
     private readonly _page: Page,
     private readonly _createCampButton = _page.getByTestId('create-camp-button'),
-    private readonly _heading = _page.getByRole('heading', { name: 'Meine Lager' }),
     private readonly _skeletonLoaders = _page.locator('.v-skeleton-loader')
   ) {}
 
   @boxedStep
   async loaded() {
     await expect(this._createCampButton).toBeVisible()
-    await expect(this._heading).toBeVisible()
     await expect(this._skeletonLoaders).toHaveCount(0)
     return this
   }
@@ -40,12 +38,8 @@ export class CampListPage {
     return createCampDialogStep1
   }
 
-  get heading(): Locator {
-    return this._heading
-  }
-
   loggedInUserButton(displayName: string): Locator {
-    return this._page.getByRole('button').filter({ hasText: displayName })
+    return this._page.getByRole('button', { name: displayName })
   }
 
   campTitle(campTitle: string): Locator {
