@@ -58,7 +58,7 @@ class DenormalizationViolationFactory implements DenormalizationViolationFactory
             $violations = new ConstraintViolationList();
             foreach ($validationException->getConstraintViolationList() as $violation) {
                 $pathMessages = $dateMessages[$violation->getPropertyPath()] ?? [];
-                $message = Type::INVALID_TYPE_ERROR === $violation->getCode() ? array_shift($pathMessages) : null;
+                $message = Type::INVALID_TYPE_ERROR === $violation->getCode() ? ($violation->getMessage() . '. ' . array_shift($pathMessages)) : null;
                 $violations->add(null === $message ? $violation : $this->withMessage($violation, $message));
             }
 
