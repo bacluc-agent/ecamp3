@@ -9,6 +9,7 @@ type CampPrototype = 'empty' | string
 
 export type CampFixtureType = {
   createCamp: (prototype: CampPrototype) => Promise<Camp>
+  newCreateCamp: (campTitle: string) => CreateCamp
 }
 
 export const campFixture = {
@@ -16,40 +17,53 @@ export const campFixture = {
     { page, runId }: { page: Page; runId: string },
     use: (a: CampFixtureType['createCamp']) => Promise<void>
   ) => {
-    await use((prototype) => new CreateCamp(page, prototype, runId).create())
+    await use((prototype) => new CreateCamp(page, runId).create(prototype))
+  },
+  newCreateCamp: async (
+    { page, runId }: { page: Page; runId: string },
+    use: (a: CampFixtureType['newCreateCamp']) => Promise<void>
+  ) => {
+    await use((campTitle: string) => new CreateCamp(page, runId, campTitle))
   },
 }
 
-class CreateCamp {
+export class CreateCamp {
   private readonly _page: Page
-  private readonly _campPrototype: CampPrototype
-  private readonly _runId: string
+  private readonly _campTitle: string
 
-  constructor(page: Page, campPrototype: CampPrototype, runId: string) {
+  constructor(page: Page, runId: string, campTitle = `camp ${runId}`) {
     this._page = page
-    this._campPrototype = campPrototype
-    this._runId = runId
+    this._campTitle = campTitle
   }
 
   @boxedStep
-  async create(user = bipiUser) {
-    const tomorrow = new Date()
+  async openStep2(user = bipiUser) {
+    const now = new Date()
+    const tomorrow = new Date(now)
     tomorrow.setDate(tomorrow.getDate() + 1)
-    const in2Days = new Date()
+    const in2Days = new Date(now)
     in2Days.setDate(in2Days.getDate() + 2)
-    const campTitle = `camp ${this._runId}`
 
     const loginPage = await new LoginPage(this._page).open()
     const campListPage = await loginPage.loginToCampList(user)
     const createCampDialogStep1 = await campListPage.openCreateCampDialog()
-    await createCampDialogStep1.fillForm(tomorrow, in2Days, campTitle)
+    await createCampDialogStep1.fillForm(tomorrow, in2Days, this._campTitle)
 
-    const createCampDialogStep2 = await createCampDialogStep1.next()
+    return createCampDialogStep1.next()
+  }
+
+  @boxedStep
+  async create(prototype: CampPrototype, user = bipiUser) {
+    const createCampDialogStep2 = await this.openStep2(user)
     const campInfo = await createCampDialogStep2
-      .selectPrototype(this._campPrototype)
+      .selectPrototype(prototype)
       .then((value) => value.submit())
 
-    return new Camp(this._page, campInfo.campId, campTitle, campInfo)
+    return new Camp(this._page, campInfo.campId, this._campTitle, campInfo)
+  }
+
+  createdCamp(campId: string): Camp {
+    return new Camp(this._page, campId, this._campTitle, new CampInfo(this._page, campId))
   }
 }
 
@@ -87,6 +101,7 @@ export class Camp {
 
     await this._page.goto('/camps')
     await this._page.waitForURL('/camps', { timeout: 15000 })
+    await expect(this._page.locator('.v-skeleton-loader')).toHaveCount(0)
     await expect(this._page.getByText(this._campTitle)).toBeHidden()
   }
 }

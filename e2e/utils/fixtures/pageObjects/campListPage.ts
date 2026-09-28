@@ -25,14 +25,21 @@ export class CampListPage {
   @boxedStep
   async loaded() {
     await expect(this._createCampButton).toBeVisible()
+    // The create button is rendered outside the loading block, so it is clickable while the camp
+    // list still grows; the list then shifts under the click and the click is lost. Same gate as
+    // staleDeployment.spec.ts.
+    await expect(this._page.locator('.v-skeleton-loader')).toHaveCount(0)
     return this
   }
 
   @boxedStep
   async openCreateCampDialog() {
-    await this._createCampButton.click()
     const createCampDialogStep1 = new CreateCampDialogStep1(this._page)
+    await this.loaded()
+    await this._createCampButton.click()
+    await expect(this._page).toHaveURL(/\/camps\/create/, { timeout: 10000 })
     await createCampDialogStep1.loaded()
+
     return createCampDialogStep1
   }
 }
