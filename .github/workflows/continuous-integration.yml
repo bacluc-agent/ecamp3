@@ -154,6 +154,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
+      - name: Check for deprecated dependencies
+        run: node scripts/check-deprecated-deps.js
+        working-directory: frontend
+
       - run: npm ci --no-audit
         working-directory: frontend
 
