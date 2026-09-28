@@ -30,16 +30,23 @@ export class LoginPage {
 
   @boxedStep
   async open() {
-    await this._page.goto('/login')
+    await this._page.goto('/login', { timeout: 30_000 })
     return this.loaded()
   }
 
   @boxedStep
   async loaded() {
-    await expect(this._quickLoginButton).toBeVisible()
-    await expect(this._emailField).toBeVisible()
-    await expect(this._passwordField).toBeVisible()
-    await expect(this._loginButton).toBeVisible()
+    // Four pure reads, so retrying them cannot pass by suppressing a side effect. toPass sets ONE
+    // deadline for the whole block, never reads expect.timeout, and catches a thrown attempt to
+    // poll again, so a failed attempt costs only its first failing wait: 10 s here, so 45 s is
+    // four attempts. Four unretried 15 s reads had no second attempt at all, the same failure
+    // class as CampListPage.loaded().
+    await expect(async () => {
+      await expect(this._quickLoginButton).toBeVisible({ timeout: 10_000 })
+      await expect(this._emailField).toBeVisible({ timeout: 10_000 })
+      await expect(this._passwordField).toBeVisible({ timeout: 10_000 })
+      await expect(this._loginButton).toBeVisible({ timeout: 10_000 })
+    }).toPass({ timeout: 45_000 })
     return this
   }
 
@@ -48,7 +55,7 @@ export class LoginPage {
     await this.loaded()
     await this._emailField.fill(user)
     await this._passwordField.fill(password)
-    await this._loginButton.click()
+    await this._loginButton.click({ timeout: 10_000 })
     const campListPage = new CampListPage(this._page)
     await campListPage.loaded()
     return campListPage

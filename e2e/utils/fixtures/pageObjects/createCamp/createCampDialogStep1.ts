@@ -34,9 +34,24 @@ export class CreateCampDialogStep1 {
 
   @boxedStep
   async next() {
-    await this._nextButton.click()
+    // The continue button only exists once the form is dirty and valid, and the date pickers
+    // debounce their input, so it can still be swapped out when the click starts. The click is
+    // guarded on the step-1 form still being the visible step, because after a landed click the
+    // button never comes back: waiting for it again would spend the budget on a dead element
+    // while it is step 2's render that is slow, so every attempt re-polls step 2, and a lost
+    // click is still re-clicked while step 1 is on screen. toPass sets ONE deadline for the
+    // whole block, never reads expect.timeout, and catches a thrown attempt to poll again, so a
+    // failed attempt costs only its first failing wait: the cheapest failure here is the 10 s
+    // toBeVisible, so 45 s is four attempts where 30 s was three.
     const createCampDialogStep2 = new CreateCampDialogStep2(this._page)
-    await createCampDialogStep2.loaded()
+    await expect(async () => {
+      if (await this._titleInput.isVisible()) {
+        await expect(this._nextButton).toBeVisible({ timeout: 10000 })
+        await this._nextButton.click({ timeout: 10000 })
+      }
+      await createCampDialogStep2.loaded()
+    }).toPass({ timeout: 45000 })
+
     return createCampDialogStep2
   }
 }
