@@ -1,6 +1,7 @@
 {
   "name": "@ecamp3/frontend",
   "private": true,
+  "//": "Temporary js-beautify glob override until https://github.com/bacluc-agent/agent-todo/issues/326",
   "type": "module",
   "scripts": {
     "serve": "vite --host 0.0.0.0",
@@ -101,7 +102,6 @@
     "@types/lodash-es": "4.17.12",
     "@vitejs/plugin-vue": "6.0.9",
     "@vitest/coverage-v8": "5.0.1",
-    "@vue/babel-preset-app": "5.0.9",
     "@vue/compiler-dom": "3.5.43",
     "@vue/compiler-sfc": "3.5.43",
     "@vue/eslint-config-prettier": "10.2.0",
@@ -110,7 +110,6 @@
     "@vue/shared": "3.5.43",
     "@vue/test-utils": "2.5.1",
     "autoprefixer": "10.6.1",
-    "babel-plugin-require-context-hook": "1.0.0",
     "esbuild": "0.28.2",
     "eslint": "10.11.0",
     "eslint-config-prettier": "10.1.8",
@@ -139,7 +138,10 @@
     "vue-template-compiler": "2.7.16"
   },
   "overrides": {
-    "uri-js": "npm:uri-js-replace"
+    "uri-js": "npm:uri-js-replace",
+    "js-beautify": {
+      "glob": "13.0.6"
+    }
   },
   "postcss": {
     "plugins": {
