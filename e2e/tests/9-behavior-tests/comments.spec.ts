@@ -65,3 +65,32 @@ test.describe('comments on an activity', () => {
     await expect(comment).toHaveCount(0)
   })
 })
+
+test('writes, reads and deletes an own comment via page objects', async ({
+  page,
+  runId,
+  loginPage,
+  programPage,
+}) => {
+  const text = `Kommentar ${runId}`
+
+  await loginPage.open()
+  await loginPage.loginToCampList(bipiUser)
+
+  await programPage.goto()
+  const activityPage = await programPage.openFirstActivity()
+  const commentsPanel = await activityPage.openComments()
+
+  await commentsPanel.write(text)
+  await commentsPanel.submit()
+
+  const comment = await commentsPanel.comment(text)
+  await expect(comment.element).toBeVisible()
+
+  await page.reload()
+  await activityPage.openComments()
+  await expect(comment.element).toBeVisible()
+
+  await comment.delete()
+  await expect(comment.element).toHaveCount(0)
+})
