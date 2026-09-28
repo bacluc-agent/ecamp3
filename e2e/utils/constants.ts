@@ -1,6 +1,9 @@
 export const grgrCampId = '3c79b99ab424'
 export const loremIpsumCampId = '9c2447aefe38'
 export const skilagerCampId = '70ca971c992f'
+// The `campShortTitle` route segment of the skilager camp. The router only reads
+// `campId`; the segment is decorative (the seeded short title is `Skilager 2030`).
+export const skilagerCampShortTitle = 'Skilager'
 export const basiskursCampId = '5d28f99890bc'
 
 export const skilagerPeriodId = '7fa4564a5d5d'
