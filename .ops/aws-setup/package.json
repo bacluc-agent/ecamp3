@@ -29,6 +29,6 @@
     "allowScripts": {
         "@pulumi/docker": false,
         "@pulumi/docker-build": false,
-        "protobufjs": false
+        "protobufjs": true
     }
 }
