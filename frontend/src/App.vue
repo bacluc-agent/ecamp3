@@ -107,7 +107,9 @@ export default {
         childList: true,
         subtree: true,
         attributes: true,
-        attributeFilter: ['style', 'class'],
+        // 'style' must stay out of this filter: updateFooterHeight() writes
+        // --footer-height on the observed element, which re-triggers this observer.
+        attributeFilter: ['class'],
       })
     },
     updateFooterHeight() {
@@ -126,10 +128,7 @@ export default {
           totalHeight += footer.offsetHeight + (idx > 0 ? -borderWidth : 0)
         }
       })
-      const newHeight = totalHeight > 0 ? `${totalHeight}px` : '0px'
-      if (this.footerHeight !== newHeight) {
-        this.footerHeight = newHeight
-      }
+      this.footerHeight = totalHeight > 0 ? `${totalHeight}px` : '0px'
     },
     offlineListener() {
       this.offline = true
