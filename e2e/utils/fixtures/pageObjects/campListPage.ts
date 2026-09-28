@@ -45,4 +45,8 @@ export class CampListPage {
   campTitle(campTitle: string): Locator {
     return this._page.getByText(campTitle, { exact: true })
   }
+
+  get locator(): Locator {
+    return this._page.locator('body')
+  }
 }

@@ -1,6 +1,7 @@
-import { test, expect } from '@playwright/test'
+import { expect } from '@playwright/test'
 import { loginAndSetCookie } from '@/utils/helpers'
 import { castorUser } from '@/utils/constants'
+import { test } from '@/utils/etest'
 
 const originalPassword = 'test'
 const newPassword = 'new-password-test'
@@ -61,4 +62,37 @@ test('can change the password from the profile page', async ({ page, request }) 
 
   await restoreDialog.getByRole('button', { name: /Abschicken/ }).click()
   await expect(restoreDialog).toContainText('Dein Passwort wurde erfolgreich geändert.')
+})
+
+test.describe('can change the password from the profile page through page objects', () => {
+  test('can change the password from the profile page via page objects', async ({
+    loginPage,
+    profilePage,
+    userMenu,
+  }) => {
+    await loginPage.open()
+    await loginPage.loginToCampList(castorUser, restorePassword)
+
+    await profilePage.open()
+    await expect(profilePage.locator).toContainText('Profil:')
+
+    const dialog = await profilePage.openChangePasswordDialog()
+    await dialog.fillForm(restorePassword, newPassword)
+    await dialog.submit()
+    await expect(dialog.successMessage()).toBeVisible()
+    await dialog.close()
+
+    const loginPageAfterLogout = await userMenu.logout('Castor')
+    const campListPageAfterLogin = await loginPageAfterLogout.loginToCampList(
+      castorUser,
+      newPassword
+    )
+    await expect(campListPageAfterLogin.locator).toContainText('Meine Lager')
+
+    await profilePage.open()
+    const restoreDialog = await profilePage.openChangePasswordDialog()
+    await restoreDialog.fillForm(newPassword, restorePassword)
+    await restoreDialog.submit()
+    await expect(restoreDialog.successMessage()).toBeVisible()
+  })
 })
