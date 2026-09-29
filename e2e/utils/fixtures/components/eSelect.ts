@@ -28,13 +28,14 @@ export class ESelect {
 
   @boxedStep
   async select(value: string) {
-    // Two overlays are alive at once on the create-camp step and only the select menu holds the
-    // option: the submit button's tooltip is the v-else of CampCreateStep2.vue:183 and its
-    // v-tooltip is eager, so its root is mounted from the start, while the form is still not
-    // dirty and valid. The clipboard info dialog is NOT one of them -- camp.ts:110-113 opens it
-    // only after this returns, and a never-opened v-dialog has no content to mount. So the
-    // closed check is deliberately page-wide while the option is scoped to the active overlay:
-    // what has to be proven is that no overlay at all is left open.
+    // The clipboard info dialog is not one of the overlays that could be left open: camp.ts:110-113
+    // opens it only after this returns, and a never-opened v-dialog has no content to mount. So
+    // the closed check is deliberately page-wide while the option is scoped to the active
+    // overlay: what has to be proven is that no overlay at all is left open. The submit button's
+    // v-tooltip, the v-else of CampCreateStep2.vue:183-190, is eager and its root is mounted
+    // from the start, but it carries no .v-overlay--active until it is hovered (vuetify 3.13.4
+    // VOverlay.mjs:278 binds v-overlay--active to the proxied modelValue, not to hasContent),
+    // so it cannot keep this block open either.
     // The option text is a translation, so assert it separately: without this a renamed option
     // burns the whole test timeout on a click that can never land, and the failure says nothing
     // about which part of the dialog broke.
@@ -49,8 +50,6 @@ export class ESelect {
     // 45000ms exceeded while waiting on the predicate", with no call log naming the click.
     // Bounded, the click throws inside the attempt, 35 s of budget is left to retry, and the
     // reported message is the click's own.
-    // ponytail: four attempts, each bounded by that 10 s first wait. Raise the budget together
-    // with the per-attempt bound if a genuinely stuck overlay ever needs more than four.
     await expect(async () => {
       // The click is guarded on the menu still being open, not just on the option being
       // visible: the closed locator can be visible because the menu closed while another

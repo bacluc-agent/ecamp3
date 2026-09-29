@@ -59,9 +59,13 @@ export class DialogDeleteCamp {
     // armed after the click could lose the race with the document unload. The predicate shape
     // and the rejection-handler idiom are the ones CreateCampDialogStep2.submit() uses for its
     // POST /api/camps.
+    // response.ok() is part of the predicate so a rejected delete is named here: matching on
+    // method and path alone lets a 4xx/5xx answer resolve the waiter, and the failure then
+    // surfaces three steps later on the camp still being listed.
     const isDeleteCamp = (response: Response) =>
       response.request().method() === 'DELETE' &&
-      new URL(response.url()).pathname.startsWith('/api/camps/')
+      new URL(response.url()).pathname.startsWith('/api/camps/') &&
+      response.ok()
     const deleted = this._page.waitForResponse(isDeleteCamp, { timeout: 15000 })
     // Keeps a timeout from rejecting a promise nobody listens to if the click throws.
     deleted.catch(() => undefined)

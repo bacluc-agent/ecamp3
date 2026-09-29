@@ -23,8 +23,9 @@ export class CreateCampDialogStep2 {
     private readonly _closeButton = _page
       .locator('.v-overlay--active')
       .getByRole('button', { name: CLOSE_BUTTON_LABEL }),
+    // frontend/src/locales/de.json
     private readonly _manualPrototypeUrlField = _page.getByLabel(
-      'Link zum gewünschten Vorlage-Lager'
+      'Link zum gewünschten Vorlage-Lager' // components.campCreate.campCreateStep2.prototypeCampUrl
     ),
     private readonly _previewBlock = _form.locator('.dashborder'),
     private readonly _previewContent = _previewBlock.locator('.v-list-item'),
@@ -184,21 +185,23 @@ export class CreateCampDialogStep2 {
       // Hand the created camp over the moment the navigation lands, not on the way out: a throw
       // in either toHaveLength(1) guard, in campIdFromUrl, in campInfo.loaded() or in the
       // caller's own use of the result leaves the camp behind, and every camp a test leaks
-      // pushes the create button of the next one further down the camp list. This waiter is
-      // armed before the POST is even answered, it resolves with the URL, and
-      // campIdFromUrl() parses that URL, so it cannot throw here; the rejection handler keeps a
-      // timeout from rejecting a derived promise nobody listens to. It is armed above the
-      // first toHaveLength(1) and not after it, because that guard throws on a second POST and
-      // a throw there ran the rest of this method with no handle on the camp at all. It cannot
-      // be armed above the toPass as well: its own 30 s would expire while that block's 30 s
-      // and the response poll below were still running. That throw still leaks the camp, and
-      // it is the hole left.
-      campInfoRoute.then(
-        () => {
+      // pushes the create button of the next one further down the camp list. It is armed above
+      // the first toHaveLength(1) and not after it, because that guard throws on a second POST
+      // and a throw there ran the rest of this method with no handle on the camp at all. It
+      // cannot be armed above the toPass as well: its own 30 s would expire while that block's
+      // 30 s and the response poll below were still running. That throw still leaks the camp,
+      // and it is the hole left.
+      // Both handlers of .then() must swallow: waitForURL's glob is weaker than
+      // campIdFromUrl's regex, so a URL can satisfy the waiter and still fail the parse, and
+      // campIdFromUrl throws. The second argument guards the waiter's own rejection; a throw
+      // inside the first one rejects the derived promise, which nothing awaits here, so it has
+      // to be caught on the chain. Either way _createdCampId stays unset and the response-body
+      // fallback below still has a handle on the camp.
+      campInfoRoute
+        .then(() => {
           this._createdCampId = this.campIdFromUrl()
-        },
-        () => undefined
-      )
+        })
+        .catch(() => undefined)
       // A click lost to a layout shift must never be retried into a second camp.
       expect(createCampRequests).toHaveLength(1)
 
