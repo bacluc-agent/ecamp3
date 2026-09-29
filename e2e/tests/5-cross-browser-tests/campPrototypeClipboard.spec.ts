@@ -11,7 +11,7 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
   // measured worst teardown is 14.4 s, so 180 s left the delete with no room at all, and a late
   // failure surfaced as a bare "Test timeout of 180000ms exceeded" with the delete stranded
   // inside it -- which is how one slow read becomes a leaked camp. 210 s is 180 s plus 30 s for
-  // that teardown. It is deliberately NOT a bound on the coherent worst case of about 264 s
+  // that teardown. It is deliberately NOT a bound on the coherent worst case of about 250 s
   // (submit()'s 30 s toPass + 30 s response poll + 30 s waitForURL + 45 s CampInfo.loaded,
   // expectCopiedPrototype()'s 70 s and next()'s 45 s): a test that really takes that long
   // should still fail.

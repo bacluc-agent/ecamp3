@@ -49,8 +49,8 @@ export class DialogDeleteCamp {
     // 'submit' synchronously, before that promise settles
     // (frontend/src/components/dialog/DialogBase.vue:116-123), and CampDangerZone pushes the
     // camps route on that emit (CampDangerZone.vue:33), so the DELETE is still in flight when
-    // this returns. The page.goto('/camps') in Camp.delete() then unloads the document and
-    // aborts it, and the next GET /api/camps still lists the camp. Run 36409935064 job
+    // this returns. The page.goto('/camps') in CampListPage.goto() then unloads the document
+    // and aborts it, and the next GET /api/camps still lists the camp. Run 36409935064 job
     // 108888349377 (chromium repeat 16) ended "1 failed" / "11 passed (44.9s)" on
     // expect(locator).toBeHidden() for getByText('manual prototype h726E') with the element
     // still visible, and the Playwright trace in that run's playwright-report-16 artifact
