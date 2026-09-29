@@ -186,7 +186,6 @@ export default {
       loadingEndpoints: {
         categories: true,
         periods: true,
-        days: false,
         campCollaborations: true,
         progressLabels: true,
       },
@@ -279,7 +278,6 @@ export default {
 
     await Promise.all([
       this.camp._meta.load,
-      this.api.get().days({ 'period.camp': this.camp._meta.self }),
       ...this.camp.periods().items.map((period) => period.scheduleEntries()._meta.load),
       this.camp.activities()._meta.load,
     ])
