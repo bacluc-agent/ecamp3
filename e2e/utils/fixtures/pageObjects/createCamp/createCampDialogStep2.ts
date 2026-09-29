@@ -175,10 +175,6 @@ export class CreateCampDialogStep2 {
           .poll(() => createCampRequests.length, { timeout: 15000 })
           .toBeGreaterThan(0)
       }).toPass({ timeout: 30000 })
-      // A click lost to a layout shift must never be retried into a second camp.
-      expect(createCampRequests).toHaveLength(1)
-
-      const [createCampRequest] = createCampRequests
       // The camp id is read from the URL and, when the navigation never lands, from the
       // response body below, so this waiter is load-bearing for the diagnostic but no longer
       // the only handle the teardown has.
@@ -186,18 +182,27 @@ export class CreateCampDialogStep2 {
         timeout: 30_000,
       })
       // Hand the created camp over the moment the navigation lands, not on the way out: a throw
-      // in the toPass, in either toHaveLength(1) guard, in campIdFromUrl, in campInfo.loaded()
-      // or in the caller's own use of the result leaves the camp behind, and every camp a test
-      // leaks pushes the create button of the next one further down the camp list. This waiter
-      // is armed before the POST is even answered, it resolves with the URL, and
+      // in either toHaveLength(1) guard, in campIdFromUrl, in campInfo.loaded() or in the
+      // caller's own use of the result leaves the camp behind, and every camp a test leaks
+      // pushes the create button of the next one further down the camp list. This waiter is
+      // armed before the POST is even answered, it resolves with the URL, and
       // campIdFromUrl() parses that URL, so it cannot throw here; the rejection handler keeps a
-      // timeout from rejecting a derived promise nobody listens to.
+      // timeout from rejecting a derived promise nobody listens to. It is armed above the
+      // first toHaveLength(1) and not after it, because that guard throws on a second POST and
+      // a throw there ran the rest of this method with no handle on the camp at all. It cannot
+      // be armed above the toPass as well: its own 30 s would expire while that block's 30 s
+      // and the response poll below were still running. That throw still leaks the camp, and
+      // it is the hole left.
       campInfoRoute.then(
         () => {
           this._createdCampId = this.campIdFromUrl()
         },
         () => undefined
       )
+      // A click lost to a layout shift must never be retried into a second camp.
+      expect(createCampRequests).toHaveLength(1)
+
+      const [createCampRequest] = createCampRequests
       // A page-wide waitForResponse armed before the click is what reported
       // "page.waitForResponse: Timeout 60000ms exceeded" in run 36358234549 (jobs 108743202916
       // and 108743203036) while the real defect stayed invisible: the loop above had already
