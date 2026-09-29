@@ -34,22 +34,37 @@ export class CampInfo {
 
   @boxedStep
   async openDeleteDialog() {
-    await this._dangerZoneTitle.click()
-
     const dialog = new DialogDeleteCamp(this._page)
-    // The activator click stays outside this retry: the panel title is a toggle and a second
-    // click would collapse the panel again. The button click inside the retry is guarded the
-    // same way closeClipboardInfoDialog() guards its own, because DialogDeleteCamp.loaded()
-    // can in principle fail with the overlay still up -- the prompt input rendering later than
-    // the overlay is a product bug -- and an unguarded re-click would then be dispatched at a
-    // button under the overlay. A dialog that opens without its input still fails after 40 s.
+    // The activator click is inside the retry now, bounded for the same reason every
+    // other action in a block on this branch is: playwright.config.ts sets no
+    // actionTimeout, so this click ran to the test's own deadline and a lost one
+    // surfaced as a bare test timeout with no call log, stranding the teardown delete
+    // and the camp with it. It is guarded, not plain, because the title is a toggle:
+    // VExpansionPanelTitle renders a <button> whose aria-expanded is bound to the
+    // panel's isSelected and whose onClick is useGroupItem's toggle,
+    // group.select(id, !isSelected) (vuetify 3.13.4, VExpansionPanelTitle.mjs and
+    // composables/group.js:73), so a blind retry click would collapse the panel it
+    // just opened. The read carries the click's own 10 s for the same reason: with no
+    // actionTimeout an unbounded getAttribute would sit on a title that never renders
+    // until the test's own deadline, which is the bare timeout this block exists to
+    // remove. The comparison is !== 'true' and not === 'false' so a title that carries
+    // no aria-expanded at all is clicked instead of the block ending on a read that can
+    // never succeed. One attempt is now 10 s activator + 10 s button + 10 s click + 20 s
+    // dialog.loaded() = 50 s, so 60 s is that attempt plus slack; the button click keeps
+    // the dialog.isVisible() guard it already had.
     await expect(async () => {
+      const expanded = await this._dangerZoneTitle.getAttribute('aria-expanded', {
+        timeout: 10_000,
+      })
+      if (expanded !== 'true') {
+        await this._dangerZoneTitle.click({ timeout: 10_000 })
+      }
       await expect(this._deleteCampButton).toBeVisible({ timeout: 10_000 })
       if (!(await dialog.dialog.isVisible())) {
         await this._deleteCampButton.click({ timeout: 10_000 })
       }
       await dialog.loaded()
-    }).toPass({ timeout: 40_000 })
+    }).toPass({ timeout: 60_000 })
 
     return dialog
   }

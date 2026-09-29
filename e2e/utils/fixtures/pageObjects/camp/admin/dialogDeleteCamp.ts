@@ -21,16 +21,18 @@ export class DialogDeleteCamp {
 
   @boxedStep
   async loaded() {
-    // The input is the last thing the dialog renders, and it was measured at 10.03 s against
-    // this 10 s budget in run 36509282158 job 109220231972 step 15 (firefox repetition 7), so
-    // it landed past its own deadline and still passed. That matters here more than it would
-    // inside a toPass, because campInfo.ts:48's dialog.isVisible() guard returns false in
-    // exactly that window -- overlay up, input not rendered yet -- so the enclosing 40 s block
-    // re-clicks a button under the overlay and spends another 10 s failing for actionability.
-    // 20 s is the right size for that measurement, but note what it costs: 10 s + 10 s + 20 s is
-    // the whole 40 s block, so this attempt is now the only one and a first failure ends the
-    // delete instead of being retried. If that retry is wanted back, raise the block in
-    // campInfo.ts:52 past 50 s rather than shrinking this read.
+    // The input is the last thing the dialog renders, and it was measured at 10.03 s
+    // against this 10 s budget in run 36509282158 job 109220231972 step 15 (firefox
+    // repetition 7), so it landed past its own deadline and still passed. That
+    // matters here more than it would inside a toPass, because campInfo.ts:63's
+    // dialog.isVisible() guard returns false in exactly that window -- overlay up,
+    // input not rendered yet -- so the enclosing block re-clicks a button under the
+    // overlay and spends another 10 s failing for actionability. 20 s is the right
+    // size for that measurement, but note what it costs: 10 s activator + 10 s button
+    // + 10 s click + 20 s here is 50 s of the 60 s block, so this attempt is still the
+    // only one and a first failure still ends the delete instead of being retried. If
+    // that retry is wanted back, raise the block in campInfo.ts:67 past 100 s rather
+    // than shrinking this read.
     await expect(this._promptInput).toBeVisible({ timeout: 20000 })
     return this
   }
