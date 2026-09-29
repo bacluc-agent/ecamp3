@@ -4,9 +4,9 @@
 /activity_progress_labels/item: 6
 /activity_responsibles: 5
 /activity_responsibles/item: 7
-/camps: 8
+/camps: 6
 /camps/item: 15
-/camp_collaborations: 7
+/camp_collaborations: 6
 /camp_collaborations/item: 6
 /categories: 5
 /categories/item: 10
@@ -32,8 +32,8 @@
 '/activities?camp=': 13
 '/activity_progress_labels?camp=': 5
 '/activity_responsibles?activity.camp=': 5
-'/camp_collaborations?camp=': 7
-'/camp_collaborations?activityResponsibles.activity=': 6
+'/camp_collaborations?camp=': 6
+'/camp_collaborations?activityResponsibles.activity=': 5
 '/categories?camp=': 5
 '/comments?camp=': 6
 '/content_types?categories=': 5

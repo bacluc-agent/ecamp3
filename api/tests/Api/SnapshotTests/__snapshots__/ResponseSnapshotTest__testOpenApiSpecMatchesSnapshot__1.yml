@@ -2527,11 +2527,10 @@ components:
             - 'null'
             - string
         campCollaborations:
-          items:
-            example: 'https://example.com/'
-            format: iri-reference
-            type: string
-          type: array
+          example: 'https://example.com/'
+          format: iri-reference
+          readOnly: true
+          type: string
         categories:
           description: 'Types of programme, such as sports activities or meal times.'
           example: '"/camp/1a2b3c4d/categories"'
@@ -3022,11 +3021,10 @@ components:
             - 'null'
             - string
         campCollaborations:
-          items:
-            example: 'https://example.com/'
-            format: iri-reference
-            type: string
-          type: array
+          example: 'https://example.com/'
+          format: iri-reference
+          readOnly: true
+          type: string
         categories:
           description: 'Types of programme, such as sports activities or meal times.'
           example: '"/camp/1a2b3c4d/categories"'
@@ -3267,11 +3265,10 @@ components:
             - 'null'
             - string
         campCollaborations:
-          items:
-            example: 'https://example.com/'
-            format: iri-reference
-            type: string
-          type: array
+          example: 'https://example.com/'
+          format: iri-reference
+          readOnly: true
+          type: string
         categories:
           description: 'Types of programme, such as sports activities or meal times.'
           example: '"/camp/1a2b3c4d/categories"'
@@ -3971,11 +3968,10 @@ components:
             - 'null'
             - string
         campCollaborations:
-          items:
-            example: 'https://example.com/'
-            format: iri-reference
-            type: string
-          type: array
+          example: 'https://example.com/'
+          format: iri-reference
+          readOnly: true
+          type: string
         categories:
           description: 'Types of programme, such as sports activities or meal times.'
           example: '"/camp/1a2b3c4d/categories"'
@@ -4466,11 +4462,10 @@ components:
             - 'null'
             - string
         campCollaborations:
-          items:
-            example: 'https://example.com/'
-            format: iri-reference
-            type: string
-          type: array
+          example: 'https://example.com/'
+          format: iri-reference
+          readOnly: true
+          type: string
         categories:
           description: 'Types of programme, such as sports activities or meal times.'
           example: '"/camp/1a2b3c4d/categories"'
@@ -4711,11 +4706,10 @@ components:
             - 'null'
             - string
         campCollaborations:
-          items:
-            example: 'https://example.com/'
-            format: iri-reference
-            type: string
-          type: array
+          example: 'https://example.com/'
+          format: iri-reference
+          readOnly: true
+          type: string
         categories:
           description: 'Types of programme, such as sports activities or meal times.'
           example: '"/camp/1a2b3c4d/categories"'
@@ -5188,11 +5182,10 @@ components:
                 - 'null'
                 - string
             campCollaborations:
-              items:
-                example: 'https://example.com/'
-                format: iri-reference
-                type: string
-              type: array
+              example: 'https://example.com/'
+              format: iri-reference
+              readOnly: true
+              type: string
             categories:
               description: 'Types of programme, such as sports activities or meal times.'
               example: '"/camp/1a2b3c4d/categories"'
@@ -5692,11 +5685,10 @@ components:
                 - 'null'
                 - string
             campCollaborations:
-              items:
-                example: 'https://example.com/'
-                format: iri-reference
-                type: string
-              type: array
+              example: 'https://example.com/'
+              format: iri-reference
+              readOnly: true
+              type: string
             categories:
               description: 'Types of programme, such as sports activities or meal times.'
               example: '"/camp/1a2b3c4d/categories"'
@@ -5943,11 +5935,10 @@ components:
                 - 'null'
                 - string
             campCollaborations:
-              items:
-                example: 'https://example.com/'
-                format: iri-reference
-                type: string
-              type: array
+              example: 'https://example.com/'
+              format: iri-reference
+              readOnly: true
+              type: string
             categories:
               description: 'Types of programme, such as sports activities or meal times.'
               example: '"/camp/1a2b3c4d/categories"'

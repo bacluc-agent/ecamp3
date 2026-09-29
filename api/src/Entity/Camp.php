@@ -81,6 +81,7 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
     ];
 
     #[AssertContainsAtLeastOneManager(groups: ['update'])]
+    #[ApiProperty(writable: false, uriTemplate: CampCollaboration::CAMP_SUBRESOURCE_URI_TEMPLATE)]
     #[SerializedName('campCollaborations')]
     #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: CampCollaboration::class, mappedBy: 'camp', orphanRemoval: true)]
@@ -519,7 +520,7 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
      *
      * @return CampCollaboration[]
      */
-    #[ApiProperty(writable: false, readableLink: true)]
+    #[ApiProperty(writable: false, readableLink: true, uriTemplate: CampCollaboration::CAMP_SUBRESOURCE_URI_TEMPLATE)]
     #[SerializedName('campCollaborations')]
     #[Groups('Camp:CampCollaborations')]
     public function getEmbeddedCampCollaborations(): array {
