@@ -70,6 +70,7 @@ test('can change the password from the profile page via page objects', async ({
   userMenu,
 }) => {
   await loginPage.open()
+  // depends on the test above: it leaves castorUser on restorePassword (12-char minimum, api/src/Entity/User.php:150)
   await loginPage.loginToCampList(castorUser, restorePassword)
 
   await profilePage.open()

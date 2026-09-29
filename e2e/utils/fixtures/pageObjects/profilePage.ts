@@ -21,7 +21,10 @@ export class ProfilePage {
 
   constructor(
     private readonly _page: Page,
-    private readonly _skeletonLoaders = _page.locator('.v-skeleton-loader')
+    private readonly _skeletonLoaders = _page.locator('.v-skeleton-loader'),
+    private readonly _changePasswordButton = _page
+      .locator('.e-profile--password')
+      .getByRole('button', { name: /Ändern/ })
   ) {}
 
   @boxedStep
@@ -33,15 +36,13 @@ export class ProfilePage {
   @boxedStep
   async loaded() {
     await expect(this._skeletonLoaders).toHaveCount(0)
+    await expect(this._changePasswordButton).toBeVisible()
     return this
   }
 
   @boxedStep
   async openChangePasswordDialog() {
-    await this._page
-      .locator('.e-profile--password')
-      .getByRole('button', { name: /Ändern/ })
-      .click()
+    await this._changePasswordButton.click()
     const dialogChangePassword = new DialogChangePassword(this._page)
     await dialogChangePassword.loaded()
     return dialogChangePassword
