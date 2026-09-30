@@ -4,8 +4,10 @@ import { boxedStep } from '@/utils/decorators/boxedStep'
 export class DialogCollaboratorBulkInvite {
   constructor(
     private readonly _page: Page,
-    // The bulk invite dialog is rendered as a v-dialog, while `.v-overlay--active`
-    // alone also matches the navigation drawer and other overlays on the page.
+    // Same dialog locator the existing specs use
+    // (e.g. tests/9-behavior-tests/zzz-changePassword.spec.ts). Scoping to
+    // `.v-dialog` keeps every dialog-scoped assertion immune to any overlay
+    // that happens to be mounted and active on the page.
     private readonly _dialog = _page.locator('.v-dialog.v-overlay--active'),
     // The dialog only holds the e-mail textarea, so the bare textbox role is enough.
     private readonly _emailsInput = _dialog.getByRole('textbox'),
@@ -51,7 +53,7 @@ export class DialogCollaboratorBulkInvite {
   }
 
   alertFor(email: string): Locator {
-    return this._dialog.getByRole('alert').filter({ hasText: email })
+    return this._alerts.filter({ hasText: email })
   }
 
   get overlay(): Locator {
