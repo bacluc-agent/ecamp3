@@ -155,7 +155,7 @@ workflow):
 ```sql
 SHOW PARTITIONS FROM TABLE period;
 SHOW RANGES FROM INDEX period@period_start WITH DETAILS;   -- lease_holder, replicas, replica_localities
-SELECT node_id, locality, islive FROM crdb_internal.gossip_nodes;
+SELECT node_id, locality, is_live FROM crdb_internal.gossip_nodes;
 -- printed inside the convergence loop, not an evidence query:
 SELECT DISTINCT extract(year FROM start)::INT FROM period ORDER BY 1;
 ```
@@ -196,7 +196,7 @@ Earlier runs on the way there (bug-fix history): migrations blocked at
 `Version20220611193723` (`column "data" does not exist`), `Version20250520220800`
 (`column "mi.campid" does not exist`), and `Version20250821113132`
 (`column "c.isshared" does not exist`); fixture loading failed on the case-sensitive
-`profileId` column. The final run's migration and API-test evidence is linked above.
+`profileId` column. The evidence run's migration and API-test links are above.
 
 ## Performance conclusions
 
