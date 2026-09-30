@@ -99,7 +99,18 @@ export default {
       const appElement = this.$el
       if (!appElement) return
 
-      this.mutationObserver = new MutationObserver(() => {
+      this.mutationObserver = new MutationObserver((mutations) => {
+        // updateFooterHeight() writes --footer-height onto the observed element itself,
+        // so that style write must not re-trigger this observer. Every other mutation
+        // counts: 'class' and childList for the footers appearing, disappearing or
+        // toggling, and the inline layout styles Vuetify re-patches onto <v-footer app>
+        // whenever the viewport resizes and the footer text re-wraps.
+        const onlyOwnStyleWrite = (m) =>
+          m.type === 'attributes' &&
+          m.target === appElement &&
+          m.attributeName === 'style'
+        if (mutations.every(onlyOwnStyleWrite)) return
+
         this.updateFooterHeight()
       })
 
@@ -107,9 +118,7 @@ export default {
         childList: true,
         subtree: true,
         attributes: true,
-        // 'style' must stay out of this filter: updateFooterHeight() writes
-        // --footer-height on the observed element, which re-triggers this observer.
-        attributeFilter: ['class'],
+        attributeFilter: ['style', 'class'],
       })
     },
     updateFooterHeight() {
