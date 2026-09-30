@@ -1,6 +1,8 @@
-import { expect, test } from '@playwright/test'
+import { expect } from '@playwright/test'
 import { bipiUser, grgrCampId } from '@/utils/constants'
 import { loginAndSetCookie } from '@/utils/helpers'
+import { test } from '@/utils/etest'
+import { CampCollaboratorsPage } from '@/utils/fixtures/pageObjects/camp/admin/campCollaboratorsPage'
 
 const runId = Date.now()
 
@@ -124,4 +126,116 @@ test.describe('bulk invite collaborators', () => {
       )
     }
   )
+})
+
+test('opens dialog and shows form fields via page objects', async ({
+  page,
+  loginPage,
+}) => {
+  await loginPage.open()
+  await loginPage.loginToCampList(bipiUser)
+  const collaborators = new CampCollaboratorsPage(page, grgrCampId)
+  await collaborators.goto()
+  const dialog = await collaborators.openBulkInviteDialog()
+
+  await expect(dialog.emailsInput).toBeVisible()
+  await expect(dialog.roleSelect).toBeVisible()
+  await expect(dialog.submitButton).toBeVisible()
+  await expect(dialog.submitButton).toBeDisabled()
+})
+
+test('invites new people and shows success count via page objects', async ({
+  page,
+  loginPage,
+  runId,
+}) => {
+  const email1 = `run${runId}-a@example.com`
+  const email2 = `run${runId}-b@example.com`
+
+  await loginPage.open()
+  await loginPage.loginToCampList(bipiUser)
+  const collaborators = new CampCollaboratorsPage(page, grgrCampId)
+  await collaborators.goto()
+  const dialog = await collaborators.openBulkInviteDialog()
+
+  await dialog.fillEmails(`${email1}\n${email2}`)
+  await dialog.submit()
+
+  await expect(dialog.successAlert).toContainText('2')
+
+  await dialog.close()
+  await expect(dialog.overlay).toBeHidden()
+
+  await expect(page.getByText(email1, { exact: true })).toBeVisible()
+  await expect(page.getByText(email2, { exact: true })).toBeVisible()
+})
+
+test('reports already-invited email in the result via page objects', async ({
+  page,
+  loginPage,
+  runId,
+}) => {
+  const newEmail = `run${runId}-c@example.com`
+
+  await loginPage.open()
+  await loginPage.loginToCampList(bipiUser)
+  const collaborators = new CampCollaboratorsPage(page, grgrCampId)
+  await collaborators.goto()
+  const dialog = await collaborators.openBulkInviteDialog()
+
+  await dialog.fillEmails(`x@z.com\n${newEmail}`)
+  await dialog.submit()
+
+  await expect(dialog.alertFor('x@z.com')).toBeVisible()
+})
+
+test('shows failed email in the result when invite fails via page objects', async ({
+  page,
+  loginPage,
+  runId,
+}) => {
+  const email1 = `run${runId}-d@example.com`
+  const email2 = `run2${runId}-d@example.com`
+
+  await loginPage.open()
+  await loginPage.loginToCampList(bipiUser)
+  const collaborators = new CampCollaboratorsPage(page, grgrCampId)
+  await collaborators.goto()
+  const dialog = await collaborators.openBulkInviteDialog()
+
+  await dialog.fillEmails(`${email1};${email2}`)
+
+  await page.route('**/camp_collaborations', async (route) => {
+    if (route.request().method() === 'POST') {
+      await route.fulfill({ status: 500, body: 'Internal Server Error' })
+    } else {
+      await route.continue()
+    }
+  })
+
+  await dialog.submit()
+
+  const failedAlert = dialog.alertFor(email1)
+  await expect(failedAlert).toContainText(email1)
+  await expect(failedAlert).toContainText(email2)
+
+  await expect(dialog.emailsInputByLabel).toHaveValue(`${email1};${email2}`)
+})
+
+test('closes dialog and resets form on cancel via page objects', async ({
+  page,
+  loginPage,
+}) => {
+  await loginPage.open()
+  await loginPage.loginToCampList(bipiUser)
+  const collaborators = new CampCollaboratorsPage(page, grgrCampId)
+  await collaborators.goto()
+  const dialog = await collaborators.openBulkInviteDialog()
+
+  await dialog.fillEmails('test@example.com')
+  await dialog.close()
+  await expect(dialog.overlay).toBeHidden()
+
+  const reopened = await collaborators.openBulkInviteDialog()
+  await expect(reopened.emailsInput).toHaveValue('')
 })
