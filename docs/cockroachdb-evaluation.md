@@ -168,7 +168,7 @@ of one-replica-per-shard designs; it is therefore not the default.
 
 Local rehearsal on the compose cluster: partitions split at the year boundaries and all
 four leaseholders converged to the preferred nodes after roughly 150 seconds (CI runs
-converged after 270–310 seconds). Caveats:
+converged after 180–310 seconds). Caveats:
 lease moves take seconds to minutes (the workflow waits before printing evidence), tiny
 tables may split ranges slightly after the partition boundary appears, and the keyless
 license grace window (7 days) applies to long-lived clusters.
