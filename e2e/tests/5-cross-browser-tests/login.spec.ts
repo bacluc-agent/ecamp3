@@ -26,21 +26,29 @@ test.describe('Login test', { tag: '@mature' }, () => {
   })
 })
 
-test('displays the login page via page objects', async ({ loginPage }) => {
-  await loginPage.open()
+test(
+  'displays the login page via page objects',
+  { tag: '@mature' },
+  async ({ loginPage }) => {
+    await loginPage.open()
 
-  await expect(loginPage.locator).toContainText('Login')
-  await expect(loginPage.locator).toContainText(
-    'This is the development version of eCamp v3.'
-  )
-  await expect(loginPage.locator).toContainText('Register now')
-})
+    await expect(loginPage.locator).toContainText('Login')
+    await expect(loginPage.locator).toContainText(
+      'This is the development version of eCamp v3.'
+    )
+    await expect(loginPage.locator).toContainText('Register now')
+  }
+)
 
-test('can login with default user via page objects', async ({ loginPage }) => {
-  await loginPage.open()
-  const campListPage = await loginPage.loginToCampList(bipiUser)
+test(
+  'can login with default user via page objects',
+  { tag: '@mature' },
+  async ({ loginPage }) => {
+    await loginPage.open()
+    const campListPage = await loginPage.loginToCampList(bipiUser)
 
-  await expect(campListPage.loggedInUserButton('Bi-Pi')).toBeVisible()
-  await expect(campListPage.campTitle('GRGR')).toBeVisible()
-  await expect(campListPage.campTitle('Harry Potter Lager')).toBeVisible()
-})
+    await expect(campListPage.loggedInUserButton('Bi-Pi')).toBeVisible()
+    await expect(campListPage.campTitle('GRGR')).toBeVisible()
+    await expect(campListPage.campTitle('Harry Potter Lager')).toBeVisible()
+  }
+)
