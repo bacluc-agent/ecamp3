@@ -175,13 +175,13 @@ license grace window (7 days) applies to long-lived clusters.
 
 ### Test results
 
-Additional-Test run on HEAD `36977ac30fd3b62ad93ca265594fcb7721c1571f` (all 15 steps green, branch `issue-225`):
+Additional-Test run on HEAD `619a5dc36dd5c95f5c86325bdf0d318cff4dced5` (all 15 steps green, branch `issue-225`):
 
-- [full migrations](https://github.com/bacluc-agent/ecamp3/actions/runs/36518951808/job/109247406872#step:11)
-- [ListCampsTest + CreateCampTest](https://github.com/bacluc-agent/ecamp3/actions/runs/36518951808/job/109247406872#step:14)
-- [assert camp years are leased on different nodes (convergence loop + SHOW PARTITIONS + SHOW RANGES FROM INDEX + gossip)](https://github.com/bacluc-agent/ecamp3/actions/runs/36518951808/job/109247406872#step:15)
+- [full migrations](https://github.com/bacluc-agent/ecamp3/actions/runs/36654229245/job/109694914573#step:11)
+- [ListCampsTest + CreateCampTest](https://github.com/bacluc-agent/ecamp3/actions/runs/36654229245/job/109694914573#step:14)
+- [assert camp years are leased on different nodes (convergence loop + SHOW PARTITIONS + SHOW RANGES FROM INDEX + gossip)](https://github.com/bacluc-agent/ecamp3/actions/runs/36654229245/job/109694914573#step:15)
 
-Evidence excerpt from the final step of [run 36518951808](https://github.com/bacluc-agent/ecamp3/actions/runs/36518951808/job/109247406872#step:15)
+Evidence excerpt from the final step of [run 36654229245](https://github.com/bacluc-agent/ecamp3/actions/runs/36654229245/job/109694914573#step:15)
 (`SHOW RANGES FROM INDEX period@period_start WITH DETAILS`,
 `period_start` ranges; every range has `replicas {1,2,3}`):
 
@@ -229,7 +229,7 @@ measurements ([ecamp3 #8123](https://github.com/ecamp/ecamp3/issues/8123)/[#8668
 | `... exec ... SHOW DATABASES; SHOW USERS;`                        | Passed; `ecamp3` database and user present                                                                                                                                                                                                                                                                                                                                   |
 | `docker compose up -d`                                            | Blocked: runner exposes 4 CPUs but compose requests a larger CPU range                                                                                                                                                                                                                                                                                                       |
 | `docker compose -f docker-compose.cockroachdb-cluster.yml config` | Passed                                                                                                                                                                                                                                                                                                                                                                       |
-| 3-node cluster + partitions + tests                               | Passed; all 15 steps green — see [migrations](https://github.com/bacluc-agent/ecamp3/actions/runs/36518951808/job/109247406872#step:11), [API tests](https://github.com/bacluc-agent/ecamp3/actions/runs/36518951808/job/109247406872#step:14), and [leaseholder assertions](https://github.com/bacluc-agent/ecamp3/actions/runs/36518951808/job/109247406872#step:15) below |
+| 3-node cluster + partitions + tests                               | Passed; all 15 steps green — see [migrations](https://github.com/bacluc-agent/ecamp3/actions/runs/36654229245/job/109694914573#step:11), [API tests](https://github.com/bacluc-agent/ecamp3/actions/runs/36654229245/job/109694914573#step:14), and [leaseholder assertions](https://github.com/bacluc-agent/ecamp3/actions/runs/36654229245/job/109694914573#step:15) below |
 
 ## References
 
