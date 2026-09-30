@@ -65,3 +65,57 @@ test.describe('comments on an activity', () => {
     await expect(comment).toHaveCount(0)
   })
 })
+
+test('writes, reads and deletes an own comment via page objects', async ({
+  loginPage,
+  programPage,
+  runId,
+}) => {
+  const text = `Kommentar ${runId}`
+
+  await loginPage.open()
+  await loginPage.loginToCampList(bipiUser)
+
+  await programPage.goto()
+  const activityPage = await programPage.openFirstActivity()
+  const commentsPanel = await activityPage.openComments()
+
+  await commentsPanel.write(text)
+  await commentsPanel.submit()
+
+  const comment = await commentsPanel.comment(text)
+  await expect(comment.element).toBeVisible()
+
+  await activityPage.reload()
+  await activityPage.openComments()
+  await expect(comment.element).toBeVisible()
+
+  await comment.delete()
+  await expect(comment.element).toHaveCount(0)
+})
+
+test('submits with ctrl+enter without inserting a line break via page objects', async ({
+  loginPage,
+  programPage,
+  runId,
+}) => {
+  const text = `Tastatur ${runId}`
+
+  await loginPage.open()
+  await loginPage.loginToCampList(bipiUser)
+
+  await programPage.goto()
+  const activityPage = await programPage.openFirstActivity()
+  const commentsPanel = await activityPage.openComments()
+
+  await commentsPanel.write(text)
+  await commentsPanel.submitWithKeyboard()
+
+  const comment = await commentsPanel.comment(text)
+  await expect(comment.element).toBeVisible()
+  await expect(comment.content).toHaveText(text)
+  expect(await comment.content.innerHTML()).not.toContain('<br')
+
+  await comment.delete()
+  await expect(comment.element).toHaveCount(0)
+})

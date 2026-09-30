@@ -9,6 +9,10 @@ import {
   CampListPageFixtureType,
 } from '@/utils/fixtures/pageObjects/campListPage'
 import {
+  programPageFixture,
+  ProgramPageFixtureType,
+} from '@/utils/fixtures/pageObjects/camp/program/programPage'
+import {
   profilePageFixture,
   ProfilePageFixtureType,
 } from '@/utils/fixtures/pageObjects/profilePage'
@@ -22,6 +26,7 @@ const fixtureObject = {
   ...runIdFixture,
   ...loginPageFixture,
   ...camplistPageFixture,
+  ...programPageFixture,
   ...profilePageFixture,
   ...userMenuFixture,
   ...campFixture,
@@ -30,6 +35,7 @@ const fixtureObject = {
 export const test = base.extend<
   LoginPageFixtureType &
     CampListPageFixtureType &
+    ProgramPageFixtureType &
     ProfilePageFixtureType &
     UserMenuFixtureType &
     RunIdFixtureType &
