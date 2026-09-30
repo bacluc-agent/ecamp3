@@ -168,7 +168,7 @@ of one-replica-per-shard designs; it is therefore not the default.
 
 Local rehearsal on the compose cluster: partitions split at the year boundaries and all
 four leaseholders converged to the preferred nodes after roughly 150 seconds (CI runs
-converged after 180–310 seconds). Caveats:
+converged after 10–480 seconds). Caveats:
 lease moves take seconds to minutes (the workflow waits before printing evidence), tiny
 tables may split ranges slightly after the partition boundary appears, and the keyless
 license grace window (7 days) applies to long-lived clusters.
@@ -193,9 +193,10 @@ Evidence excerpt from the final step of [run 36654229245](https://github.com/bac
 | `…/20089 → …/<IndexMax>` (2025) | 1            | `1 node=n1` |
 
 Earlier runs on the way there (bug-fix history): migrations blocked at
-`Version20250821113132` (`column "c.isshared" does not exist`); fixture loading failed
-on the case-sensitive `profileId` column. The final run's migration and API-test
-evidence is linked above.
+`Version20220611193723` (`column "data" does not exist`), `Version20250520220800`
+(`column "mi.campid" does not exist`), and `Version20250821113132`
+(`column "c.isshared" does not exist`); fixture loading failed on the case-sensitive
+`profileId` column. The final run's migration and API-test evidence is linked above.
 
 ## Performance conclusions
 
