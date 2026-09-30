@@ -17,18 +17,16 @@ jobs:
 
       # build API (using cache; provide image to docker compose)
       - name: Build docker image (API/PHP)
-        uses: docker/build-push-action@v7
-        with:
-          file: api/Dockerfile
-          context: './api'
-          push: false
-          load: true
-          target: frankenphp_prod
-          builder: ${{ steps.buildx.outputs.name }}
-          tags: docker.io/ecamp/ecamp3-api:latest
-          cache-from: type=gha,scope=api
-          cache-to: type=gha,scope=api,mode=max
-          outputs: type=docker,dest=/tmp/ecamp3-dev-api.tar
+        run: >
+          bash .github/scripts/retry.sh 3 15 docker buildx build
+          --cache-from type=gha,scope=api
+          --cache-to type=gha,scope=api,mode=max
+          --file api/Dockerfile
+          --output type=docker,dest=/tmp/ecamp3-dev-api.tar
+          --tag docker.io/ecamp/ecamp3-api:latest
+          --target frankenphp_prod
+          --builder "${{ steps.buildx.outputs.name }}"
+          --load ./api
 
       - uses: actions/upload-artifact@v7
         with:
