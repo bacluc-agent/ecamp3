@@ -1,0 +1,94 @@
+name: Test Write Access Check
+
+on:
+  workflow_dispatch:
+    inputs:
+      organization:
+        type: string
+        description: 'Organization containing the repository'
+        required: true
+        default: 'bacluc-agent'
+      repository:
+        type: string
+        description: 'Repository to test'
+        required: true
+        default: 'ecamp3'
+      username:
+        type: string
+        description: 'GitHub username to test'
+        required: true
+        default: 'bacluc-agent'
+      expected:
+        type: choice
+        description: 'Expected authorization result'
+        required: true
+        default: allow
+        options:
+          - allow
+          - deny
+
+permissions: read-all
+
+jobs:
+  test-permission-check:
+    name: Test permission check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run authorization gate
+        id: check
+        continue-on-error: true
+        uses: actions/github-script@v9
+        env:
+          REPO_ACCESS_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
+          TEST_ORG: ${{ inputs.organization }}
+          TEST_REPO: ${{ inputs.repository }}
+          TEST_USER: ${{ inputs.username }}
+        with:
+          github-token: ${{ secrets.REPO_ACCESS_TOKEN || github.token }}
+          script: |
+            const login = process.env.TEST_USER;
+            let authorized = false;
+
+            try {
+              if (typeof login !== 'string' || login.length === 0) {
+                throw new Error('invalid username');
+              }
+              const isForkTarget = process.env.TEST_ORG === context.repo.owner
+                && process.env.TEST_REPO === context.repo.repo;
+              if (!isForkTarget && !process.env.REPO_ACCESS_TOKEN) {
+                throw new Error('production access token is required');
+              }
+
+              const membership = await github.request('GET /orgs/{org}/memberships/{username}', {
+                org: process.env.TEST_ORG,
+                username: login,
+              });
+              const permission = await github.request('GET /repos/{owner}/{repo}/collaborators/{username}/permission', {
+                owner: process.env.TEST_ORG,
+                repo: process.env.TEST_REPO,
+                username: login,
+              });
+
+              authorized = membership?.data?.state === 'active'
+                && ['write', 'maintain', 'admin'].includes(permission?.data?.permission);
+            } catch {}
+
+            core.setOutput('authorized', String(authorized));
+            if (!authorized) {
+              core.setFailed('authorization denied');
+            }
+
+      - name: Assert expected result
+        if: always()
+        env:
+          EXPECTED: ${{ inputs.expected }}
+          AUTHORIZED: ${{ steps.check.outputs.authorized }}
+          OUTCOME: ${{ steps.check.outcome }}
+        run: |
+          if [ "$EXPECTED" = "allow" ] && [ "$AUTHORIZED" = "true" ] && [ "$OUTCOME" = "success" ]; then
+            exit 0
+          fi
+          if [ "$EXPECTED" = "deny" ] && [ "$AUTHORIZED" = "false" ] && [ "$OUTCOME" = "failure" ]; then
+            exit 0
+          fi
+          exit 1
