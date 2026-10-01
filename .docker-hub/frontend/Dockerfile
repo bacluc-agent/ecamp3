@@ -1,9 +1,5 @@
 # frontend build stage
 FROM node:lts-alpine AS frontend-build-stage
-ARG SENTRY_AUTH_TOKEN
-ARG SENTRY_ORG
-ARG SENTRY_FRONTEND_PROJECT
-ARG SENTRY_RELEASE_NAME
 
 COPY common /common
 
@@ -16,11 +12,6 @@ COPY frontend/patches ./patches
 # so they do not increase the image layer size
 RUN apk --no-cache add --virtual native-deps g++ make python3 git && npm ci && apk del native-deps
 COPY frontend .
-
-ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
-ENV SENTRY_ORG=$SENTRY_ORG
-ENV SENTRY_FRONTEND_PROJECT=$SENTRY_FRONTEND_PROJECT
-ENV SENTRY_RELEASE_NAME=$SENTRY_RELEASE_NAME
 
 RUN npm run build
 

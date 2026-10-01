@@ -1,5 +1,7 @@
 import svgLoader from 'vite-svg-loader'
 
+const sentryAuthToken = process.env.NUXT_SENTRY_AUTH_TOKEN
+
 export default defineNuxtConfig({
   app: {
     baseURL: '/print/',
@@ -81,6 +83,8 @@ export default defineNuxtConfig({
   },
 
   telemetry: false,
+
+  sourcemap: sentryAuthToken ? { server: true, client: true } : false,
 
   vite: {
     server: {
