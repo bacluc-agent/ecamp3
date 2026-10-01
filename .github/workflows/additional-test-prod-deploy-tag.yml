@@ -1,0 +1,51 @@
+name: Additional Test - Prod Deploy Tag
+
+on:
+  push:
+    branches: [test/prod-deploy-tag-259]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  prod-deploy-tag:
+    name: Run the PR 93 tag script without any deploy
+    runs-on: ubuntu-latest
+    env:
+      PR_HEAD_SHA: 1e6ddff63ea353a7f7b22a35ee6ed717bf64453c
+    steps:
+      - name: Check out the PR 93 head commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PR_HEAD_SHA }}
+
+      - name: Extract the tag creation script from PR 93
+        run: |
+          set -euo pipefail
+          WORKFLOW=.github/workflows/reusable-ecamp3-deployment.yml
+          awk '/^      - name: Create prod deployment tag$/{f=1} f && /^        run: \|$/{r=1;next} r && /^      - /{exit} r{sub(/^          /,"");print}' "$WORKFLOW" > /tmp/tag.sh
+          test -s /tmp/tag.sh
+          grep -q 'git ls-remote --tags' /tmp/tag.sh
+          grep -q 'git push' /tmp/tag.sh
+          awk -v sha="$PR_HEAD_SHA" -v repo="$GITHUB_REPOSITORY" '{ gsub(/\$\{\{ *inputs\.sha *\}\}/, sha); gsub(/\$\{\{ *github\.repository *\}\}/, repo); print }' /tmp/tag.sh > /tmp/tag.run.sh
+          mv /tmp/tag.run.sh /tmp/tag.sh
+          bash -n /tmp/tag.sh
+          cat /tmp/tag.sh
+
+      - name: Execute the PR 93 tag creation script
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash /tmp/tag.sh
+
+      - name: Verify the gate wiring and the created tag
+        run: |
+          set -euo pipefail
+          WORKFLOW=.github/workflows/reusable-ecamp3-deployment.yml
+          grep -qE "if: .*success\(\) && inputs\.action == .deploy. && inputs\.env == .prod." "$WORKFLOW"
+          grep -qE '^        continue-on-error: true' "$WORKFLOW"
+          grep -qE '^          GITHUB_TOKEN: ' "$WORKFLOW"
+          BASE="PROD-$(TZ=Europe/Zurich date +%Y-%m-%d)"
+          git ls-remote --tags origin "refs/tags/${BASE}*" | tee /tmp/after.txt
+          echo "PROD tags pointing at PR head ${PR_HEAD_SHA}:"
+          awk -v sha="$PR_HEAD_SHA" '$1 == sha {print "  " $2}' /tmp/after.txt
