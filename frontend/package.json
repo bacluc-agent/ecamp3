@@ -139,7 +139,8 @@
     "vue-template-compiler": "2.7.16"
   },
   "overrides": {
-    "uri-js": "npm:uri-js-replace"
+    "uri-js": "npm:uri-js-replace",
+    "encoding-sniffer": "1.0.2"
   },
   "postcss": {
     "plugins": {
