@@ -13,7 +13,8 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
   let createCampDialogStep2: CreateCampDialogStep2
   let camp: Camp
 
-  test.beforeEach(async ({ openCreateCampStep2 }) => {
+  test.beforeEach(async ({ openCreateCampStep2, clipboardStub }) => {
+    await clipboardStub.readText(copiedCampUrl)
     createCampDialogStep2 = await openCreateCampStep2()
   })
 
@@ -22,8 +23,6 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
   })
 
   test('loads a copied camp URL from the clipboard', async ({ page, clipboardStub }) => {
-    await clipboardStub.readText(copiedCampUrl)
-
     await createCampDialogStep2.selectOtherCampPrototype()
     await createCampDialogStep2.grantClipboardRead()
     await clipboardStub.expectReadSettled('resolved')
