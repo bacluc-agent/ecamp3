@@ -1,7 +1,7 @@
 import { expect, Locator, Page } from '@playwright/test'
 import { boxedStep } from '@/utils/decorators/boxedStep'
 import { CampListPage } from '@/utils/fixtures/pageObjects/campListPage'
-import { bipiUser } from "@/utils/constants";
+import { bipiUser } from '@/utils/constants'
 
 export const loginPageFixture = {
   loginPage: async (

@@ -45,7 +45,7 @@ export class ClipboardStub {
     await this._page.addInitScript(
       ({ clipboardText, clipboardPermissionState, clipboardSettlement }) => {
         let readSucceeded = clipboardPermissionState === 'granted'
-      const clipboard = navigator.clipboard
+        const clipboard = navigator.clipboard
         Object.defineProperty(clipboard, 'readText', {
           configurable: true,
           value: async () => {
