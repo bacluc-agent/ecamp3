@@ -28,6 +28,11 @@ function camp(collaborations) {
   return {
     _meta: { self: '/camps/1' },
     campCollaborations: () => ({ items: collaborations }),
+    comments: () => ({
+      _meta: { loading: false },
+      items: commentsItems,
+      $reload: reload,
+    }),
   }
 }
 
@@ -61,6 +66,7 @@ const orphan = comment(4, { orphanDescription: 'LS Sportolympiade' })
 const allComments = [onActivity, onOtherActivity, campLevel, orphan]
 
 let scrollToBottom
+let commentsItems = []
 let reload
 
 function resize(width) {
@@ -69,11 +75,10 @@ function resize(width) {
 }
 
 function commentsApi(items) {
+  commentsItems = items
   reload = vi.fn().mockResolvedValue()
   return {
-    get: () => ({
-      comments: () => ({ _meta: { loading: false }, items, $reload: reload }),
-    }),
+    get: () => ({}),
   }
 }
 

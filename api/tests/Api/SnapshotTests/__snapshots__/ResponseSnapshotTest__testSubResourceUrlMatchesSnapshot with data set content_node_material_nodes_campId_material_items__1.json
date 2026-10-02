@@ -1,0 +1,11 @@
+{
+    "_embedded": {
+        "items": []
+    },
+    "_links": {
+        "self": {
+            "href": "escaped_value"
+        }
+    },
+    "totalItems": "escaped_value"
+}

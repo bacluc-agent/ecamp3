@@ -62,8 +62,8 @@ class ReadActivityTest extends ECampApiTestCase {
                 'contentNodes' => ['href' => '/content_nodes?root='.urlencode($this->getIriFor('columnLayout1'))],
                 'category' => ['href' => $this->getIriFor('category1')],
                 'camp' => ['href' => $this->getIriFor('camp1')],
-                'scheduleEntries' => ['href' => '/schedule_entries?activity=%2Factivities%2F'.$activity->getId()],
-                'activityResponsibles' => ['href' => '/activity_responsibles?activity=%2Factivities%2F'.$activity->getId()],
+                'scheduleEntries' => ['href' => '/activities/'.$activity->getId().'/schedule_entries'],
+                'activityResponsibles' => ['href' => '/activities/'.$activity->getId().'/activity_responsibles'],
                 'comments' => ['href' => '/activities/'.$activity->getId().'/comments'],
             ],
         ]);
@@ -85,8 +85,8 @@ class ReadActivityTest extends ECampApiTestCase {
                 'contentNodes' => ['href' => '/content_nodes?root='.urlencode($this->getIriFor('columnLayout1'))],
                 'category' => ['href' => $this->getIriFor('category1')],
                 'camp' => ['href' => $this->getIriFor('camp1')],
-                'scheduleEntries' => ['href' => '/schedule_entries?activity=%2Factivities%2F'.$activity->getId()],
-                'activityResponsibles' => ['href' => '/activity_responsibles?activity=%2Factivities%2F'.$activity->getId()],
+                'scheduleEntries' => ['href' => '/activities/'.$activity->getId().'/schedule_entries'],
+                'activityResponsibles' => ['href' => '/activities/'.$activity->getId().'/activity_responsibles'],
                 'comments' => ['href' => '/activities/'.$activity->getId().'/comments'],
             ],
         ]);
@@ -109,8 +109,8 @@ class ReadActivityTest extends ECampApiTestCase {
                 'contentNodes' => ['href' => '/content_nodes?root='.urlencode($this->getIriFor('columnLayout1'))],
                 'category' => ['href' => $this->getIriFor('category1')],
                 'camp' => ['href' => $this->getIriFor('camp1')],
-                'scheduleEntries' => ['href' => '/schedule_entries?activity=%2Factivities%2F'.$activity->getId()],
-                'activityResponsibles' => ['href' => '/activity_responsibles?activity=%2Factivities%2F'.$activity->getId()],
+                'scheduleEntries' => ['href' => '/activities/'.$activity->getId().'/schedule_entries'],
+                'activityResponsibles' => ['href' => '/activities/'.$activity->getId().'/activity_responsibles'],
                 'comments' => ['href' => '/activities/'.$activity->getId().'/comments'],
             ],
         ]);

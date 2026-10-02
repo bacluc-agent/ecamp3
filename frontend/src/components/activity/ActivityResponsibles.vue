@@ -144,7 +144,7 @@ export default {
 
       newItems.forEach((campCollaborationIRI) => {
         promises.push(
-          this.activity.activityResponsibles().$post({
+          this.api.get().activityResponsibles().$post({
             activity: this.activity._meta.self,
             campCollaboration: campCollaborationIRI,
           })
