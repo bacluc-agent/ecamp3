@@ -1,4 +1,4 @@
-import { expect, Page } from '@playwright/test'
+import { expect, Locator, Page } from '@playwright/test'
 import { boxedStep } from '@/utils/decorators/boxedStep'
 import { CreateCampDialogStep1 } from '@/utils/fixtures/pageObjects/createCamp/createCampDialogStep1'
 
@@ -34,5 +34,9 @@ export class CampListPage {
     const createCampDialogStep1 = new CreateCampDialogStep1(this._page)
     await createCampDialogStep1.loaded()
     return createCampDialogStep1
+  }
+
+  campTitle(campTitle: string): Locator {
+    return this._page.getByText(campTitle, { exact: true })
   }
 }
