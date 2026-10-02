@@ -20,6 +20,12 @@
   "vulnerabilityAlerts": {
     "automerge": true
   },
+  "postUpgradeTasks": {
+    "commands": ["composer --working-dir=api update --lock --no-interaction"],
+    "fileFilters": ["api/composer.lock"],
+    "executionMode": "update"
+  },
+  "allowedCommands": ["^composer --working-dir=api update --lock"],
   "labels": ["renovate"],
   "packageRules": [
     {
