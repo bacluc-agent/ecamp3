@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use App\Doctrine\DBAL\CockroachDb;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -17,6 +18,10 @@ final class Version20240928105306 extends AbstractMigration {
     }
 
     public function up(Schema $schema): void {
+        if (CockroachDb::is($this->connection)) {
+            return;
+        }
+
         $this->addSql(
             <<<'EOF'
                 drop index checklistitem_checklistid_parentid_position_unique
@@ -34,6 +39,10 @@ final class Version20240928105306 extends AbstractMigration {
 
     #[\Override]
     public function down(Schema $schema): void {
+        if (CockroachDb::is($this->connection)) {
+            return;
+        }
+
         $this->addSql(
             <<<'EOF'
                 alter table checklist_item 

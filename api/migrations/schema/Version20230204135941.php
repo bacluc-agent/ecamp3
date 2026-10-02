@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use App\Doctrine\DBAL\CockroachDb;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -17,6 +18,10 @@ final class Version20230204135941 extends AbstractMigration {
     }
 
     public function up(Schema $schema): void {
+        if (CockroachDb::is($this->connection)) {
+            return;
+        }
+
         $this->addSql('DROP INDEX offset_period_idx');
         $this->addSql(
             <<<'EOF'
@@ -30,6 +35,10 @@ final class Version20230204135941 extends AbstractMigration {
 
     #[\Override]
     public function down(Schema $schema): void {
+        if (CockroachDb::is($this->connection)) {
+            return;
+        }
+
         $this->addSql(
             <<<'EOF'
                         alter table day 
