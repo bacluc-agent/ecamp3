@@ -81,7 +81,6 @@ export default defineConfig(({ mode }) => ({
       '@leeoniya/ufuzzy',
       '@react-pdf/font',
       '@react-pdf/layout',
-      '@react-pdf/pdfkit',
       '@react-pdf/primitives',
       '@react-pdf/render',
       '@sentry/browser',
@@ -121,6 +120,7 @@ export default defineConfig(({ mode }) => ({
       'dayjs/plugin/utc',
       'file-saver',
       'linkify-it',
+      'pdfkit',
       'runes',
       'vee-validate',
       'vite-plugin-comlink/symbol',
@@ -158,6 +158,13 @@ export default defineConfig(({ mode }) => ({
       {
         find: '~inter-ui',
         replacement: path.resolve(__dirname, 'node_modules', 'inter-ui'),
+      },
+      {
+        find: /^vue$/,
+        replacement: path.resolve(
+          __dirname,
+          'node_modules/vue/dist/vue.runtime.esm-bundler.js'
+        ),
       },
 
       // find dayjs from commons
