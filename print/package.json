@@ -66,6 +66,7 @@
     "vue": "3.5.43"
   },
   "overrides": {
-    "uri-js": "npm:uri-js-replace"
+    "uri-js": "npm:uri-js-replace",
+    "devframe": "0.9.12"
   }
 }
