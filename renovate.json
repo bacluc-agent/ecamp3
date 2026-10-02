@@ -20,12 +20,6 @@
   "vulnerabilityAlerts": {
     "automerge": true
   },
-  "postUpgradeTasks": {
-    "commands": ["composer --working-dir=api update --lock --no-interaction"],
-    "fileFilters": ["api/composer.lock"],
-    "executionMode": "update"
-  },
-  "allowedCommands": ["^composer --working-dir=api update --lock"],
   "labels": ["renovate"],
   "packageRules": [
     {
@@ -46,10 +40,6 @@
         "!api-platform/admin-pack",
         "!api-platform/api-pack",
         "!api-platform/api-platform",
-        "!api-platform/hydra",
-        "!api-platform/json-schema",
-        "!api-platform/metadata",
-        "!api-platform/openapi",
         "!api-platform/parameter-validator",
         "!api-platform/postman-collection-generator",
         "!api-platform/schema-generator"
@@ -208,5 +198,6 @@
       ],
       "datasourceTemplate": "docker"
     }
-  ]
+  ],
+  "postUpdateOptions": ["composerWithAll"]
 }
