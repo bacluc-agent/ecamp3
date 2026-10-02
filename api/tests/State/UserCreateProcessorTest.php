@@ -6,12 +6,12 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\User;
 use App\Security\ReCaptcha\ReCaptchaWrapper;
+use App\Security\ReCaptcha\VerificationResult;
 use App\Service\MailService;
 use App\State\UserCreateProcessor;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use ReCaptcha\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasher;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -20,7 +20,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
  */
 class UserCreateProcessorTest extends TestCase {
     private UserCreateProcessor $processor;
-    private MockObject|Response $recaptchaResponse;
+    private MockObject|VerificationResult $recaptchaResponse;
     private MockObject|UserPasswordHasherInterface $userPasswordHasher;
     private MailService|MockObject $mailService;
     private User $user;
@@ -31,7 +31,7 @@ class UserCreateProcessorTest extends TestCase {
     protected function setUp(): void {
         $this->user = new User();
 
-        $this->recaptchaResponse = $this->createMock(Response::class);
+        $this->recaptchaResponse = $this->createMock(VerificationResult::class);
         $recaptcha = $this->createMock(ReCaptchaWrapper::class);
         $recaptcha->method('verify')->willReturn($this->recaptchaResponse);
 
