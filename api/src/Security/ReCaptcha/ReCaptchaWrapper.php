@@ -4,6 +4,7 @@ namespace App\Security\ReCaptcha;
 
 use Psr\Log\LoggerInterface;
 use ReCaptcha\ReCaptcha;
+use ReCaptcha\Response;
 
 class ReCaptchaWrapper {
     private const ACTION = 'login';
@@ -21,10 +22,10 @@ class ReCaptchaWrapper {
                 $this->logger->warning('ReCaptcha verification failed', ['error-codes' => $resp->getErrorCodes()]);
             }
 
-            return new VerificationResult($resp->isSuccess());
+            return $resp;
         }
 
         // if no reCaptchaSecret (dev & test) -> auto-success
-        return new VerificationResult(true);
+        return new Response(true);
     }
 }

@@ -7,7 +7,6 @@ use App\DTO\UserActivation;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Security\ReCaptcha\ReCaptchaWrapper;
-use App\Security\ReCaptcha\VerificationResult;
 use App\Service\MailService;
 use App\State\ResendActivationProcessor;
 use Doctrine\ORM\EntityManager;
@@ -16,6 +15,7 @@ use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use ReCaptcha\Response;
 
 use function PHPUnit\Framework\isNull;
 use function PHPUnit\Framework\logicalNot;
@@ -28,7 +28,7 @@ class ResendActivationProcessorTest extends TestCase {
 
     private UserActivation $userActivation;
 
-    private MockObject|VerificationResult $recaptchaResponse;
+    private MockObject|Response $recaptchaResponse;
     private MockObject|UserRepository $userRepository;
     private MailService|MockObject $mailService;
 
@@ -40,7 +40,7 @@ class ResendActivationProcessorTest extends TestCase {
     protected function setUp(): void {
         $this->userActivation = new UserActivation();
 
-        $this->recaptchaResponse = $this->createMock(VerificationResult::class);
+        $this->recaptchaResponse = $this->createMock(Response::class);
         $recaptcha = $this->createMock(ReCaptchaWrapper::class);
         $entityManager = $this->createStub(EntityManager::class);
         $this->userRepository = $this->createMock(UserRepository::class);
