@@ -27,6 +27,6 @@
         "prettier": "3.9.7"
     },
     "allowScripts": {
-      "@pulumi/docker": true
+        "@pulumi/docker": false
     }
 }
