@@ -1,4 +1,4 @@
-import { expect, Page } from '@playwright/test'
+import { expect, Page, Response } from '@playwright/test'
 import { boxedStep } from '@/utils/decorators/boxedStep'
 import { ESelect } from '@/utils/fixtures/components/eSelect'
 import { CampInfo } from '@/utils/fixtures/pageObjects/camp/admin/campInfo'
@@ -115,9 +115,9 @@ export class CreateCampDialogStep2 {
     const waitForCampInfoRoute = this._page.waitForURL(`**${CampInfo.ROUTE}`, {
       timeout: 60000,
     })
-    const isCreateCamp: (Response) => boolean = (response) =>
-      response.request.method() === 'POST' &&
-      new URL(response.request.url()).pathname === '/api/camps'
+    const isCreateCamp = (response: Response): boolean =>
+      response.request().method() === 'POST' &&
+      new URL(response.request().url()).pathname === '/api/camps'
     const waitForCreateCampResponse = this._page.waitForResponse(isCreateCamp)
 
     await this._createCampButton.click()

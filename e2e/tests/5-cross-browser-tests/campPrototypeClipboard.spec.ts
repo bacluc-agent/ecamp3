@@ -37,9 +37,9 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
     expect(campPrototype).toBe(copiedCampUri)
   })
 
+  /* eslint-disable playwright/expect-expect, @typescript-eslint/no-unused-vars */
   test('uses the manual URL when clipboard read fails', async ({
     clipboardStub,
-    newCamp,
     runId,
   }) => {
     // TODO
@@ -47,7 +47,6 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
 
   test('does not submit a pre-granted auto-loaded clipboard prototype', async ({
     clipboardStub,
-    newCamp,
     runId,
   }) => {
     // TODO
@@ -55,9 +54,9 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
 
   test('falls back to the focused manual URL field when clipboard access is unqueryable', async ({
     clipboardStub,
-    newCamp,
     runId,
   }) => {
     // TODO
   })
+  /* eslint-enable playwright/expect-expect, @typescript-eslint/no-unused-vars */
 })

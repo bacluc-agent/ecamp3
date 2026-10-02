@@ -4,6 +4,7 @@ import { LoginPage } from '@/utils/fixtures/pageObjects/loginPage'
 import { CampInfo } from '@/utils/fixtures/pageObjects/camp/admin/campInfo'
 import { CampActivitySettings } from '@/utils/fixtures/pageObjects/camp/admin/campActivitySettings'
 import { CreateCampDialogStep2 } from '@/utils/fixtures/pageObjects/createCamp/createCampDialogStep2'
+import { CampListPage } from '@/utils/fixtures/pageObjects/campListPage'
 
 type CampPrototype = 'empty' | string
 
@@ -38,7 +39,7 @@ class CreateCamp {
   @boxedStep
   async create(user = undefined) {
     const createCampDialogStep2 = await this.openCreateCampStep2(user)
-    const campInfo = await createCampDialogStep2
+    const { campInfo } = await createCampDialogStep2
       .selectPrototype(this._campPrototype!)
       .then((value) => value.submit())
 
@@ -46,7 +47,7 @@ class CreateCamp {
   }
 
   @boxedStep
-  async openCreateCampStep2(user: undefined) {
+  async openCreateCampStep2(user = undefined) {
     const tomorrow = new Date()
     tomorrow.setDate(tomorrow.getDate() + 1)
     const in2Days = new Date()
