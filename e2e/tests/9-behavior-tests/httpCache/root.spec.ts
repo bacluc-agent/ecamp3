@@ -6,6 +6,7 @@ const user2 = 'castor@example.com'
 
 test('caches the root endpoint', { tag: '@mature' }, async ({ browser }) => {
   const uri = '/api/index'
+  const queryUri = `${uri}?page=1`
 
   // Create context for user 1
   const context1 = await browser.newContext()
@@ -14,6 +15,8 @@ test('caches the root endpoint', { tag: '@mature' }, async ({ browser }) => {
 
   await expectCacheMiss(context1.request, uri)
   await expectCacheHit(context1.request, uri)
+  await expectCacheMiss(context1.request, queryUri)
+  await expectCacheHit(context1.request, queryUri)
 
   await context1.close()
 

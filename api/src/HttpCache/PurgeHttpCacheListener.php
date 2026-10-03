@@ -218,13 +218,11 @@ final readonly class PurgeHttpCacheListener {
                 // if such routes should be cached, custom logic is needed to purge the correct IRIs
             }
         }
-        if ($iri !== $oldIri) {
-            if ($iri) {
-                $this->cacheManager->invalidateTags([$iri]);
-            }
-            if ($oldIri) {
-                $this->cacheManager->invalidateTags([$oldIri]);
-            }
+        if ($iri) {
+            $this->cacheManager->invalidateTags([$iri]);
+        }
+        if ($oldIri && $oldIri !== $iri) {
+            $this->cacheManager->invalidateTags([$oldIri]);
         }
     }
 
@@ -235,6 +233,7 @@ final readonly class PurgeHttpCacheListener {
      */
     private function gatherRelationTags(object $entity): void {
         $associationMappings = $this->em->getClassMetadata(ClassUtils::getClass($entity))->getAssociationMappings();
+        $resourceTags = [];
 
         foreach ($associationMappings as $property => $associationMapping) {
             if ($associationMapping instanceof AssociationMapping && $associationMapping->targetEntity && !$this->resourceClassResolver->isResourceClass($associationMapping->targetEntity)) {
@@ -254,10 +253,20 @@ final readonly class PurgeHttpCacheListener {
                 continue;
             }
 
-            $this->addTagsFor(
-                $relatedObject,
-                $relatedProperty
-            );
+            $relatedObjects = is_iterable($relatedObject) ? $relatedObject : [$relatedObject];
+            foreach ($relatedObjects as $related) {
+                if (!is_object($related)) {
+                    continue;
+                }
+
+                $resourceTag = spl_object_id($related);
+                if (!isset($resourceTags[$resourceTag])) {
+                    $this->gatherResourceTags($related);
+                    $resourceTags[$resourceTag] = true;
+                }
+
+                $this->addTagForItem($related, $relatedProperty);
+            }
         }
     }
 

@@ -525,6 +525,7 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $relatedDummy = new RelatedDummy();
         $relatedDummy->setId('100');
         $toInsert1->setRelatedDummy($relatedDummy);
+        $this->propertyAccessorProphecy->method('getValue')->willReturn($relatedDummy);
 
         $this->uowProphecy->method('getScheduledEntityInsertions')->willReturn([$toInsert1]);
         $this->uowProphecy->method('getScheduledEntityDeletions')->willReturn([]);
@@ -533,12 +534,13 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $this->uowProphecy->method('getScheduledCollectionDeletions')->willReturn([]);
 
         // then
-        $this->cacheManagerProphecy->expects($this->exactly(2))
+        $this->cacheManagerProphecy->expects($this->exactly(3))
             ->method('invalidateTags')
             ->willReturnCallback(function (array $tags) {
                 static $i = 0;
                 $expected = [
                     ['/dummies'],
+                    ['/related_dummies'],
                     ['/related_dummies/100/dummies'],
                 ];
                 TestCase::assertEquals($expected[$i], $tags);
@@ -571,6 +573,7 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $relatedDummy = new RelatedDummy();
         $relatedDummy->setId('100');
         $toDelete1->setRelatedDummy($relatedDummy);
+        $this->propertyAccessorProphecy->method('getValue')->willReturn($relatedDummy);
 
         $unitOfWork = $this->createStub(UnitOfWork::class);
         $unitOfWork->method('getScheduledEntityInsertions')->willReturn([]);
@@ -584,13 +587,14 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $em->method('getUnitOfWork')->willReturn($unitOfWork);
 
         // then
-        $this->cacheManagerProphecy->expects($this->exactly(3))
+        $this->cacheManagerProphecy->expects($this->exactly(4))
             ->method('invalidateTags')
             ->willReturnCallback(function (array $tags) {
                 static $i = 0;
                 $expected = [
                     ['/dummies/1'],
                     ['/dummies'],
+                    ['/related_dummies'],
                     ['/related_dummies/100/dummies'],
                 ];
                 TestCase::assertEquals($expected[$i], $tags);
@@ -658,6 +662,58 @@ class PurgeHttpCacheListenerTest extends TestCase {
             resourceMetadataCollectionFactory: $this->metadataFactoryProphecy,
             cacheManager: $this->cacheManagerProphecy,
             em: $this->emProphecy,
+        );
+        $listener->onFlush();
+        $listener->postFlush();
+    }
+
+    #[AllowMockObjectsWithoutExpectations]
+    public function testUpdateShouldPurgeUnchangedSubresourceCollection(): void {
+        $toUpdate = new Dummy();
+        $toUpdate->setId('1');
+        $relatedDummy = new RelatedDummy();
+        $relatedDummy->setId('100');
+        $toUpdate->setRelatedDummy($relatedDummy);
+
+        $oldRelatedDummy = new RelatedDummy();
+        $oldRelatedDummy->setId('100');
+
+        $unitOfWork = $this->createStub(UnitOfWork::class);
+        $unitOfWork->method('getScheduledEntityInsertions')->willReturn([]);
+        $unitOfWork->method('getScheduledEntityUpdates')->willReturn([$toUpdate]);
+        $unitOfWork->method('getScheduledEntityDeletions')->willReturn([]);
+        $unitOfWork->method('getScheduledCollectionUpdates')->willReturn([]);
+        $unitOfWork->method('getScheduledCollectionDeletions')->willReturn([]);
+        $unitOfWork->method('getEntityChangeSet')->willReturn(['relatedDummy' => [$oldRelatedDummy, $relatedDummy]]);
+
+        $em = $this->createStub(EntityManagerInterface::class);
+        $em->method('getUnitOfWork')->willReturn($unitOfWork);
+        $em->method('getClassMetadata')->willReturnCallback(fn (string $class) => match ($class) {
+            Dummy::class => $this->emProphecy->getClassMetadata($class),
+        });
+
+        $this->cacheManagerProphecy->expects($this->exactly(2))
+            ->method('invalidateTags')
+            ->willReturnCallback(function (array $tags) {
+                static $i = 0;
+                $expected = [
+                    ['/dummies/1'],
+                    ['/related_dummies/100/dummies'],
+                ];
+                TestCase::assertSame($expected[$i], $tags);
+                ++$i;
+
+                return $this->cacheManagerProphecy;
+            })
+        ;
+
+        $listener = new PurgeHttpCacheListener(
+            iriConverter: $this->iriConverterProphecy,
+            resourceClassResolver: $this->resourceClassResolverProphecy,
+            propertyAccessor: $this->propertyAccessorProphecy,
+            resourceMetadataCollectionFactory: $this->metadataFactoryProphecy,
+            cacheManager: $this->cacheManagerProphecy,
+            em: $em,
         );
         $listener->onFlush();
         $listener->postFlush();
