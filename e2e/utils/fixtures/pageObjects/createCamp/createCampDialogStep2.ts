@@ -123,7 +123,7 @@ export class CreateCampDialogStep2 {
     await this._createCampButton.click()
     await waitForCampInfoRoute
     const createCampResponse = await waitForCreateCampResponse
-    const createdCamp = await createCampResponse.json()
+    const createdCamp = createCampResponse.request().postDataJSON()
 
     const url = this._page.url()
     const match = url.match(new RegExp(`/camps/([^/]+)/.*${CampInfo.ROUTE}`))
@@ -134,6 +134,6 @@ export class CreateCampDialogStep2 {
 
     const campInfo = new CampInfo(this._page, campId)
     await campInfo.loaded()
-    return { campPrototype: createdCamp.prototype, campInfo }
+    return { campPrototype: createdCamp.campPrototype, campInfo }
   }
 }
