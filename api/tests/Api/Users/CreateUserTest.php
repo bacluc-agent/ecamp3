@@ -53,6 +53,7 @@ class CreateUserTest extends ECampApiTestCase {
         $client->request('POST', '/users', ['json' => $this->getExampleWritePayload()]);
 
         $this->assertResponseStatusCodeSame(422);
+        $this->assertJsonContains(['detail' => 'ReCaptcha failed']);
     }
 
     public function testLoginFailsWithoutActivation() {
