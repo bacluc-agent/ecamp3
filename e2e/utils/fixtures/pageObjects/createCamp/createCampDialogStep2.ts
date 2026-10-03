@@ -77,12 +77,8 @@ export class CreateCampDialogStep2 {
   @boxedStep
   async closeClipboardInfoDialog() {
     await expect(this._closeButton).toBeVisible()
-    await expect(async () => {
-      if (await this._closeButton.isVisible()) {
-        await this._closeButton.click({ timeout: 10_000 })
-      }
-      await expect(this._closeButton).toBeHidden({ timeout: 10_000 })
-    }).toPass({ timeout: 30_000 })
+    await this._closeButton.click({ timeout: 10_000 })
+    await expect(this._closeButton).toBeHidden({ timeout: 10_000 })
     return this
   }
 
