@@ -4,11 +4,11 @@ namespace App\Tests\Api\ResetPassword;
 
 use App\Entity\User;
 use App\Security\ReCaptcha\ReCaptchaWrapper;
-use App\Security\ReCaptcha\VerificationResult;
 use App\Tests\Api\ECampApiTestCase;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use ReCaptcha\Response;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
@@ -188,8 +188,12 @@ class UpdatePasswordTest extends ECampApiTestCase {
     protected function mockRecaptcha($shouldReturnSuccess = true) {
         $container = static::getContainer();
         $recaptcha = $this->createStub(ReCaptchaWrapper::class);
-        $response = $this->createStub(VerificationResult::class);
-        $recaptcha->method('verify')->willReturn($response);
+        $response = $this->createStub(Response::class);
+        $recaptcha->expects(self::once())
+            ->method('verify')
+            ->with(self::anything(), 'update_password')
+            ->willReturn($response)
+        ;
         $response->method('isSuccess')->willReturn($shouldReturnSuccess);
         $container->set(ReCaptchaWrapper::class, $recaptcha);
     }

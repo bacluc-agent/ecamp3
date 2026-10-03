@@ -3,13 +3,13 @@
 namespace App\Tests\Security\ReCaptcha;
 
 use App\Security\ReCaptcha\ReCaptchaWrapper;
-use App\Security\ReCaptcha\VerificationResult;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReCaptcha\ReCaptcha;
 use ReCaptcha\RequestMethod;
+use ReCaptcha\Response;
 
 /**
  * @internal
@@ -35,7 +35,7 @@ class ReCaptchaWrapperTest extends TestCase {
 
         $result = $this->wrapper->verify('tok', 'register');
 
-        self::assertInstanceOf(VerificationResult::class, $result);
+        self::assertInstanceOf(Response::class, $result);
         self::assertTrue($result->isSuccess());
     }
 
@@ -55,12 +55,12 @@ class ReCaptchaWrapperTest extends TestCase {
 
         $result = $this->wrapper->verify('tok', 'register');
 
-        self::assertInstanceOf(VerificationResult::class, $result);
+        self::assertInstanceOf(Response::class, $result);
         self::assertFalse($result->isSuccess());
     }
 
     #[AllowMockObjectsWithoutExpectations]
-    public function testVerifyPassesThroughErrorCodes() {
+    public function testBadResponseIsLoggedWithoutSensitiveData() {
         $this->requestMethod->expects(self::once())
             ->method('submit')
             ->willReturn('{"success":false,"error-codes":["bad-response"]}')
@@ -69,13 +69,19 @@ class ReCaptchaWrapperTest extends TestCase {
             ->method('warning')
             ->with(
                 'ReCaptcha verification failed',
-                $this->callback(fn (array $ctx) => in_array('bad-response', $ctx['error-codes'] ?? [], true))
+                $this->callback(function (array $ctx): bool {
+                    $encoded = (string) json_encode($ctx);
+
+                    return in_array('bad-response', $ctx['error-codes'] ?? [], true)
+                        && !str_contains($encoded, 'tok')
+                        && !str_contains($encoded, 'test-secret');
+                })
             )
         ;
 
         $result = $this->wrapper->verify('tok', 'register');
 
-        self::assertInstanceOf(VerificationResult::class, $result);
+        self::assertInstanceOf(Response::class, $result);
         self::assertFalse($result->isSuccess());
     }
 
@@ -92,7 +98,7 @@ class ReCaptchaWrapperTest extends TestCase {
 
         $result = $this->wrapper->verify('', 'register');
 
-        self::assertInstanceOf(VerificationResult::class, $result);
+        self::assertInstanceOf(Response::class, $result);
         self::assertFalse($result->isSuccess());
     }
 
@@ -109,7 +115,7 @@ class ReCaptchaWrapperTest extends TestCase {
 
         $result = $this->wrapper->verify(null, 'register');
 
-        self::assertInstanceOf(VerificationResult::class, $result);
+        self::assertInstanceOf(Response::class, $result);
         self::assertFalse($result->isSuccess());
     }
 
@@ -120,7 +126,7 @@ class ReCaptchaWrapperTest extends TestCase {
 
         $result = $this->wrapperFor('disabled')->verify('tok', 'register');
 
-        self::assertInstanceOf(VerificationResult::class, $result);
+        self::assertInstanceOf(Response::class, $result);
         self::assertTrue($result->isSuccess());
     }
 
