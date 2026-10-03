@@ -11,18 +11,23 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
   test.describe.configure({ timeout: 210_000 })
 
   let createCampDialogStep2: CreateCampDialogStep2
-  let camp: Camp
-
-  test.beforeEach(async ({ openCreateCampStep2, clipboardStub }) => {
-    await clipboardStub.readText(copiedCampUrl)
-    createCampDialogStep2 = await openCreateCampStep2()
-  })
+  let camp: Camp | undefined
 
   test.afterEach(async ({}) => {
-    await camp?.delete()
+    if (camp) {
+      await camp.delete()
+      camp = undefined
+    }
   })
 
-  test('loads a copied camp URL from the clipboard', async ({ page, clipboardStub }) => {
+  test('loads a copied camp URL from the clipboard', async ({
+    page,
+    clipboardStub,
+    openCreateCampStep2,
+    runId,
+  }) => {
+    await clipboardStub.readText(copiedCampUrl)
+    createCampDialogStep2 = await openCreateCampStep2()
     await createCampDialogStep2.selectOtherCampPrototype()
     await createCampDialogStep2.grantClipboardRead()
     await clipboardStub.expectReadSettled('resolved')
@@ -31,31 +36,69 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
     await createCampDialogStep2.expectCopiedPrototype()
 
     const { campPrototype, campInfo } = await createCampDialogStep2.submit()
-    camp = new Camp(page, campInfo.campId, '', campInfo)
+    camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
 
     expect(campPrototype).toBe(copiedCampUri)
   })
 
-  /* eslint-disable playwright/expect-expect, @typescript-eslint/no-unused-vars */
   test('uses the manual URL when clipboard read fails', async ({
+    page,
     clipboardStub,
+    openCreateCampStep2,
     runId,
   }) => {
-    // TODO
+    await clipboardStub.readFailure()
+    createCampDialogStep2 = await openCreateCampStep2()
+    await createCampDialogStep2.selectOtherCampPrototype()
+    await createCampDialogStep2.grantClipboardRead()
+    await clipboardStub.expectReadSettled('rejected')
+    await createCampDialogStep2.closeClipboardInfoDialog()
+    await createCampDialogStep2.fillManualPrototypeUrl(copiedCampUrl)
+    await createCampDialogStep2.expectCopiedPrototype()
+
+    const { campPrototype, campInfo } = await createCampDialogStep2.submit()
+    camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
+
+    expect(campPrototype).toBe(copiedCampUri)
   })
 
   test('does not submit a pre-granted auto-loaded clipboard prototype', async ({
+    page,
     clipboardStub,
+    openCreateCampStep2,
     runId,
   }) => {
-    // TODO
+    await clipboardStub.readText(copiedCampUrl, 'granted')
+    createCampDialogStep2 = await openCreateCampStep2()
+    await createCampDialogStep2.selectOtherCampPrototype()
+    await createCampDialogStep2.pasteClipboardPrototype()
+    await clipboardStub.expectReadSettled('resolved')
+    await createCampDialogStep2.expectCopiedPrototype()
+
+    await expect(page).toHaveURL(/\/camps\/create$/)
+
+    const { campPrototype, campInfo } = await createCampDialogStep2.submit()
+    camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
+
+    expect(campPrototype).toBe(copiedCampUri)
   })
 
   test('falls back to the focused manual URL field when clipboard access is unqueryable', async ({
+    page,
     clipboardStub,
+    openCreateCampStep2,
     runId,
   }) => {
-    // TODO
+    await clipboardStub.permissionUnqueryable()
+    createCampDialogStep2 = await openCreateCampStep2()
+    await createCampDialogStep2.selectOtherCampPrototype()
+    await createCampDialogStep2.expectNoClipboardControl()
+    await createCampDialogStep2.fillManualPrototypeUrl(copiedCampUrl)
+    await createCampDialogStep2.expectCopiedPrototype()
+
+    const { campPrototype, campInfo } = await createCampDialogStep2.submit()
+    camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
+
+    expect(campPrototype).toBe(copiedCampUri)
   })
-  /* eslint-enable playwright/expect-expect, @typescript-eslint/no-unused-vars */
 })
