@@ -116,5 +116,7 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
   })
 })
