@@ -1,0 +1,63 @@
+name: AWS setup install-script policy
+
+on:
+  pull_request:
+    paths:
+      - .ops/aws-setup/**
+      - .github/workflows/aws-setup-install-script-policy.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  policy:
+    name: Check Pulumi install-script policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: '24.21.0'
+
+      - name: Install npm
+        run: npm install --global npm@11.20.0
+
+      - name: Install AWS setup dependencies
+        working-directory: .ops/aws-setup
+        env:
+          PULUMI_HOME: ${{ runner.temp }}/pulumi
+          npm_config_cache: ${{ runner.temp }}/npm-cache
+        run: |
+          set -euo pipefail
+          rm -rf "$PULUMI_HOME" "$npm_config_cache"
+          mkdir -p "$PULUMI_HOME" "$npm_config_cache"
+          npm ci --foreground-scripts --no-audit 2>&1 | tee "$RUNNER_TEMP/npm-ci.log"
+          if grep -Eiq '@pulumi/docker-build.*install|resource docker-build' "$RUNNER_TEMP/npm-ci.log"; then
+            echo 'The @pulumi/docker-build install script ran.' >&2
+            exit 1
+          fi
+          test ! -e "$PULUMI_HOME/plugins/resource-docker-build-v0.0.14"
+
+      - name: Verify install-script approval is denied without mutation
+        working-directory: .ops/aws-setup
+        env:
+          PULUMI_HOME: ${{ runner.temp }}/pulumi
+          npm_config_cache: ${{ runner.temp }}/npm-cache
+        run: |
+          set -euo pipefail
+          sha256sum package.json package-lock.json > "$RUNNER_TEMP/aws-setup-policy-before"
+          npm install-scripts approve @pulumi/docker-build --dry-run 2>&1 | tee "$RUNNER_TEMP/approve-scripts.log"
+          if ! grep -Fq '@pulumi/docker-build is denied' "$RUNNER_TEMP/approve-scripts.log"; then
+            echo '@pulumi/docker-build was not reported as denied.' >&2
+            exit 1
+          fi
+          sha256sum package.json package-lock.json > "$RUNNER_TEMP/aws-setup-policy-after"
+          cmp "$RUNNER_TEMP/aws-setup-policy-before" "$RUNNER_TEMP/aws-setup-policy-after"
+          node -e "const p = require('./package.json'); if (p.allowScripts?.['@pulumi/docker-build'] !== false) process.exit(1)"
+
+      - name: Lint AWS setup
+        working-directory: .ops/aws-setup
+        run: npm run lint:check
