@@ -3,13 +3,13 @@
 namespace App\Tests\Security\ReCaptcha;
 
 use App\Security\ReCaptcha\ReCaptchaWrapper;
+use App\Security\ReCaptcha\VerificationResult;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReCaptcha\ReCaptcha;
 use ReCaptcha\RequestMethod;
-use ReCaptcha\Response;
 
 /**
  * @internal
@@ -35,7 +35,7 @@ class ReCaptchaWrapperTest extends TestCase {
 
         $result = $this->wrapper->verify('tok');
 
-        self::assertInstanceOf(Response::class, $result);
+        self::assertInstanceOf(VerificationResult::class, $result);
         self::assertTrue($result->isSuccess());
     }
 
@@ -55,7 +55,7 @@ class ReCaptchaWrapperTest extends TestCase {
 
         $result = $this->wrapper->verify('tok');
 
-        self::assertInstanceOf(Response::class, $result);
+        self::assertInstanceOf(VerificationResult::class, $result);
         self::assertFalse($result->isSuccess());
     }
 
@@ -75,7 +75,7 @@ class ReCaptchaWrapperTest extends TestCase {
 
         $result = $this->wrapper->verify('tok');
 
-        self::assertInstanceOf(Response::class, $result);
+        self::assertInstanceOf(VerificationResult::class, $result);
         self::assertFalse($result->isSuccess());
     }
 
@@ -92,7 +92,7 @@ class ReCaptchaWrapperTest extends TestCase {
 
         $result = $this->wrapper->verify('');
 
-        self::assertInstanceOf(Response::class, $result);
+        self::assertInstanceOf(VerificationResult::class, $result);
         self::assertFalse($result->isSuccess());
     }
 
@@ -109,7 +109,7 @@ class ReCaptchaWrapperTest extends TestCase {
 
         $result = $this->wrapper->verify(null);
 
-        self::assertInstanceOf(Response::class, $result);
+        self::assertInstanceOf(VerificationResult::class, $result);
         self::assertFalse($result->isSuccess());
     }
 
@@ -120,7 +120,7 @@ class ReCaptchaWrapperTest extends TestCase {
 
         $result = $this->wrapperFor('disabled')->verify('tok');
 
-        self::assertInstanceOf(Response::class, $result);
+        self::assertInstanceOf(VerificationResult::class, $result);
         self::assertTrue($result->isSuccess());
     }
 
