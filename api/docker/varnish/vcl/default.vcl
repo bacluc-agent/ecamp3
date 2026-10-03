@@ -17,6 +17,10 @@ sub vcl_recv {
     return(synth(200,"OK"));
   }
 
+  if (var.get("originalUrl") ~ "^/(api/(index(\\.jsonhal)?|)|index\\.jsonhal|)\\?") {
+    return(pass);
+  }
+
   # Support xkey purge requests
   # see https://raw.githubusercontent.com/varnish/varnish-modules/master/src/vmod_xkey.vcc
   call fos_tags_xkey_recv;

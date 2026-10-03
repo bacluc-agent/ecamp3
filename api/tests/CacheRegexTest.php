@@ -107,6 +107,8 @@ class CacheRegexTest extends KernelTestCase {
     #[TestWith(data: ['/profiles?x=1'], name: '/profiles?x=1')]
     #[TestWith(data: ['/schedule_entries?x=1'], name: '/schedule_entries?x=1')]
     #[TestWith(data: ['/users?x=1'], name: '/users?x=1')]
+    #[TestWith(data: ['/?x=1'], name: '/?x=1')]
+    #[TestWith(data: ['/index.jsonhal?x=1'], name: '/index.jsonhal?x=1')]
     public function testDoesNotIncludeUrlsWithQueryParams(string $url) {
         assertDoesNotMatchRegularExpression($this->cacheRegex, $url);
     }
