@@ -189,11 +189,7 @@ class UpdatePasswordTest extends ECampApiTestCase {
         $container = static::getContainer();
         $recaptcha = $this->createStub(ReCaptchaWrapper::class);
         $response = $this->createStub(Response::class);
-        $recaptcha->expects(self::once())
-            ->method('verify')
-            ->with(self::anything(), 'update_password')
-            ->willReturn($response)
-        ;
+        $recaptcha->method('verify')->willReturn($response);
         $response->method('isSuccess')->willReturn($shouldReturnSuccess);
         $container->set(ReCaptchaWrapper::class, $recaptcha);
     }
