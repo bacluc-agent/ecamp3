@@ -25,11 +25,8 @@ use FOS\HttpCacheBundle\CacheManager;
 use Hautelook\AliceBundle\PhpUnit\FixtureStore;
 use Hautelook\AliceBundle\PhpUnit\RefreshDatabaseTrait;
 use League\OAuth2\Client\Token\AccessToken;
-use Spatie\Snapshots\Driver;
-use Spatie\Snapshots\Drivers\YamlDriver;
 use Spatie\Snapshots\MatchesSnapshots;
 use Symfony\Component\BrowserKit\Cookie;
-use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -89,16 +86,6 @@ abstract class ECampApiTestCase extends ApiTestCase {
         $json_encode = json_encode($array);
 
         return json_decode($json_encode, true);
-    }
-
-    protected function getYamlDriver(): Driver {
-        return new YamlDriver(
-            inline: 10,
-            indent: 2,
-            flags: Yaml::DUMP_OBJECT_AS_MAP
-                | Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE
-                | Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
-        );
     }
 
     /**
