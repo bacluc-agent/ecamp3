@@ -525,6 +525,7 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $relatedDummy = new RelatedDummy();
         $relatedDummy->setId('100');
         $toInsert1->setRelatedDummy($relatedDummy);
+        $this->propertyAccessorProphecy->method('getValue')->willReturn($relatedDummy);
 
         $this->uowProphecy->method('getScheduledEntityInsertions')->willReturn([$toInsert1]);
         $this->uowProphecy->method('getScheduledEntityDeletions')->willReturn([]);
@@ -533,12 +534,13 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $this->uowProphecy->method('getScheduledCollectionDeletions')->willReturn([]);
 
         // then
-        $this->cacheManagerProphecy->expects($this->exactly(2))
+        $this->cacheManagerProphecy->expects($this->exactly(3))
             ->method('invalidateTags')
             ->willReturnCallback(function (array $tags) {
                 static $i = 0;
                 $expected = [
                     ['/dummies'],
+                    ['/related_dummies'],
                     ['/related_dummies/100/dummies'],
                 ];
                 TestCase::assertEquals($expected[$i], $tags);
@@ -571,6 +573,7 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $relatedDummy = new RelatedDummy();
         $relatedDummy->setId('100');
         $toDelete1->setRelatedDummy($relatedDummy);
+        $this->propertyAccessorProphecy->method('getValue')->willReturn($relatedDummy);
 
         $unitOfWork = $this->createStub(UnitOfWork::class);
         $unitOfWork->method('getScheduledEntityInsertions')->willReturn([]);
@@ -584,13 +587,14 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $em->method('getUnitOfWork')->willReturn($unitOfWork);
 
         // then
-        $this->cacheManagerProphecy->expects($this->exactly(3))
+        $this->cacheManagerProphecy->expects($this->exactly(4))
             ->method('invalidateTags')
             ->willReturnCallback(function (array $tags) {
                 static $i = 0;
                 $expected = [
                     ['/dummies/1'],
                     ['/dummies'],
+                    ['/related_dummies'],
                     ['/related_dummies/100/dummies'],
                 ];
                 TestCase::assertEquals($expected[$i], $tags);

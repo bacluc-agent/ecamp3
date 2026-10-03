@@ -30,7 +30,11 @@ const cacheableCollections = [
   `/api/camps/${loremIpsumCampId}/checklists`,
   `/api/periods/${skilagerPeriodId}/days`,
 ]
-const cacheableItems = [`/api/activities/${activityId}`]
+const cacheableItems = [
+  `/api/activities/${activityId}`,
+  '/api/content_types/318e064ea0c9',
+  `/api/camps/${loremIpsumCampId}/categories/c5e1bc565094`,
+]
 const adminUser = 'admin@example.com'
 
 test.describe('cache test: collection with query params', { tag: '@mature' }, () => {
