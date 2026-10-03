@@ -82,6 +82,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
 
   test('invalidates /camps/{campId}/activities for all users on activity patch', async () => {
     const uri = `/api/camps/${loremIpsumCampId}/activities`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${skilagerCampId}&page=1`
     const activityId = '3d1e5c91ceb2'
 
     // bring data into defined state
@@ -93,6 +94,8 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // warm up cache
     await apiGet(bruceApi, uri)
     await expectCacheHit(bruceApi, uri)
+    await expectCacheMiss(bruceApi, filteredUri)
+    await expectCacheHit(bruceApi, filteredUri)
 
     const felicityApi = await getAuthContext(felicitySmoakUser)
     await expectCacheMiss(felicityApi, uri)
@@ -106,6 +109,8 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // ensure cache was invalidated
     await waitForCacheMiss(bruceApi, uri)
     await expectCacheHit(bruceApi, uri)
+    await waitForCacheMiss(bruceApi, filteredUri)
+    await expectCacheHit(bruceApi, filteredUri)
 
     const bruceApi2 = await getAuthContext(bruceWayneUser)
     await expectCacheMiss(bruceApi2, uri)
