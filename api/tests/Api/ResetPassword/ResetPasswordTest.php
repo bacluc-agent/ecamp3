@@ -3,7 +3,11 @@
 namespace App\Tests\Api\ResetPassword;
 
 use App\Entity\User;
+use App\Security\ReCaptcha\ReCaptchaWrapper;
 use App\Tests\Api\ECampApiTestCase;
+use Psr\Log\LoggerInterface;
+use ReCaptcha\ReCaptcha;
+use ReCaptcha\RequestMethod;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
@@ -13,6 +17,18 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
  * @internal
  */
 class ResetPasswordTest extends ECampApiTestCase {
+    public function testPostResetPasswordWithoutRecaptchaTokenReturns422() {
+        static::getContainer()->set(ReCaptchaWrapper::class, new ReCaptchaWrapper(
+            'test-secret',
+            new ReCaptcha('test-secret', $this->createStub(RequestMethod::class)),
+            $this->createStub(LoggerInterface::class),
+        ));
+
+        $this->createBasicClient()->request('POST', '/auth/reset_password', ['json' => []]);
+
+        $this->assertResponseStatusCodeSame(422);
+    }
+
     public function testPostResetPasswordResetsPasswordForAnonymousUser() {
         /** @var User $user */
         $user = static::getFixture('user1manager');
