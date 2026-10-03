@@ -4,6 +4,7 @@ namespace App\Security\ReCaptcha;
 
 use Psr\Log\LoggerInterface;
 use ReCaptcha\ReCaptcha;
+use ReCaptcha\Response;
 
 class ReCaptchaWrapper {
     private const ACTION = 'login';
@@ -14,17 +15,17 @@ class ReCaptchaWrapper {
         private readonly LoggerInterface $logger,
     ) {}
 
-    public function verify($response, $remoteIp = null) {
+    public function verify($response, $remoteIp = null): Response {
         if ('disabled' != strtolower($this->reCaptchaSecret)) {
             $resp = $this->reCaptcha->withExpectedAction(self::ACTION)->verify((string) $response, $remoteIp);
             if (!$resp->isSuccess()) {
                 $this->logger->warning('ReCaptcha verification failed', ['error-codes' => $resp->getErrorCodes()]);
             }
 
-            return new VerificationResult($resp->isSuccess());
+            return $resp;
         }
 
         // if no reCaptchaSecret (dev & test) -> auto-success
-        return new VerificationResult(true);
+        return new Response(true);
     }
 }

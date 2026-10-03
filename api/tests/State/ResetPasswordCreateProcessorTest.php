@@ -7,13 +7,13 @@ use App\DTO\ResetPassword;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Security\ReCaptcha\ReCaptchaWrapper;
-use App\Security\ReCaptcha\VerificationResult;
 use App\Service\MailService;
 use App\State\ResetPasswordCreateProcessor;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use ReCaptcha\Response;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactory;
 use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 
@@ -25,7 +25,7 @@ class ResetPasswordCreateProcessorTest extends TestCase {
     public const EMAILBASE64 = 'YUBiLmNvbQ==';
 
     private ResetPassword $resetPassword;
-    private MockObject|VerificationResult $recaptchaResponse;
+    private MockObject|Response $recaptchaResponse;
     private MockObject|UserRepository $userRepository;
     private MockObject|PasswordHasherInterface $pwHasher;
     private MailService|MockObject $mailService;
@@ -37,7 +37,7 @@ class ResetPasswordCreateProcessorTest extends TestCase {
     protected function setUp(): void {
         $this->resetPassword = new ResetPassword();
 
-        $this->recaptchaResponse = $this->createMock(VerificationResult::class);
+        $this->recaptchaResponse = $this->createMock(Response::class);
         $recaptcha = $this->createMock(ReCaptchaWrapper::class);
         $entityManager = $this->createStub(EntityManagerInterface::class);
         $this->userRepository = $this->createMock(UserRepository::class);
