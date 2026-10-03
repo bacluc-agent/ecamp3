@@ -23,6 +23,10 @@
   "labels": ["renovate"],
   "packageRules": [
     {
+      "matchFileNames": ["api/composer.json"],
+      "postUpdateOptions": ["composerWithAll"]
+    },
+    {
       "matchUpdateTypes": ["minor", "patch", "pin", "lockFileMaintenance"],
       "automerge": true
     },
