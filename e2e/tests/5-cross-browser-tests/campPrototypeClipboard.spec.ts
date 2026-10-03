@@ -1,24 +1,18 @@
 import { expect } from '@playwright/test'
 import { grgrCampId } from '@/utils/constants'
 import { test } from '@/utils/etest'
-import { Camp } from '@/utils/fixtures/domainObjects/camp'
 
 const copiedCampUrl = `http://localhost:3000/camps/${grgrCampId}/GRGR/dashboard`
 const copiedCampUri = `/camps/${grgrCampId}`
 
 test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
-  let camp: Camp | undefined
-
-  test.afterEach(async () => {
-    await camp?.delete()
-    camp = undefined
+  test.afterEach(async ({ cleanupCamps }) => {
+    await cleanupCamps()
   })
 
   test('loads a copied camp URL from the clipboard', async ({
-    page,
     clipboardStub,
     openCreateCampStep2,
-    runId,
   }) => {
     await clipboardStub.readText(copiedCampUrl)
     const createCampDialogStep2 = await openCreateCampStep2()
@@ -29,16 +23,13 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
 
     await createCampDialogStep2.expectCopiedPrototype()
 
-    const { campPrototype, campInfo } = await createCampDialogStep2.submit()
-    camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
+    const { campPrototype } = await createCampDialogStep2.submit()
     expect(campPrototype).toBe(copiedCampUri)
   })
 
   test('uses the manual URL when clipboard read fails', async ({
-    page,
     clipboardStub,
     openCreateCampStep2,
-    runId,
   }) => {
     await clipboardStub.readFailure()
     const createCampDialogStep2 = await openCreateCampStep2()
@@ -49,8 +40,7 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
     await createCampDialogStep2.fillManualPrototypeUrl(copiedCampUrl)
     await createCampDialogStep2.expectCopiedPrototype()
 
-    const { campPrototype, campInfo } = await createCampDialogStep2.submit()
-    camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
+    const { campPrototype } = await createCampDialogStep2.submit()
     expect(campPrototype).toBe(copiedCampUri)
   })
 
@@ -58,7 +48,6 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
     page,
     clipboardStub,
     openCreateCampStep2,
-    runId,
   }) => {
     await clipboardStub.readText(copiedCampUrl, 'granted')
     const createCampDialogStep2 = await openCreateCampStep2()
@@ -69,8 +58,7 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
 
     await expect(page).toHaveURL(/\/camps\/create$/)
 
-    const { campPrototype, campInfo } = await createCampDialogStep2.submit()
-    camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
+    const { campPrototype } = await createCampDialogStep2.submit()
     expect(campPrototype).toBe(copiedCampUri)
   })
 })

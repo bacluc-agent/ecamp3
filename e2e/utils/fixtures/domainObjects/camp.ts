@@ -3,28 +3,76 @@ import { boxedStep } from '@/utils/decorators/boxedStep'
 import { LoginPage } from '@/utils/fixtures/pageObjects/loginPage'
 import { CampInfo } from '@/utils/fixtures/pageObjects/camp/admin/campInfo'
 import { CampActivitySettings } from '@/utils/fixtures/pageObjects/camp/admin/campActivitySettings'
-import { CreateCampDialogStep2 } from '@/utils/fixtures/pageObjects/createCamp/createCampDialogStep2'
+import {
+  CreatedCampCallback,
+  CreateCampDialogStep2,
+} from '@/utils/fixtures/pageObjects/createCamp/createCampDialogStep2'
 import { CampListPage } from '@/utils/fixtures/pageObjects/campListPage'
 
 type CampPrototype = 'empty' | string
 
 export type CampFixtureType = {
+  campRegistry: CampRegistry
   createCamp: (prototype: CampPrototype) => Promise<Camp>
   openCreateCampStep2: () => Promise<CreateCampDialogStep2>
+  cleanupCamps: () => Promise<void>
+}
+
+type CampRegistry = {
+  register: (campInfo: CampInfo, campTitle: string) => Camp
+  cleanup: () => Promise<void>
 }
 
 export const campFixture = {
+  campRegistry: async (
+    { page }: { page: Page },
+    use: (a: CampRegistry) => Promise<void>
+  ) => {
+    const camps: Camp[] = []
+    await use({
+      register: (campInfo, campTitle) => {
+        const camp = new Camp(page, campInfo.campId, campTitle, campInfo)
+        camps.push(camp)
+        return camp
+      },
+      cleanup: async () => {
+        for (const camp of camps) await camp.delete()
+        camps.length = 0
+      },
+    })
+  },
+  cleanupCamps: async (
+    { campRegistry }: { campRegistry: CampRegistry },
+    use: (a: CampFixtureType['cleanupCamps']) => Promise<void>
+  ) => {
+    await use(campRegistry.cleanup)
+  },
   createCamp: async (
-    { page, runId }: { page: Page; runId: string },
+    {
+      page,
+      runId,
+      campRegistry,
+    }: { page: Page; runId: string; campRegistry: CampRegistry },
     use: (a: CampFixtureType['createCamp']) => Promise<void>
   ) => {
-    await use((prototype) => new CreateCamp(page, prototype, runId).create())
+    await use((prototype) =>
+      new CreateCamp(page, prototype, runId, campRegistry.register).create()
+    )
   },
   openCreateCampStep2: async (
-    { page, runId }: { page: Page; runId: string },
+    {
+      page,
+      runId,
+      campRegistry,
+    }: { page: Page; runId: string; campRegistry: CampRegistry },
     use: (a: CampFixtureType['openCreateCampStep2']) => Promise<void>
   ) => {
-    await use(() => new CreateCamp(page, null, runId).openCreateCampStep2())
+    await use(() =>
+      new CreateCamp(page, null, runId, campRegistry.register).openCreateCampStep2(
+        undefined,
+        (campInfo) => campRegistry.register(campInfo, `camp ${runId}`)
+      )
+    )
   },
 }
 
@@ -33,6 +81,7 @@ class CreateCamp {
     private readonly _page: Page,
     private readonly _campPrototype: CampPrototype | null,
     private readonly _runId: string,
+    private readonly _registerCamp: (campInfo: CampInfo, campTitle: string) => void,
     private readonly _campTitle = `camp ${_runId}`
   ) {}
 
@@ -41,13 +90,15 @@ class CreateCamp {
     const createCampDialogStep2 = await this.openCreateCampStep2(user)
     const { campInfo } = await createCampDialogStep2
       .selectPrototype(this._campPrototype!)
-      .then((value) => value.submit())
+      .then((value) =>
+        value.submit((campInfo) => this._registerCamp(campInfo, this._campTitle))
+      )
 
     return new Camp(this._page, campInfo.campId, this._campTitle, campInfo)
   }
 
   @boxedStep
-  async openCreateCampStep2(user = undefined) {
+  async openCreateCampStep2(user = undefined, onCreatedCamp?: CreatedCampCallback) {
     const tomorrow = new Date()
     tomorrow.setDate(tomorrow.getDate() + 1)
     const in2Days = new Date()
@@ -58,7 +109,7 @@ class CreateCamp {
     const createCampDialogStep1 = await campListPage.openCreateCampDialog()
     await createCampDialogStep1.fillForm(tomorrow, in2Days, this._campTitle)
 
-    return await createCampDialogStep1.next()
+    return await createCampDialogStep1.next(onCreatedCamp)
   }
 }
 
