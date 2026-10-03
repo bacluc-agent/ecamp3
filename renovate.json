@@ -154,7 +154,7 @@
     {
       "customType": "regex",
       "managerFilePatterns": ["/^.github/workflows/.+\\.ya?ml$/"],
-      "matchStrings": ["tools: composer:(?<currentValue>[0-9.]+)"],
+      "matchStrings": ["composer:(?<currentValue>[0-9.]+)"],
       "depNameTemplate": "composer",
       "packageNameTemplate": "composer/composer",
       "datasourceTemplate": "github-tags",
@@ -198,6 +198,5 @@
       ],
       "datasourceTemplate": "docker"
     }
-  ],
-  "postUpdateOptions": ["composerWithAll"]
+  ]
 }

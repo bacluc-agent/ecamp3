@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Validate composer.json (API)
-        run: docker run --rm -v "$PWD/api:/app" -w /app composer:2 validate -n --no-check-all --no-check-publish --strict
+        run: docker run --rm -v "$PWD/api:/app" -w /app composer:2.10.3 validate -n --no-check-all --no-check-publish --strict
 
       - name: Set up Docker Buildx
         id: buildx
