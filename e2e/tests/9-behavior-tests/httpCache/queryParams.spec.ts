@@ -30,6 +30,7 @@ const cacheableCollections = [
   `/api/camps/${loremIpsumCampId}/checklists`,
   `/api/periods/${skilagerPeriodId}/days`,
 ]
+const cacheableItems = [`/api/activities/${activityId}`]
 const adminUser = 'admin@example.com'
 
 test.describe('cache test: collection with query params', { tag: '@mature' }, () => {
@@ -38,6 +39,15 @@ test.describe('cache test: collection with query params', { tag: '@mature' }, ()
   test('caches every configured collection with a query parameter', async () => {
     const api = await getAuthContext(adminUser)
     for (const uri of cacheableCollections) {
+      const queryUri = `${uri}?page=1`
+      await expectCacheMiss(api, queryUri)
+      await expectCacheHit(api, queryUri)
+    }
+  })
+
+  test('caches every configured item with a query parameter', async () => {
+    const api = await getAuthContext(adminUser)
+    for (const uri of cacheableItems) {
       const queryUri = `${uri}?page=1`
       await expectCacheMiss(api, queryUri)
       await expectCacheHit(api, queryUri)
