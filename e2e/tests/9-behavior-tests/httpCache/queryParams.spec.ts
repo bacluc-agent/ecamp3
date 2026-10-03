@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test'
-import { bruceWayneUser, loremIpsumCampId } from '@/utils/constants'
+import {
+  bruceWayneUser,
+  loremIpsumCampId,
+  skilagerCampId,
+  skilagerPeriodId,
+} from '@/utils/constants'
 import {
   getAuthContext,
   expectCacheHit,
@@ -14,10 +19,30 @@ const collectionUri = `/api/camps/${loremIpsumCampId}/activities`
 // app-wide). Both are part of the cache key, which is what is under test here.
 const filteredUri = `${collectionUri}?camp=%2Fcamps%2F${loremIpsumCampId}&page=1`
 const reversedUri = `${collectionUri}?page=1&camp=%2Fcamps%2F${loremIpsumCampId}`
+const unfilteredQueryUri = `${collectionUri}?page=1`
+const excludesActivityUri = `${collectionUri}?camp=%2Fcamps%2F${skilagerCampId}&page=1`
 const activityId = '3d1e5c91ceb2'
+const cacheableCollections = [
+  '/api/content_types',
+  `/api/camps/${loremIpsumCampId}/categories`,
+  `/api/periods/${skilagerPeriodId}/schedule_entries`,
+  collectionUri,
+  `/api/camps/${loremIpsumCampId}/checklists`,
+  `/api/periods/${skilagerPeriodId}/days`,
+]
+const adminUser = 'admin@example.com'
 
 test.describe('cache test: collection with query params', { tag: '@mature' }, () => {
   test.describe.configure({ mode: 'serial' })
+
+  test('caches every configured collection with a query parameter', async () => {
+    const api = await getAuthContext(adminUser)
+    for (const uri of cacheableCollections) {
+      const queryUri = `${uri}?page=1`
+      await expectCacheMiss(api, queryUri)
+      await expectCacheHit(api, queryUri)
+    }
+  })
 
   test('caches a filtered url and tags it like the unfiltered one', async () => {
     const bruceApi = await getAuthContext(bruceWayneUser)
@@ -57,10 +82,10 @@ test.describe('cache test: collection with query params', { tag: '@mature' }, ()
     })
 
     // warm up both variants
-    await apiGet(bruceApi, collectionUri)
-    await expectCacheHit(bruceApi, collectionUri)
-    await apiGet(bruceApi, filteredUri)
-    await expectCacheHit(bruceApi, filteredUri)
+    await apiGet(bruceApi, unfilteredQueryUri)
+    await expectCacheHit(bruceApi, unfilteredQueryUri)
+    await apiGet(bruceApi, excludesActivityUri)
+    await expectCacheHit(bruceApi, excludesActivityUri)
 
     // touch activity
     await apiPatch(bruceApi, `/api/activities/${activityId}`, {
@@ -68,9 +93,9 @@ test.describe('cache test: collection with query params', { tag: '@mature' }, ()
     })
 
     // ensure both variants were invalidated; the first poll of each re-warms it
-    await waitForCacheMiss(bruceApi, collectionUri)
-    await expectCacheHit(bruceApi, collectionUri)
-    await waitForCacheMiss(bruceApi, filteredUri)
-    await expectCacheHit(bruceApi, filteredUri)
+    await waitForCacheMiss(bruceApi, unfilteredQueryUri)
+    await expectCacheHit(bruceApi, unfilteredQueryUri)
+    await waitForCacheMiss(bruceApi, excludesActivityUri)
+    await expectCacheHit(bruceApi, excludesActivityUri)
   })
 })
