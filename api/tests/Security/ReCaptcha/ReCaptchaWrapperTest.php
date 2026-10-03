@@ -26,14 +26,14 @@ class ReCaptchaWrapperTest extends TestCase {
     }
 
     #[AllowMockObjectsWithoutExpectations]
-    public function testVerifyReturnsSuccessForLoginAction() {
+    public function testVerifyReturnsSuccessForExpectedAction() {
         $this->requestMethod->expects(self::once())
             ->method('submit')
-            ->willReturn('{"success":true,"action":"login"}')
+            ->willReturn('{"success":true,"action":"register"}')
         ;
         $this->logger->expects(self::never())->method('warning');
 
-        $result = $this->wrapper->verify('tok');
+        $result = $this->wrapper->verify('tok', 'register');
 
         self::assertInstanceOf(VerificationResult::class, $result);
         self::assertTrue($result->isSuccess());
@@ -53,7 +53,7 @@ class ReCaptchaWrapperTest extends TestCase {
             )
         ;
 
-        $result = $this->wrapper->verify('tok');
+        $result = $this->wrapper->verify('tok', 'register');
 
         self::assertInstanceOf(VerificationResult::class, $result);
         self::assertFalse($result->isSuccess());
@@ -73,7 +73,7 @@ class ReCaptchaWrapperTest extends TestCase {
             )
         ;
 
-        $result = $this->wrapper->verify('tok');
+        $result = $this->wrapper->verify('tok', 'register');
 
         self::assertInstanceOf(VerificationResult::class, $result);
         self::assertFalse($result->isSuccess());
@@ -90,7 +90,7 @@ class ReCaptchaWrapperTest extends TestCase {
             )
         ;
 
-        $result = $this->wrapper->verify('');
+        $result = $this->wrapper->verify('', 'register');
 
         self::assertInstanceOf(VerificationResult::class, $result);
         self::assertFalse($result->isSuccess());
@@ -107,7 +107,7 @@ class ReCaptchaWrapperTest extends TestCase {
             )
         ;
 
-        $result = $this->wrapper->verify(null);
+        $result = $this->wrapper->verify(null, 'register');
 
         self::assertInstanceOf(VerificationResult::class, $result);
         self::assertFalse($result->isSuccess());
@@ -118,7 +118,7 @@ class ReCaptchaWrapperTest extends TestCase {
         $this->requestMethod->expects(self::never())->method('submit');
         $this->logger->expects(self::never())->method('warning');
 
-        $result = $this->wrapperFor('disabled')->verify('tok');
+        $result = $this->wrapperFor('disabled')->verify('tok', 'register');
 
         self::assertInstanceOf(VerificationResult::class, $result);
         self::assertTrue($result->isSuccess());

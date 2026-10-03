@@ -33,7 +33,7 @@ readonly class ResendActivationProcessor implements ProcessorInterface {
      * @throws NonUniqueResultException
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): null {
-        $resp = $this->reCaptcha->verify($data->recaptchaToken);
+        $resp = $this->reCaptcha->verify($data->recaptchaToken, 'resend_activation');
         if (!$resp->isSuccess()) {
             throw new HttpException(422, 'ReCaptcha failed');
         }
