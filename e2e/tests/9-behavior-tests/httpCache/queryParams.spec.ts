@@ -34,6 +34,9 @@ const cacheableItems = [
   `/api/activities/${activityId}`,
   '/api/content_types/318e064ea0c9',
   `/api/camps/${loremIpsumCampId}/categories/c5e1bc565094`,
+  '/api/schedule_entries/e68f4e47517a',
+  '/api/checklists/ebbd0c61eb85',
+  '/api/days/4b90ff5b42c0',
 ]
 const adminUser = 'admin@example.com'
 
