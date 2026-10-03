@@ -6,7 +6,6 @@ export class DialogDeleteCamp {
 
   constructor(
     private readonly _page: Page,
-    private readonly _campId: string,
     _dialog = _page.locator(DialogDeleteCamp.LOCATOR),
     private readonly _promptInput = _dialog.locator('[name="promptText"] input'),
     private readonly _deleteButton = _dialog.getByRole('button', {

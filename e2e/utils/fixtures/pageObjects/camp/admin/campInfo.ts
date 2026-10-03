@@ -38,7 +38,7 @@ export class CampInfo {
     await expect(this._deleteCampButton).toBeVisible({ timeout: 10_000 })
     await this._deleteCampButton.click({ timeout: 10_000 })
 
-    const dialog = new DialogDeleteCamp(this._page, this._campId)
+    const dialog = new DialogDeleteCamp(this._page)
     await dialog.loaded()
     return dialog
   }

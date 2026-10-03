@@ -25,10 +25,6 @@ export class ClipboardStub {
     await this._stubRead('', undefined, 'rejected')
   }
 
-  async permissionUnqueryable() {
-    await this._stubRead('', 'unaccessible', 'resolved')
-  }
-
   async expectReadSettled(settlement: 'resolved' | 'rejected') {
     await expect(this._page.locator('html')).toHaveAttribute(
       'data-clipboard-read-settlement',

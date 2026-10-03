@@ -14,7 +14,6 @@ const PASTE_BUTTON_TITLE = 'Kopierte Lagereinstellungen einfügen'
 export class CreateCampDialogStep2 {
   constructor(
     private readonly _page: Page,
-    private readonly _onCreatedCamp?: CreatedCampCallback,
     _form = _page.locator('form'),
     private readonly _prototypeSelect = new ESelect(
       _form.locator('div.v-input[data-testid="prototype-select"]')
@@ -37,14 +36,9 @@ export class CreateCampDialogStep2 {
     private readonly _previewContent = _previewBlock.locator('.v-list-item'),
     private readonly _previewHeading = _previewBlock.getByRole('heading', {
       name: PREVIEW_HEADING,
-    })
+    }),
+    private readonly _onCreatedCamp?: CreatedCampCallback
   ) {}
-
-  private _createdCampId: string | undefined
-
-  get createdCampId() {
-    return this._createdCampId
-  }
 
   @boxedStep
   async loaded() {
@@ -94,20 +88,6 @@ export class CreateCampDialogStep2 {
   @boxedStep
   async expectSelectedPrototype(value: string) {
     await expect(this._prototypeSelect.locator).toContainText(value, { timeout: 30_000 })
-    return this
-  }
-
-  @boxedStep
-  async expectNoPrototypePreview() {
-    await expect(this._previewHeading).toBeHidden()
-    return this
-  }
-
-  @boxedStep
-  async expectNoClipboardControl() {
-    await expect(this._allowButton).toHaveCount(0)
-    await expect(this._pasteButton).toHaveCount(0)
-    await expect(this._manualPrototypeUrlField).toBeFocused()
     return this
   }
 

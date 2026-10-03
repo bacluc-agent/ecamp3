@@ -38,7 +38,20 @@ export class CreateCampDialogStep1 {
   @boxedStep
   async next(onCreatedCamp?: CreatedCampCallback) {
     await this._nextButton.click()
-    const createCampDialogStep2 = new CreateCampDialogStep2(this._page, onCreatedCamp)
+    const createCampDialogStep2 = new CreateCampDialogStep2(
+      this._page,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      onCreatedCamp
+    )
     await createCampDialogStep2.loaded()
     return createCampDialogStep2
   }
