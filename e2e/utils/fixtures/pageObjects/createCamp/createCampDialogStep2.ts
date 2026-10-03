@@ -1,4 +1,4 @@
-import { expect, Page, Request } from '@playwright/test'
+import { expect, Page, Response } from '@playwright/test'
 import { boxedStep } from '@/utils/decorators/boxedStep'
 import { ESelect } from '@/utils/fixtures/components/eSelect'
 import { CampInfo } from '@/utils/fixtures/pageObjects/camp/admin/campInfo'
@@ -121,34 +121,13 @@ export class CreateCampDialogStep2 {
     const waitForCampInfoRoute = this._page.waitForURL(`**${CampInfo.ROUTE}`, {
       timeout: 60000,
     })
-    const isCreateCamp = (request: Request) =>
-      request.method() === 'POST' && new URL(request.url()).pathname === '/api/camps'
-    let createCampRequest: Request | undefined
-    const waitForCreateCampResponse = this._page
-      .waitForResponse((response) => isCreateCamp(response.request()), {
-        timeout: 60_000,
-      })
-      .catch((error) => {
-        if (createCampRequest) throw error
-        return undefined
-      })
-    for (let attempt = 0; attempt < 3 && !createCampRequest; attempt++) {
-      const waitForCreateCampRequest = this._page
-        .waitForRequest(isCreateCamp, { timeout: 5_000 })
-        .catch(() => undefined)
-      await this._createCampButton.click()
-      createCampRequest = await waitForCreateCampRequest
-    }
-    if (!createCampRequest) {
-      throw new Error('Create-camp form did not send a POST request after 3 clicks')
-    }
-
+    const isCreateCamp = (response: Response) =>
+      response.request().method() === 'POST' &&
+      new URL(response.url()).pathname === '/api/camps'
+    const waitForCreateCampResponse = this._page.waitForResponse(isCreateCamp)
+    await this._createCampButton.click()
     await waitForCampInfoRoute
-    const createCampResponse = await waitForCreateCampResponse
-    if (!createCampResponse) {
-      throw new Error('Create-camp response was not received')
-    }
-    const campPrototype = createCampResponse.request().postDataJSON().campPrototype
+    const createdCamp = await (await waitForCreateCampResponse).json()
 
     const url = this._page.url()
     const match = url.match(new RegExp(`/camps/([^/]+)/.*${CampInfo.ROUTE}`))
@@ -159,6 +138,6 @@ export class CreateCampDialogStep2 {
 
     const campInfo = new CampInfo(this._page, campId)
     await campInfo.loaded()
-    return { campPrototype, campInfo }
+    return { campPrototype: createdCamp.prototype, campInfo }
   }
 }

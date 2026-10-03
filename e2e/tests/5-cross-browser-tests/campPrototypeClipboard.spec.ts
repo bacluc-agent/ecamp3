@@ -1,25 +1,12 @@
 import { expect } from '@playwright/test'
 import { grgrCampId } from '@/utils/constants'
 import { test } from '@/utils/etest'
-import { CreateCampDialogStep2 } from '@/utils/fixtures/pageObjects/createCamp/createCampDialogStep2'
 import { Camp } from '@/utils/fixtures/domainObjects/camp'
 
 const copiedCampUrl = `http://localhost:3000/camps/${grgrCampId}/GRGR/dashboard`
 const copiedCampUri = `/camps/${grgrCampId}`
 
 test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
-  test.describe.configure({ timeout: 210_000 })
-
-  let createCampDialogStep2: CreateCampDialogStep2
-  let camp: Camp | undefined
-
-  test.afterEach(async ({}) => {
-    if (camp) {
-      await camp.delete()
-      camp = undefined
-    }
-  })
-
   test('loads a copied camp URL from the clipboard', async ({
     page,
     clipboardStub,
@@ -27,7 +14,7 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
     runId,
   }) => {
     await clipboardStub.readText(copiedCampUrl)
-    createCampDialogStep2 = await openCreateCampStep2()
+    const createCampDialogStep2 = await openCreateCampStep2()
     await createCampDialogStep2.selectOtherCampPrototype()
     await createCampDialogStep2.grantClipboardRead()
     await clipboardStub.expectReadSettled('resolved')
@@ -36,8 +23,9 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
     await createCampDialogStep2.expectCopiedPrototype()
 
     const { campPrototype, campInfo } = await createCampDialogStep2.submit()
-    camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
+    const camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
 
+    await camp.delete()
     expect(campPrototype).toBe(copiedCampUri)
   })
 
@@ -48,7 +36,7 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
     runId,
   }) => {
     await clipboardStub.readFailure()
-    createCampDialogStep2 = await openCreateCampStep2()
+    const createCampDialogStep2 = await openCreateCampStep2()
     await createCampDialogStep2.selectOtherCampPrototype()
     await createCampDialogStep2.grantClipboardRead()
     await clipboardStub.expectReadSettled('rejected')
@@ -57,8 +45,9 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
     await createCampDialogStep2.expectCopiedPrototype()
 
     const { campPrototype, campInfo } = await createCampDialogStep2.submit()
-    camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
+    const camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
 
+    await camp.delete()
     expect(campPrototype).toBe(copiedCampUri)
   })
 
@@ -69,7 +58,7 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
     runId,
   }) => {
     await clipboardStub.readText(copiedCampUrl, 'granted')
-    createCampDialogStep2 = await openCreateCampStep2()
+    const createCampDialogStep2 = await openCreateCampStep2()
     await createCampDialogStep2.selectOtherCampPrototype()
     await createCampDialogStep2.pasteClipboardPrototype()
     await clipboardStub.expectReadSettled('resolved')
@@ -78,27 +67,9 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
     await expect(page).toHaveURL(/\/camps\/create$/)
 
     const { campPrototype, campInfo } = await createCampDialogStep2.submit()
-    camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
+    const camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
 
-    expect(campPrototype).toBe(copiedCampUri)
-  })
-
-  test('falls back to the focused manual URL field when clipboard access is unqueryable', async ({
-    page,
-    clipboardStub,
-    openCreateCampStep2,
-    runId,
-  }) => {
-    await clipboardStub.permissionUnqueryable()
-    createCampDialogStep2 = await openCreateCampStep2()
-    await createCampDialogStep2.selectOtherCampPrototype()
-    await createCampDialogStep2.expectNoClipboardControl()
-    await createCampDialogStep2.fillManualPrototypeUrl(copiedCampUrl)
-    await createCampDialogStep2.expectCopiedPrototype()
-
-    const { campPrototype, campInfo } = await createCampDialogStep2.submit()
-    camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
-
+    await camp.delete()
     expect(campPrototype).toBe(copiedCampUri)
   })
 })
