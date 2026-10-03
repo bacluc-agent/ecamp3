@@ -7,6 +7,13 @@ const copiedCampUrl = `http://localhost:3000/camps/${grgrCampId}/GRGR/dashboard`
 const copiedCampUri = `/camps/${grgrCampId}`
 
 test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
+  let camp: Camp | undefined
+
+  test.afterEach(async () => {
+    await camp?.delete()
+    camp = undefined
+  })
+
   test('loads a copied camp URL from the clipboard', async ({
     page,
     clipboardStub,
@@ -23,9 +30,7 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
     await createCampDialogStep2.expectCopiedPrototype()
 
     const { campPrototype, campInfo } = await createCampDialogStep2.submit()
-    const camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
-
-    await camp.delete()
+    camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
     expect(campPrototype).toBe(copiedCampUri)
   })
 
@@ -45,9 +50,7 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
     await createCampDialogStep2.expectCopiedPrototype()
 
     const { campPrototype, campInfo } = await createCampDialogStep2.submit()
-    const camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
-
-    await camp.delete()
+    camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
     expect(campPrototype).toBe(copiedCampUri)
   })
 
@@ -67,9 +70,7 @@ test.describe('camp prototype clipboard', { tag: '@mature' }, () => {
     await expect(page).toHaveURL(/\/camps\/create$/)
 
     const { campPrototype, campInfo } = await createCampDialogStep2.submit()
-    const camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
-
-    await camp.delete()
+    camp = new Camp(page, campInfo.campId, `camp ${runId}`, campInfo)
     expect(campPrototype).toBe(copiedCampUri)
   })
 })
