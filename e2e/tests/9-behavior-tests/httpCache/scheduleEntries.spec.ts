@@ -93,7 +93,7 @@ test.describe(
 
     test('invalidates /periods/{periodId}/schedule_entries for new scheduleEntry', async () => {
       const uri = `/api/periods/${grgrPeriodId}/schedule_entries`
-      const filteredUri = `${uri}?period=%2Fperiods%2F${skilagerPeriodId}&page=1`
+      const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}&page=1`
 
       const bipiApi = await getAuthContext(bipiUser)
 

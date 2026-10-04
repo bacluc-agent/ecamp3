@@ -1,10 +1,5 @@
 import { test, expect } from '@playwright/test'
-import {
-  bipiUser,
-  bruceWayneUser,
-  grgrPeriodId,
-  skilagerPeriodId,
-} from '@/utils/constants'
+import { bipiUser, bruceWayneUser, grgrPeriodId } from '@/utils/constants'
 import {
   expectCacheHit,
   expectCacheMiss,
@@ -86,7 +81,7 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
 
   test('invalidates /periods/{periodId}/days when adding a day responsible', async () => {
     const uri = `/api/periods/${grgrPeriodId}/days`
-    const filteredUri = `${uri}?period=%2Fperiods%2F${skilagerPeriodId}&page=1`
+    const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}&page=1`
 
     const bipiApi = await getAuthContext(bipiUser)
 

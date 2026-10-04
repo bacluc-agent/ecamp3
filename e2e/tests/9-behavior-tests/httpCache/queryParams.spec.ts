@@ -49,6 +49,10 @@ test.describe('cache test: collection with query params', () => {
     const bruceApi = await getAuthContext(bruceWayneUser)
     const excludedFilteredUri = `${collectionUri}?camp=%2Fcamps%2F${skilagerCampId}`
 
+    await apiPatch(bruceApi, `/api/activities/${activityId}`, {
+      title: 'Breakfast',
+    })
+
     const filtered = await apiGet(bruceApi, excludedFilteredUri)
     const activities: Array<{ _links: { self: { href: string } } }> = (
       await filtered.json()
@@ -56,17 +60,14 @@ test.describe('cache test: collection with query params', () => {
     expect(
       activities.some((activity) => activity._links.self.href.endsWith(activityId))
     ).toBe(false)
-
-    await apiPatch(bruceApi, `/api/activities/${activityId}`, {
-      title: 'Breakfast',
-    })
-
-    await apiGet(bruceApi, collectionUri)
-    await expectCacheHit(bruceApi, collectionUri)
-    await apiGet(bruceApi, filteredUri)
-    await expectCacheHit(bruceApi, filteredUri)
-    await apiGet(bruceApi, excludedFilteredUri)
     await expectCacheHit(bruceApi, excludedFilteredUri)
+
+    await expectCacheMiss(bruceApi, collectionUri)
+    await expectCacheHit(bruceApi, collectionUri)
+    await expectCacheMiss(bruceApi, filteredUri)
+    await expectCacheHit(bruceApi, filteredUri)
+    await expectCacheMiss(bruceApi, reversedUri)
+    await expectCacheHit(bruceApi, reversedUri)
 
     await apiPatch(bruceApi, `/api/activities/${activityId}`, {
       title: 'Frühstück',

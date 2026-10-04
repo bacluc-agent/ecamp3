@@ -6,7 +6,6 @@ import {
   felicitySmoakUser,
   grgrCampId,
   loremIpsumCampId,
-  skilagerCampId,
 } from '@/utils/constants'
 import {
   loginAndSetCookie,
@@ -62,7 +61,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
 
   test('invalidates /camps/{campId}/categories for all users on category patch', async () => {
     const uri = `/api/camps/${loremIpsumCampId}/categories`
-    const filteredUri = `${uri}?camp=%2Fcamps%2F${skilagerCampId}&page=1`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${loremIpsumCampId}&page=1`
 
     // bring data into defined state
     const bruceApi = await getAuthContext(bruceWayneUser)
