@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { bruceWayneUser, loremIpsumCampId } from '@/utils/constants'
+import { bruceWayneUser, loremIpsumCampId, skilagerCampId } from '@/utils/constants'
 import {
   getAuthContext,
   expectCacheHit,
@@ -47,6 +47,15 @@ test.describe('cache test: collection with query params', () => {
 
   test('invalidates every variant of the collection on activity patch', async () => {
     const bruceApi = await getAuthContext(bruceWayneUser)
+    const excludedFilteredUri = `${collectionUri}?camp=%2Fcamps%2F${skilagerCampId}`
+
+    const filtered = await apiGet(bruceApi, excludedFilteredUri)
+    const activities: Array<{ _links: { self: { href: string } } }> = (
+      await filtered.json()
+    )._embedded.items
+    expect(
+      activities.some((activity) => activity._links.self.href.endsWith(activityId))
+    ).toBe(false)
 
     await apiPatch(bruceApi, `/api/activities/${activityId}`, {
       title: 'Breakfast',
@@ -56,6 +65,8 @@ test.describe('cache test: collection with query params', () => {
     await expectCacheHit(bruceApi, collectionUri)
     await apiGet(bruceApi, filteredUri)
     await expectCacheHit(bruceApi, filteredUri)
+    await apiGet(bruceApi, excludedFilteredUri)
+    await expectCacheHit(bruceApi, excludedFilteredUri)
 
     await apiPatch(bruceApi, `/api/activities/${activityId}`, {
       title: 'Frühstück',
@@ -65,6 +76,25 @@ test.describe('cache test: collection with query params', () => {
     await expectCacheHit(bruceApi, collectionUri)
     await waitForCacheMiss(bruceApi, filteredUri)
     await expectCacheHit(bruceApi, filteredUri)
+    await waitForCacheMiss(bruceApi, excludedFilteredUri)
+    await expectCacheHit(bruceApi, excludedFilteredUri)
+  })
+
+  test('caches query-string item URLs for every configured item matcher', async () => {
+    const bruceApi = await getAuthContext(bruceWayneUser)
+    const itemUris = [
+      `/api/activities/${activityId}?page=1`,
+      '/api/content_types/a4211c11211c?page=1',
+      '/api/periods/76be24bce434/schedule_entries/29c9e9a07d82?page=1',
+      '/api/periods/76be24bce434/days/4b90ff5b42c0?page=1',
+      '/api/camps/70ca971c992f/categories/1a869b162875?page=1',
+    ]
+
+    for (const uri of itemUris) {
+      const response = await apiGet(bruceApi, uri)
+      expect(response.headers()['x-cache'], uri).toBe('MISS')
+      await expectCacheHit(bruceApi, uri)
+    }
   })
 })
 

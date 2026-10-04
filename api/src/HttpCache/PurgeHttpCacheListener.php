@@ -264,6 +264,9 @@ final readonly class PurgeHttpCacheListener {
                 $relatedObject,
                 $relatedProperty
             );
+            if (is_object($relatedObject)) {
+                $this->gatherResourceTags($relatedObject);
+            }
         }
     }
 
