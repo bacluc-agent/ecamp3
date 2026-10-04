@@ -241,10 +241,13 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
 
     test('when preferredContentTypes are removed', async () => {
       const uri = `/api/camps/${grgrCampId}/categories`
+      const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}&page=1`
 
       // warm up cache
       await apiGet(bipiApi, uri)
       await expectCacheHit(bipiApi, uri)
+      await expectCacheMiss(bipiApi, filteredUri)
+      await expectCacheHit(bipiApi, filteredUri)
 
       // set the preferredContentTypes to empty
       await apiPatch(bipiApi, `/api/categories/${grgrLACategoryId}`, {
@@ -254,14 +257,19 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
       // ensure cache was invalidated
       await waitForCacheMiss(bipiApi, uri)
       await expectCacheHit(bipiApi, uri)
+      await waitForCacheMiss(bipiApi, filteredUri)
+      await expectCacheHit(bipiApi, filteredUri)
     })
 
     test('when preferredContentType is added', async () => {
       const uri = `/api/camps/${grgrCampId}/categories`
+      const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}&page=1`
 
       // warm up cache
       await apiGet(bipiApi, uri)
       await expectCacheHit(bipiApi, uri)
+      await expectCacheMiss(bipiApi, filteredUri)
+      await expectCacheHit(bipiApi, filteredUri)
 
       // add new preferredContentType
       await apiPatch(bipiApi, `/api/categories/${grgrLACategoryId}`, {
@@ -274,6 +282,8 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
       // ensure cache was invalidated
       await waitForCacheMiss(bipiApi, uri)
       await expectCacheHit(bipiApi, uri)
+      await waitForCacheMiss(bipiApi, filteredUri)
+      await expectCacheHit(bipiApi, filteredUri)
     })
   })
 })
