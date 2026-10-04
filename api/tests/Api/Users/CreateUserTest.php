@@ -44,9 +44,14 @@ class CreateUserTest extends ECampApiTestCase {
     public function testCreateUserWithFailedRecaptchaIsRejectedWith422InsteadOf500() {
         $client = static::createBasicClient();
         $client->disableReboot();
+        $requestMethod = $this->createMock(RequestMethod::class);
+        $requestMethod->expects($this->once())
+            ->method('submit')
+            ->willReturn('{"success":false,"error-codes":["invalid-input-response"]}')
+        ;
         static::getContainer()->set(ReCaptchaWrapper::class, new ReCaptchaWrapper(
             'test-secret',
-            new ReCaptcha('test-secret', $this->createStub(RequestMethod::class)),
+            new ReCaptcha('test-secret', $requestMethod),
             $this->createStub(LoggerInterface::class),
         ));
 
