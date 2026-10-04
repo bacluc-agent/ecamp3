@@ -53,10 +53,19 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
       name: 'Training targets',
     })
 
+    const excludedChecklist = await apiGet(bipiApi, '/api/checklists/ebbd0c61eb85')
+    expect((await excludedChecklist.json()).isPrototype).toBe(false)
+
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
     await expectCacheMiss(bipiApi, filteredUri)
+    const filteredResponse = await apiGet(bipiApi, filteredUri)
+    expect(
+      (await filteredResponse.json())._embedded.items.map(
+        (item: { _links: { self: { href: string } } }) => item._links.self.href
+      )
+    ).not.toContain('/api/checklists/ebbd0c61eb85')
     await expectCacheHit(bipiApi, filteredUri)
 
     // touch checklist

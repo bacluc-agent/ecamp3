@@ -75,6 +75,12 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await apiGet(bruceApi, uri)
     await expectCacheHit(bruceApi, uri)
     await expectCacheMiss(bruceApi, filteredUri)
+    const filteredResponse = await apiGet(bruceApi, filteredUri)
+    expect(
+      (await filteredResponse.json())._embedded.items.map(
+        (item: { _links: { self: { href: string } } }) => item._links.self.href
+      )
+    ).not.toContain('/api/categories/c5e1bc565094')
     await expectCacheHit(bruceApi, filteredUri)
 
     // warm up cache (felicity)
