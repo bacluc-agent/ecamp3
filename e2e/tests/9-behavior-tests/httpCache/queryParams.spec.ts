@@ -19,7 +19,7 @@ const collectionUri = `/api/camps/${loremIpsumCampId}/activities`
 // app-wide). Both are part of the cache key, which is what is under test here.
 const filteredUri = `${collectionUri}?camp=%2Fcamps%2F${loremIpsumCampId}&page=1`
 const reversedUri = `${collectionUri}?page=1&camp=%2Fcamps%2F${loremIpsumCampId}`
-const unfilteredQueryUri = `${collectionUri}?page=1`
+const excludedActivityQueryUri = `${collectionUri}?page=1&camp=%2Fcamps%2F${skilagerCampId}`
 const excludesActivityUri = `${collectionUri}?camp=%2Fcamps%2F${skilagerCampId}&page=1`
 const activityId = '3d1e5c91ceb2'
 const cacheableCollections = [
@@ -99,8 +99,13 @@ test.describe('cache test: collection with query params', { tag: '@mature' }, ()
     })
 
     // warm up both variants
-    await apiGet(bruceApi, unfilteredQueryUri)
-    await expectCacheHit(bruceApi, unfilteredQueryUri)
+    const excludedActivityQuery = await apiGet(bruceApi, excludedActivityQueryUri)
+    expect(
+      (await excludedActivityQuery.json())._embedded.items.map(
+        (item: { _links: { self: { href: string } } }) => item._links.self.href
+      )
+    ).not.toContain(`/api/activities/${activityId}`)
+    await expectCacheHit(bruceApi, excludedActivityQueryUri)
     const excludedActivities = await apiGet(bruceApi, excludesActivityUri)
     expect(
       (await excludedActivities.json())._embedded.items.map(
@@ -115,8 +120,8 @@ test.describe('cache test: collection with query params', { tag: '@mature' }, ()
     })
 
     // ensure both variants were invalidated; the first poll of each re-warms it
-    await waitForCacheMiss(bruceApi, unfilteredQueryUri)
-    await expectCacheHit(bruceApi, unfilteredQueryUri)
+    await waitForCacheMiss(bruceApi, excludedActivityQueryUri)
+    await expectCacheHit(bruceApi, excludedActivityQueryUri)
     await waitForCacheMiss(bruceApi, excludesActivityUri)
     await expectCacheHit(bruceApi, excludesActivityUri)
   })
