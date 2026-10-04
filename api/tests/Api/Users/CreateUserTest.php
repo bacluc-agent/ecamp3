@@ -55,7 +55,7 @@ class CreateUserTest extends ECampApiTestCase {
             $this->createStub(LoggerInterface::class),
         ));
 
-        $client->request('POST', '/users', ['json' => $this->getExampleWritePayload()]);
+        $client->request('POST', '/users', ['json' => $this->getExampleWritePayload(['recaptchaToken' => 'test-token'])]);
 
         $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains(['detail' => 'ReCaptcha failed']);
