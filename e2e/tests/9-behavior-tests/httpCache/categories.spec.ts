@@ -96,11 +96,14 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
 
   test('invalidates /camps/{campId}/categories for new category', async () => {
     const uri = `/api/camps/${grgrCampId}/categories`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}&page=1`
     const bipiApi = await getAuthContext(bipiUser)
 
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
 
     // add new category to camp
     const postRes = await apiPost(bipiApi, '/api/categories', {
@@ -116,6 +119,8 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
 
     // delete newly created contentNode
     await apiDelete(bipiApi, newContentNodeUri)
@@ -123,6 +128,8 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
   })
 
   // eslint-disable-next-line playwright/no-skipped-test
