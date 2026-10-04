@@ -101,7 +101,12 @@ test.describe('cache test: collection with query params', { tag: '@mature' }, ()
     // warm up both variants
     await apiGet(bruceApi, unfilteredQueryUri)
     await expectCacheHit(bruceApi, unfilteredQueryUri)
-    await apiGet(bruceApi, excludesActivityUri)
+    const excludedActivities = await apiGet(bruceApi, excludesActivityUri)
+    expect(
+      (await excludedActivities.json())._embedded.items.map(
+        (item: { _links: { self: { href: string } } }) => item._links.self.href
+      )
+    ).not.toContain(`/api/activities/${activityId}`)
     await expectCacheHit(bruceApi, excludesActivityUri)
 
     // touch activity

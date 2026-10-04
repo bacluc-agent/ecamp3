@@ -94,9 +94,13 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // warm up cache
     await apiGet(bruceApi, uri)
     await expectCacheHit(bruceApi, uri)
-    const filtered = await apiGet(bruceApi, filteredUri)
-    expect(filtered.headers()['x-cache']).toBe('MISS')
-    expect(JSON.stringify(await filtered.json())).not.toContain('3d1e5c91ceb2')
+    await expectCacheMiss(bruceApi, filteredUri)
+    const filteredResponse = await apiGet(bruceApi, filteredUri)
+    expect(
+      (await filteredResponse.json())._embedded.items.map(
+        (item: { _links: { self: { href: string } } }) => item._links.self.href
+      )
+    ).not.toContain(`/api/activities/${activityId}`)
     await expectCacheHit(bruceApi, filteredUri)
 
     const felicityApi = await getAuthContext(felicitySmoakUser)
