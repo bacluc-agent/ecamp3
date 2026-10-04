@@ -94,6 +94,12 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
     await expectCacheMiss(bipiApi, filteredUri)
+    const initiallyFilteredResponse = await apiGet(bipiApi, filteredUri)
+    expect(
+      (await initiallyFilteredResponse.json())._embedded.items.map(
+        (item: { _links: { self: { href: string } } }) => item._links.self.href
+      )
+    ).not.toContain('/api/days/4b90ff5b42c0')
     await expectCacheHit(bipiApi, filteredUri)
 
     // add new day responsible

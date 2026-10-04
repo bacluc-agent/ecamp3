@@ -63,6 +63,7 @@ test.describe(
 
     test('invalidates /periods/{periodId}/schedule_entries for all users on scheduleEntry patch', async () => {
       const uri = `/api/periods/${grgrPeriodId}/schedule_entries`
+      const filteredUri = `${uri}?period=%2Fperiods%2F${skilagerPeriodId}&page=1`
       const scheduleEntryId = '12f34c89ce11'
 
       // bring data into defined state
@@ -74,6 +75,13 @@ test.describe(
       // warm up cache
       await apiGet(bipiApi, uri)
       await expectCacheHit(bipiApi, uri)
+      const filteredResponse = await apiGet(bipiApi, filteredUri)
+      expect(
+        (await filteredResponse.json())._embedded.items.map(
+          (item: { _links: { self: { href: string } } }) => item._links.self.href
+        )
+      ).not.toContain(`/api/schedule_entries/${scheduleEntryId}`)
+      await expectCacheHit(bipiApi, filteredUri)
 
       const castorApi = await getAuthContext(castorUser)
       await apiGet(castorApi, uri)
@@ -87,6 +95,8 @@ test.describe(
       // ensure cache was invalidated
       await waitForCacheMiss(castorApi, uri)
       await expectCacheHit(castorApi, uri)
+      await waitForCacheMiss(bipiApi, filteredUri)
+      await expectCacheHit(bipiApi, filteredUri)
 
       await expectCacheMiss(bipiApi, uri)
     })
