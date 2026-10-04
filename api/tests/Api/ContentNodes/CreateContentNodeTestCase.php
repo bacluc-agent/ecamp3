@@ -307,12 +307,16 @@ abstract class CreateContentNodeTestCase extends ECampApiTestCase {
         $client->request('POST', $this->endpoint, ['json' => $this->getExampleWritePayload()]);
 
         $this->assertResponseStatusCodeSame(201);
-        self::assertEqualsCanonicalizing([
+        $expectedTags = [
             '/content_nodes',
             $this->endpoint,
             $this->defaultParent->getRoot()->getId().'#rootDescendants',
             $this->defaultParent->getId().'#children',
-        ], $cacheManager->getInvalidatedTags());
+        ];
+        if ('/content_node/column_layouts' !== $this->endpoint) {
+            $expectedTags[] = '/content_node/column_layouts';
+        }
+        self::assertEqualsCanonicalizing($expectedTags, $cacheManager->getInvalidatedTags());
     }
 
     #[\Override]

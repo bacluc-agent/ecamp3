@@ -94,7 +94,9 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // warm up cache
     await apiGet(bruceApi, uri)
     await expectCacheHit(bruceApi, uri)
-    await expectCacheMiss(bruceApi, filteredUri)
+    const filtered = await apiGet(bruceApi, filteredUri)
+    expect(filtered.headers()['x-cache']).toBe('MISS')
+    expect(JSON.stringify(await filtered.json())).not.toContain('3d1e5c91ceb2')
     await expectCacheHit(bruceApi, filteredUri)
 
     const felicityApi = await getAuthContext(felicitySmoakUser)

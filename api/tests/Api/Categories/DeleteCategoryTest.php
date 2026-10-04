@@ -144,6 +144,7 @@ class DeleteCategoryTest extends ECampApiTestCase {
         $rootContentNode = $category->getRootContentNode();
         self::assertEqualsCanonicalizing([
             $category->getId(),
+            '/camps',
             '/categories',
             '/camps/'.$camp->getId().'/categories',
             $camp->getId().'#categories',
