@@ -95,7 +95,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     const xkeyTags = headers['xkey'].split(' ')
     expect(xkeyTags).toContain(`/api/camps/${skilagerCampId}/activities`)
     expect(xkeyTags).toContain(`/api/camps/${skilagerCampId}/activities?`)
-    expect(xkeyTags).toContain(`${uri}?`)
+    expect(xkeyTags).not.toContain(uri)
     expect(xkeyTags).toContain(`?${skilagerCampId}`)
     expect(headers['x-cache']).toBe('MISS')
 
