@@ -62,6 +62,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
 
   test('caches /camps/{campId}/activities separately for each login', async () => {
     const uri = `/api/camps/${skilagerCampId}/activities`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${skilagerCampId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
@@ -74,10 +75,13 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
 
     // second request is a cache hit
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
 
     // request with a new user is a cache miss
     const bruceApi = await getAuthContext(bruceWayneUser)
     await expectCacheMiss(bruceApi, uri)
+    await expectCacheMiss(bruceApi, filteredUri)
   })
 
   test('caches /camps/{campId}/activities?camp={campId} separately for each login', async () => {

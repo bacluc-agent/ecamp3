@@ -41,6 +41,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
 
   test('caches /camps/{campId}/categories separately for each login', async () => {
     const uri = `/api/camps/${grgrCampId}/categories`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}&page=1`
 
     const bipiApi = await getAuthContext(bipiUser)
 
@@ -53,10 +54,13 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
 
     // second request is a cache hit
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
 
     // request with a new user is a cache miss
     const castorApi = await getAuthContext(castorUser)
     await expectCacheMiss(castorApi, uri)
+    await expectCacheMiss(castorApi, filteredUri)
   })
 
   test('invalidates /camps/{campId}/categories for all users on category patch', async () => {
