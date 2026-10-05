@@ -41,7 +41,9 @@ test.describe('cache test: /content-types', { tag: '@mature' }, () => {
     const res1 = await apiGet(bipiApi, queryUri)
     const headers = res1.headers()
     expect(headers['x-cache']).toBe('MISS')
-    expect(headers['xkey']).toContain('/api/content_types?')
+    const xkeyTags = headers['xkey'].split(' ')
+    expect(xkeyTags).toContain('/api/content_types')
+    expect(xkeyTags).not.toContain('/api/content_types?')
 
     await expectCacheHit(bipiApi, queryUri)
   })

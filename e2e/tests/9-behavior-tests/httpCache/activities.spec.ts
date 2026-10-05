@@ -92,7 +92,9 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // first request is a cache miss
     const request = await apiGet(bipiApi, uri)
     const headers = request.headers()
-    expect(headers['xkey']).toContain(`/api/camps/${skilagerCampId}/activities?`)
+    const xkeyTags = headers['xkey'].split(' ')
+    expect(xkeyTags).toContain(`/api/camps/${skilagerCampId}/activities`)
+    expect(xkeyTags).not.toContain(`/api/camps/${skilagerCampId}/activities?`)
     expect(headers['x-cache']).toBe('MISS')
 
     // second request is a cache hit
@@ -101,6 +103,19 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // request with a new user is a cache miss
     const bruceApi = await getAuthContext(bruceWayneUser)
     await expectCacheMiss(bruceApi, uri)
+  })
+
+  test('caches the same query params in a different order as a separate entry', async () => {
+    const uri = `/api/camps/${loremIpsumCampId}/activities?camp=%2Fcamps%2F${loremIpsumCampId}&page=1`
+    const reversedUri = `/api/camps/${loremIpsumCampId}/activities?page=1&camp=%2Fcamps%2F${loremIpsumCampId}`
+
+    const bruceApi = await getAuthContext(bruceWayneUser)
+
+    await expectCacheMiss(bruceApi, uri)
+    await expectCacheHit(bruceApi, uri)
+
+    await expectCacheMiss(bruceApi, reversedUri)
+    await expectCacheHit(bruceApi, reversedUri)
   })
 
   test('invalidates /camps/{campId}/activities for all users on activity patch', async () => {

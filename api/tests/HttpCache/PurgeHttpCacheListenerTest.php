@@ -286,8 +286,8 @@ class PurgeHttpCacheListenerTest extends TestCase {
             ->willReturnCallback(function (array $tags) use ($cacheManagerProphecy) {
                 static $i = 0;
                 $expected = [
-                    ['/related_dummies/old#dummies'],
-                    ['/related_dummies/new#dummies'],
+                    ['1#dummies'],
+                    ['2#dummies'],
                 ];
                 TestCase::assertEquals($expected[$i], $tags);
                 ++$i;
@@ -299,19 +299,10 @@ class PurgeHttpCacheListenerTest extends TestCase {
 
         $metadataFactoryProphecy = $this->createStub(ResourceMetadataCollectionFactoryInterface::class);
 
+        // Both changeSet values implement HasId, so they are tagged by their bare id
+        // (see PurgeHttpCacheListener::addTagForItem) instead of by their IRI.
         $iriConverterProphecy = $this->createMock(IriConverterInterface::class);
-        $iriConverterProphecy->expects($this->exactly(2))
-            ->method('getIriFromResource')
-            ->willReturnCallback(function (object|string $resource) use ($oldRelatedDummy, $newRelatedDummy): string {
-                static $i = 0;
-                $expected = [$oldRelatedDummy, $newRelatedDummy];
-                TestCase::assertSame($expected[$i], $resource);
-                $ret = ['/related_dummies/old', '/related_dummies/new'][$i];
-                ++$i;
-
-                return $ret;
-            })
-        ;
+        $iriConverterProphecy->expects($this->never())->method('getIriFromResource');
 
         $resourceClassResolverProphecy = $this->createMock(ResourceClassResolverInterface::class);
         $resourceClassResolverProphecy->expects($this->atLeastOnce())->method('isResourceClass')->willReturn(true);
@@ -533,14 +524,12 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $this->uowProphecy->method('getScheduledCollectionDeletions')->willReturn([]);
 
         // then
-        $this->cacheManagerProphecy->expects($this->exactly(4))
+        $this->cacheManagerProphecy->expects($this->exactly(2))
             ->method('invalidateTags')
             ->willReturnCallback(function (array $tags) {
                 static $i = 0;
                 $expected = [
-                    ['/dummies?'],
                     ['/dummies'],
-                    ['/related_dummies/100/dummies?'],
                     ['/related_dummies/100/dummies'],
                 ];
                 TestCase::assertEquals($expected[$i], $tags);
@@ -586,17 +575,14 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $em->method('getUnitOfWork')->willReturn($unitOfWork);
 
         // then
-        $this->cacheManagerProphecy->expects($this->exactly(5))
+        $this->cacheManagerProphecy->expects($this->exactly(3))
             ->method('invalidateTags')
             ->willReturnCallback(function (array $tags) {
                 static $i = 0;
                 $expected = [
-                    ['/dummies/1'],
-                    ['/dummies?'],
+                    ['1'],
                     ['/dummies'],
-                    ['/related_dummies/100/dummies?'],
                     ['/related_dummies/100/dummies'],
-                    ['/dummies/1?'],
                 ];
                 TestCase::assertEquals($expected[$i], $tags);
                 ++$i;
@@ -639,16 +625,13 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $this->uowProphecy->method('getEntityChangeSet')->willReturn(['relatedDummy' => [$relatedDummyOld, $relatedDummy]]);
 
         // then
-        $this->cacheManagerProphecy->expects($this->exactly(7))
+        $this->cacheManagerProphecy->expects($this->exactly(4))
             ->method('invalidateTags')
             ->willReturnCallback(function (array $tags) {
                 static $i = 0;
                 $expected = [
-                    ['/dummies/1'],
-                    ['/dummies?'],
-                    ['/dummies?'],
-                    ['/related_dummies/100/dummies?'],
-                    ['/related_dummies/99/dummies?'],
+                    ['1'],
+                    ['/dummies'],
                     ['/related_dummies/100/dummies'],
                     ['/related_dummies/99/dummies'],
                 ];

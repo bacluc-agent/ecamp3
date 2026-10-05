@@ -71,7 +71,6 @@ test.describe(
       const bipiApi = await getAuthContext(bipiUser)
       await apiPatch(bipiApi, `/api/schedule_entries/${scheduleEntryId}`, {
         start: '2036-05-10T16:00:00+00:00',
-        end: '2036-05-10T18:00:00+00:00',
       })
 
       // warm up cache
@@ -98,7 +97,6 @@ test.describe(
       // touch scheduleEntry
       await apiPatch(castorApi, `/api/schedule_entries/${scheduleEntryId}`, {
         start: '2036-05-10T17:00:00+00:00',
-        end: '2036-05-10T19:00:00+00:00',
       })
 
       // ensure cache was invalidated
