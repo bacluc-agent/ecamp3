@@ -147,6 +147,8 @@ class DeleteCategoryTest extends ECampApiTestCase {
             $category->getId(),
             '/categories',
             '/categories?',
+            '/camps',
+            '/camps?',
             '/camps/'.$camp->getId().'/categories',
             '/camps/'.$camp->getId().'/categories?',
             $camp->getId().'#categories',
