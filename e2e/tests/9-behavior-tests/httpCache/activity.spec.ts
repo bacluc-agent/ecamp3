@@ -51,6 +51,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
   test('caches /activities/{activitiyId} separately for each login', async () => {
     const snowboardfahrenActivityId = 'a13fadc97610'
     const uri = `/api/activities/${snowboardfahrenActivityId}`
+    const queryUri = `${uri}?page=1`
 
     const bipiApi = await getAuthContext(bipiUser)
 
@@ -63,6 +64,8 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
 
     // second request is a cache hit
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, queryUri)
+    await expectCacheHit(bipiApi, queryUri)
 
     // request with a new user is a cache miss
     const bruceApi = await getAuthContext(bruceWayneUser)
@@ -72,6 +75,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
   test('invalidates /activities/{activitiyId} for all users on activity patch', async () => {
     const activityId = '3d1e5c91ceb2'
     const uri = `/api/activities/${activityId}`
+    const queryUri = `${uri}?page=1`
     const filteredCollectionUri = `/api/camps/${loremIpsumCampId}/activities?camp=%2Fcamps%2F${loremIpsumCampId}`
 
     // bring data into defined state
@@ -83,6 +87,8 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // warm up cache
     await apiGet(bruceApi, uri)
     await expectCacheHit(bruceApi, uri)
+    await expectCacheMiss(bruceApi, queryUri)
+    await expectCacheHit(bruceApi, queryUri)
     await expectCacheMiss(bruceApi, filteredCollectionUri)
     await expectCacheHit(bruceApi, filteredCollectionUri)
 
@@ -98,6 +104,8 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // ensure cache was invalidated
     await waitForCacheMiss(bruceApi, uri)
     await expectCacheHit(bruceApi, uri)
+    await waitForCacheMiss(bruceApi, queryUri)
+    await expectCacheHit(bruceApi, queryUri)
     await waitForCacheMiss(bruceApi, filteredCollectionUri)
     await expectCacheHit(bruceApi, filteredCollectionUri)
 

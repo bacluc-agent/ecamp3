@@ -50,6 +50,7 @@ test.describe('cache test: /content-types', { tag: '@mature' }, () => {
   test('caches item', async () => {
     const contentTypeId = '318e064ea0c9'
     const uri = `/api/content_types/${contentTypeId}`
+    const queryUri = `${uri}?page=1`
 
     const bipiApi = await getAuthContext(bipiUser)
 
@@ -62,5 +63,7 @@ test.describe('cache test: /content-types', { tag: '@mature' }, () => {
 
     // second request is a cache hit
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, queryUri)
+    await expectCacheHit(bipiApi, queryUri)
   })
 })
