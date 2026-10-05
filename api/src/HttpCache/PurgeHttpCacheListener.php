@@ -27,7 +27,6 @@ use ApiPlatform\Metadata\Util\ClassInfoTrait;
 use App\Entity\ActivityProgressLabel;
 use App\Entity\ActivityResponsible;
 use App\Entity\BaseEntity;
-use App\Entity\Category;
 use App\Entity\DayResponsible;
 use App\Entity\HasId;
 use App\Entity\Period;
@@ -97,9 +96,7 @@ final readonly class PurgeHttpCacheListener {
         foreach ($uow->getScheduledEntityUpdates() as $entity) {
             $originalEntity = $this->getOriginalEntity($entity);
             $this->addTagForItem($entity);
-            if (!$entity instanceof Category) {
-                $this->gatherResourceTags($entity, $originalEntity);
-            }
+            $this->gatherResourceTags($entity, $originalEntity);
             $this->gatherRelatedResourceCollectionTags($entity);
         }
 
