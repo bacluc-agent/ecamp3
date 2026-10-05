@@ -53,7 +53,7 @@ final class AddCollectionTagsListener {
 
             $this->responseTagger->addTags([$iri]);
             if (null !== $request->getQueryString()) {
-                $this->responseTagger->addTags([$iri.'?']);
+                $this->responseTagger->addTags([PurgeHttpCacheListener::QUERY_TAG]);
             }
         }
     }

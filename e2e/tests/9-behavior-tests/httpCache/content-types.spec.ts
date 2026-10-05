@@ -42,7 +42,7 @@ test.describe('cache test: /content-types', { tag: '@mature' }, () => {
     const headers = res1.headers()
     expect(headers['x-cache']).toBe('MISS')
     const xkeyTags = headers['xkey'].split(' ')
-    expect(xkeyTags).toContain('/api/content_types?')
+    expect(xkeyTags).toContain('?')
 
     await expectCacheHit(bipiApi, queryUri)
   })

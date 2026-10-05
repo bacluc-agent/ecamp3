@@ -24,12 +24,8 @@ use ApiPlatform\Metadata\Resource\Factory\ResourceMetadataCollectionFactoryInter
 use ApiPlatform\Metadata\ResourceClassResolverInterface;
 use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\Metadata\Util\ClassInfoTrait;
-use App\Entity\ActivityProgressLabel;
-use App\Entity\ActivityResponsible;
-use App\Entity\DayResponsible;
+use App\Entity\BaseEntity;
 use App\Entity\HasId;
-use App\Entity\Period;
-use App\Entity\ScheduleEntry;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
@@ -47,6 +43,8 @@ final readonly class PurgeHttpCacheListener {
     use ClassInfoTrait;
 
     public const string IRI_RELATION_DELIMITER = '#';
+
+    public const string QUERY_TAG = '?';
 
     public function __construct(
         private IriConverterInterface $iriConverter,
@@ -89,14 +87,12 @@ final readonly class PurgeHttpCacheListener {
         foreach ($uow->getScheduledEntityInsertions() as $entity) {
             $this->gatherResourceTags($entity);
             $this->gatherRelationTags($entity);
-            $this->gatherRelatedResourceCollectionTags($entity);
         }
 
         foreach ($uow->getScheduledEntityUpdates() as $entity) {
             $originalEntity = $this->getOriginalEntity($entity);
             $this->addTagForItem($entity);
             $this->gatherResourceTags($entity, $originalEntity);
-            $this->gatherRelatedResourceCollectionTags($entity);
         }
 
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
@@ -104,7 +100,6 @@ final readonly class PurgeHttpCacheListener {
             $this->addTagForItem($originalEntity);
             $this->gatherResourceTags($originalEntity);
             $this->gatherRelationTags($originalEntity);
-            $this->gatherRelatedResourceCollectionTags($originalEntity);
         }
 
         // trigger cache purges for changes on many-to-many relations
@@ -116,6 +111,8 @@ final readonly class PurgeHttpCacheListener {
         foreach ($uow->getScheduledCollectionDeletions() as $collection) {
             $this->addTagsForManyToManyRelations($collection, $collection->getDeleteDiff());
         }
+
+        $this->cacheManager->invalidateTags([self::QUERY_TAG]);
     }
 
     /**
@@ -225,11 +222,13 @@ final readonly class PurgeHttpCacheListener {
                 // if such routes should be cached, custom logic is needed to purge the correct IRIs
             }
         }
-        if ($iri) {
-            $this->cacheManager->invalidateTags([$iri, $iri.'?']);
-        }
-        if ($oldIri && $iri !== $oldIri) {
-            $this->cacheManager->invalidateTags([$oldIri, $oldIri.'?']);
+        if ($iri !== $oldIri) {
+            if ($iri) {
+                $this->cacheManager->invalidateTags([$iri]);
+            }
+            if ($oldIri) {
+                $this->cacheManager->invalidateTags([$oldIri]);
+            }
         }
     }
 
@@ -266,34 +265,6 @@ final readonly class PurgeHttpCacheListener {
         }
     }
 
-    private function gatherRelatedResourceCollectionTags(object $entity): void {
-        if ($entity instanceof ActivityResponsible && $entity->activity) {
-            $this->gatherResourceTags($entity->activity);
-        }
-
-        if ($entity instanceof DayResponsible && $entity->day) {
-            $this->gatherResourceTags($entity->day);
-        }
-
-        if ($entity instanceof ActivityProgressLabel) {
-            foreach ($entity->activities as $activity) {
-                $this->gatherResourceTags($activity);
-            }
-        }
-
-        if ($entity instanceof ScheduleEntry && $entity->activity) {
-            $this->gatherResourceTags($entity->activity);
-        }
-
-        if ($entity instanceof Period) {
-            foreach ($entity->scheduleEntries as $scheduleEntry) {
-                if ($scheduleEntry->activity) {
-                    $this->gatherResourceTags($scheduleEntry->activity);
-                }
-            }
-        }
-    }
-
     private function addTagsFor(mixed $value, ?string $property = null): void {
         if (!$value || \is_scalar($value)) {
             return;
@@ -320,7 +291,7 @@ final readonly class PurgeHttpCacheListener {
         }
 
         try {
-            if ($value instanceof HasId) {
+            if ($value instanceof BaseEntity) {
                 $iri = $value->getId();
             } else {
                 $iri = $this->iriConverter->getIriFromResource($value);

@@ -80,9 +80,8 @@ test.describe(
       await expectCacheHit(bipiApi, filteredUri)
       const excludedEntityResponse = await apiGet(bipiApi, excludedEntityUri)
       expect(excludedEntityResponse.headers()['x-cache']).toBe('MISS')
-      const excludedEntries: Array<{ _links: { self: { href: string } } }> = (
-        await excludedEntityResponse.json()
-      )._embedded.items
+      const excludedEntries: Array<{ _links: { self: { href: string } } }> =
+        (await excludedEntityResponse.json())._embedded?.items ?? []
       expect(
         excludedEntries.some((entry) =>
           entry._links.self.href.endsWith(`/schedule_entries/${scheduleEntryId}`)

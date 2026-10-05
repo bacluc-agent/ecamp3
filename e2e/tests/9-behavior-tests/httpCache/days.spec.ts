@@ -118,9 +118,8 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     await expectCacheHit(bipiApi, filteredUri)
     const excludedEntityResponse = await apiGet(bipiApi, excludedEntityUri)
     expect(excludedEntityResponse.headers()['x-cache']).toBe('MISS')
-    const excludedDays: Array<{ _links: { self: { href: string } } }> = (
-      await excludedEntityResponse.json()
-    )._embedded.items
+    const excludedDays: Array<{ _links: { self: { href: string } } }> =
+      (await excludedEntityResponse.json())._embedded?.items ?? []
     expect(
       excludedDays.some((day) => day._links.self.href.endsWith('/days/4b90ff5b42c0'))
     ).toBe(false)

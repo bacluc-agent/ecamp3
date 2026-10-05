@@ -86,9 +86,8 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await expectCacheHit(bruceApi, filteredUri)
     const excludedEntityResponse = await apiGet(bruceApi, excludedEntityUri)
     expect(excludedEntityResponse.headers()['x-cache']).toBe('MISS')
-    const excludedCategories: Array<{ id: string }> = (
-      await excludedEntityResponse.json()
-    )._embedded.items
+    const excludedCategories: Array<{ id: string }> =
+      (await excludedEntityResponse.json())._embedded?.items ?? []
     expect(excludedCategories.some((category) => category.id === 'c5e1bc565094')).toBe(
       false
     )

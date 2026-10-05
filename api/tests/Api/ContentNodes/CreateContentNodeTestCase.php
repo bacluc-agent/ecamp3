@@ -308,6 +308,7 @@ abstract class CreateContentNodeTestCase extends ECampApiTestCase {
 
         $this->assertResponseStatusCodeSame(201);
         self::assertEqualsCanonicalizing([
+            '?',
             '/content_nodes',
             $this->endpoint,
             $this->defaultParent->getRoot()->getId().'#rootDescendants',
