@@ -24,6 +24,7 @@ use ApiPlatform\Metadata\Resource\Factory\ResourceMetadataCollectionFactoryInter
 use ApiPlatform\Metadata\ResourceClassResolverInterface;
 use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\Metadata\Util\ClassInfoTrait;
+use App\Entity\ActivityProgressLabel;
 use App\Entity\BaseEntity;
 use App\Entity\HasId;
 use Doctrine\Common\Util\ClassUtils;
@@ -91,7 +92,7 @@ final readonly class PurgeHttpCacheListener {
             $originalEntity = $this->getOriginalEntity($entity);
             $this->addTagForItem($entity);
             $this->gatherResourceTags($entity, $originalEntity);
-            $this->gatherRelationTags($entity);
+            $this->gatherResourceTagsForRelatedActivities($entity);
         }
 
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
@@ -257,15 +258,19 @@ final readonly class PurgeHttpCacheListener {
                 $relatedObject,
                 $relatedProperty
             );
-            if (is_iterable($relatedObject)) {
-                foreach ($relatedObject as $relatedEntity) {
-                    if (is_object($relatedEntity)) {
-                        $this->gatherResourceTags($relatedEntity);
-                    }
-                }
-            } elseif (is_object($relatedObject)) {
+            if (is_object($relatedObject)) {
                 $this->gatherResourceTags($relatedObject);
             }
+        }
+    }
+
+    private function gatherResourceTagsForRelatedActivities(object $entity): void {
+        if (!$entity instanceof ActivityProgressLabel) {
+            return;
+        }
+
+        foreach ($entity->activities as $activity) {
+            $this->gatherResourceTags($activity);
         }
     }
 
