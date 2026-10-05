@@ -24,13 +24,8 @@ use ApiPlatform\Metadata\Resource\Factory\ResourceMetadataCollectionFactoryInter
 use ApiPlatform\Metadata\ResourceClassResolverInterface;
 use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\Metadata\Util\ClassInfoTrait;
-use App\Entity\ActivityProgressLabel;
-use App\Entity\ActivityResponsible;
 use App\Entity\BaseEntity;
-use App\Entity\DayResponsible;
 use App\Entity\HasId;
-use App\Entity\Period;
-use App\Entity\ScheduleEntry;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
@@ -90,14 +85,12 @@ final readonly class PurgeHttpCacheListener {
         foreach ($uow->getScheduledEntityInsertions() as $entity) {
             $this->gatherResourceTags($entity);
             $this->gatherRelationTags($entity);
-            $this->gatherRelatedResourceCollectionTags($entity);
         }
 
         foreach ($uow->getScheduledEntityUpdates() as $entity) {
             $originalEntity = $this->getOriginalEntity($entity);
             $this->addTagForItem($entity);
             $this->gatherResourceTags($entity, $originalEntity);
-            $this->gatherRelatedResourceCollectionTags($entity);
         }
 
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
@@ -105,7 +98,6 @@ final readonly class PurgeHttpCacheListener {
             $this->addTagForItem($originalEntity);
             $this->gatherResourceTags($originalEntity);
             $this->gatherRelationTags($originalEntity);
-            $this->gatherRelatedResourceCollectionTags($originalEntity);
         }
 
         // trigger cache purges for changes on many-to-many relations
@@ -227,10 +219,18 @@ final readonly class PurgeHttpCacheListener {
             }
         }
         if ($iri) {
-            $this->cacheManager->invalidateTags([$iri]);
+            $this->cacheManager->invalidateTags([$iri.'?']);
         }
-        if ($oldIri && $iri !== $oldIri) {
-            $this->cacheManager->invalidateTags([$oldIri]);
+        if ($oldIri) {
+            $this->cacheManager->invalidateTags([$oldIri.'?']);
+        }
+        if ($iri !== $oldIri) {
+            if ($iri) {
+                $this->cacheManager->invalidateTags([$iri]);
+            }
+            if ($oldIri) {
+                $this->cacheManager->invalidateTags([$oldIri]);
+            }
         }
     }
 
@@ -264,34 +264,6 @@ final readonly class PurgeHttpCacheListener {
                 $relatedObject,
                 $relatedProperty
             );
-        }
-    }
-
-    private function gatherRelatedResourceCollectionTags(object $entity): void {
-        if ($entity instanceof ActivityResponsible && $entity->activity) {
-            $this->gatherResourceTags($entity->activity);
-        }
-
-        if ($entity instanceof DayResponsible && $entity->day) {
-            $this->gatherResourceTags($entity->day);
-        }
-
-        if ($entity instanceof ActivityProgressLabel) {
-            foreach ($entity->activities as $activity) {
-                $this->gatherResourceTags($activity);
-            }
-        }
-
-        if ($entity instanceof ScheduleEntry && $entity->activity) {
-            $this->gatherResourceTags($entity->activity);
-        }
-
-        if ($entity instanceof Period) {
-            foreach ($entity->scheduleEntries as $scheduleEntry) {
-                if ($scheduleEntry->activity) {
-                    $this->gatherResourceTags($scheduleEntry->activity);
-                }
-            }
         }
     }
 

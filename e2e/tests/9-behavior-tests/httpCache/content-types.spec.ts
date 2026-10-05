@@ -33,6 +33,19 @@ test.describe('cache test: /content-types', { tag: '@mature' }, () => {
     await expectCacheMiss(castorApi, uri)
   })
 
+  test('caches collection with query params and tags it for invalidation', async () => {
+    const queryUri = '/api/content_types?page=1'
+
+    const bipiApi = await getAuthContext(bipiUser)
+
+    const res1 = await apiGet(bipiApi, queryUri)
+    const headers = res1.headers()
+    expect(headers['x-cache']).toBe('MISS')
+    expect(headers['xkey']).toContain('/api/content_types?')
+
+    await expectCacheHit(bipiApi, queryUri)
+  })
+
   test('caches item', async () => {
     const contentTypeId = '318e064ea0c9'
     const uri = `/api/content_types/${contentTypeId}`

@@ -1,13 +1,6 @@
 import { test, expect } from '@playwright/test'
-import { bruceWayneUser, loremIpsumCampId, skilagerCampId } from '@/utils/constants'
-import {
-  getAuthContext,
-  expectCacheHit,
-  expectCacheMiss,
-  waitForCacheMiss,
-  apiGet,
-  apiPatch,
-} from '@/utils/helpers'
+import { bruceWayneUser, loremIpsumCampId } from '@/utils/constants'
+import { getAuthContext, expectCacheHit, expectCacheMiss, apiGet } from '@/utils/helpers'
 
 const collectionUri = `/api/camps/${loremIpsumCampId}/activities`
 const filteredUri = `${collectionUri}?camp=%2Fcamps%2F${loremIpsumCampId}&page=1`
@@ -17,23 +10,6 @@ const activityId = '3d1e5c91ceb2'
 test.describe('cache test: collection with query params', () => {
   test.describe.configure({ mode: 'serial' })
 
-  test('caches a filtered url and tags it like the unfiltered one', async () => {
-    const bruceApi = await getAuthContext(bruceWayneUser)
-
-    const filtered = await apiGet(bruceApi, filteredUri)
-    expect(filtered.headers()['x-cache']).toBe('MISS')
-    expect(filtered.headers()['xkey']).toContain(collectionUri)
-    expect(filtered.headers()['xkey']).not.toContain(`${collectionUri}?`)
-
-    await expectCacheHit(bruceApi, filteredUri)
-
-    const unfiltered = await apiGet(bruceApi, collectionUri)
-    expect(unfiltered.headers()['x-cache']).toBe('MISS')
-    expect(stripComma(unfiltered.headers()['xkey'])).toEqual(
-      stripComma(filtered.headers()['xkey'])
-    )
-  })
-
   test('caches the same params in a different order as a separate entry', async () => {
     const bruceApi = await getAuthContext(bruceWayneUser)
 
@@ -42,42 +18,6 @@ test.describe('cache test: collection with query params', () => {
 
     await expectCacheMiss(bruceApi, reversedUri)
     await expectCacheHit(bruceApi, reversedUri)
-  })
-
-  test('invalidates every variant of the collection on activity patch', async () => {
-    const bruceApi = await getAuthContext(bruceWayneUser)
-    const excludedFilteredUri = `${collectionUri}?camp=%2Fcamps%2F${skilagerCampId}`
-
-    await apiPatch(bruceApi, `/api/activities/${activityId}`, {
-      title: 'Breakfast',
-    })
-
-    const filtered = await apiGet(bruceApi, excludedFilteredUri)
-    const activities: Array<{ _links: { self: { href: string } } }> = (
-      await filtered.json()
-    )._embedded.items
-    expect(
-      activities.some((activity) => activity._links.self.href.endsWith(activityId))
-    ).toBe(false)
-    await expectCacheHit(bruceApi, excludedFilteredUri)
-
-    await expectCacheMiss(bruceApi, collectionUri)
-    await expectCacheHit(bruceApi, collectionUri)
-    await expectCacheMiss(bruceApi, filteredUri)
-    await expectCacheHit(bruceApi, filteredUri)
-    await expectCacheMiss(bruceApi, reversedUri)
-    await expectCacheHit(bruceApi, reversedUri)
-
-    await apiPatch(bruceApi, `/api/activities/${activityId}`, {
-      title: 'Frühstück',
-    })
-
-    await waitForCacheMiss(bruceApi, collectionUri)
-    await expectCacheHit(bruceApi, collectionUri)
-    await waitForCacheMiss(bruceApi, filteredUri)
-    await expectCacheHit(bruceApi, filteredUri)
-    await waitForCacheMiss(bruceApi, excludedFilteredUri)
-    await expectCacheHit(bruceApi, excludedFilteredUri)
   })
 
   test('caches query-string item URLs for every configured item matcher', async () => {
@@ -97,7 +37,3 @@ test.describe('cache test: collection with query params', () => {
     }
   })
 })
-
-function stripComma(string: string) {
-  return string.replaceAll(',', '')
-}

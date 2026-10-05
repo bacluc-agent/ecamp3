@@ -4,6 +4,7 @@ import {
   bruceWayneUser,
   felicitySmoakUser,
   grgrPeriodId,
+  loremIpsumCampId,
 } from '@/utils/constants'
 import entityResponse from '@/test-data/httpCache/activities_entity.json'
 import {
@@ -71,6 +72,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
   test('invalidates /activities/{activitiyId} for all users on activity patch', async () => {
     const activityId = '3d1e5c91ceb2'
     const uri = `/api/activities/${activityId}`
+    const filteredCollectionUri = `/api/camps/${loremIpsumCampId}/activities?camp=%2Fcamps%2F${loremIpsumCampId}`
 
     // bring data into defined state
     const bruceApi = await getAuthContext(bruceWayneUser)
@@ -81,6 +83,8 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // warm up cache
     await apiGet(bruceApi, uri)
     await expectCacheHit(bruceApi, uri)
+    await expectCacheMiss(bruceApi, filteredCollectionUri)
+    await expectCacheHit(bruceApi, filteredCollectionUri)
 
     const felicityApi = await getAuthContext(felicitySmoakUser)
     await expectCacheMiss(felicityApi, uri)
@@ -94,6 +98,8 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // ensure cache was invalidated
     await waitForCacheMiss(bruceApi, uri)
     await expectCacheHit(bruceApi, uri)
+    await waitForCacheMiss(bruceApi, filteredCollectionUri)
+    await expectCacheHit(bruceApi, filteredCollectionUri)
 
     const bruceApi2 = await getAuthContext(bruceWayneUser)
     await expectCacheMiss(bruceApi2, uri)
