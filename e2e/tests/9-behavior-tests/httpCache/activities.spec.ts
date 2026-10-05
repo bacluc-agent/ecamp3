@@ -280,7 +280,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
 
   test('invalidates /camps/{campId}/activities when adding an activity responsible', async () => {
     const uri = `/api/camps/${grgrCampId}/activities`
-    const filteredUri = `${uri}?camp=%2Fcamps%2F${loremIpsumCampId}`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
