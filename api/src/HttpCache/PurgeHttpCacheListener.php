@@ -111,8 +111,6 @@ final readonly class PurgeHttpCacheListener {
         foreach ($uow->getScheduledCollectionDeletions() as $collection) {
             $this->addTagsForManyToManyRelations($collection, $collection->getDeleteDiff());
         }
-
-        $this->cacheManager->invalidateTags([self::QUERY_TAG]);
     }
 
     /**
@@ -229,6 +227,12 @@ final readonly class PurgeHttpCacheListener {
             if ($oldIri) {
                 $this->cacheManager->invalidateTags([$oldIri]);
             }
+        }
+        if ($iri) {
+            $this->cacheManager->invalidateTags([$iri.self::QUERY_TAG]);
+        }
+        if ($oldIri && $oldIri !== $iri) {
+            $this->cacheManager->invalidateTags([$oldIri.self::QUERY_TAG]);
         }
     }
 

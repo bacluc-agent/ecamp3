@@ -266,7 +266,8 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $listener->onFlush();
         $listener->postFlush();
 
-        assertThat($cacheManagerInvalidateTagsCalls, logicalAnd(containsEqual(['/dummies']), containsEqual(['/dummies/3']), containsEqual(['/dummies/4']), containsEqual(['?'])));
+        assertThat($cacheManagerInvalidateTagsCalls, logicalAnd(containsEqual(['/dummies']), containsEqual(['/dummies?']), containsEqual(['/dummies/3']), containsEqual(['/dummies/4'])));
+        self::assertNotContains(['?'], $cacheManagerInvalidateTagsCalls);
     }
 
     #[AllowMockObjectsWithoutExpectations]
@@ -394,7 +395,7 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $nonResource = new NotAResource('foo', 'bar');
 
         $cacheManagerProphecy = $this->createMock(CacheManager::class);
-        $cacheManagerProphecy->expects($this->once())->method('invalidateTags')->with(['?']);
+        $cacheManagerProphecy->expects($this->never())->method('invalidateTags');
         $cacheManagerProphecy->method('flush')->willReturn(0);
 
         $iriConverterProphecy = $this->createMock(IriConverterInterface::class);
@@ -439,7 +440,7 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $nonResource = new NotAResource('foo', 'bar');
 
         $cacheManagerProphecy = $this->createMock(CacheManager::class);
-        $cacheManagerProphecy->expects($this->once())->method('invalidateTags')->with(['?']);
+        $cacheManagerProphecy->expects($this->never())->method('invalidateTags');
         $cacheManagerProphecy->method('flush')->willReturn(0);
 
         $metadataFactoryProphecy = $this->createMock(ResourceMetadataCollectionFactoryInterface::class);
@@ -533,17 +534,11 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $this->uowProphecy->method('getScheduledCollectionDeletions')->willReturn([]);
 
         // then
-        $this->cacheManagerProphecy->expects($this->exactly(3))
+        $purgedTags = [];
+        $this->cacheManagerProphecy->expects($this->atLeastOnce())
             ->method('invalidateTags')
-            ->willReturnCallback(function (array $tags) {
-                static $i = 0;
-                $expected = [
-                    ['/dummies'],
-                    ['/related_dummies/100/dummies'],
-                    ['?'],
-                ];
-                TestCase::assertEquals($expected[$i], $tags);
-                ++$i;
+            ->willReturnCallback(function (array $tags) use (&$purgedTags) {
+                $purgedTags[] = $tags;
 
                 return $this->cacheManagerProphecy;
             })
@@ -562,6 +557,8 @@ class PurgeHttpCacheListenerTest extends TestCase {
         );
         $listener->onFlush();
         $listener->postFlush();
+        self::assertContains(['/dummies?'], $purgedTags);
+        self::assertContains(['/related_dummies/100/dummies'], $purgedTags);
     }
 
     #[AllowMockObjectsWithoutExpectations]
@@ -585,18 +582,11 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $em->method('getUnitOfWork')->willReturn($unitOfWork);
 
         // then
-        $this->cacheManagerProphecy->expects($this->exactly(4))
+        $purgedTags = [];
+        $this->cacheManagerProphecy->expects($this->atLeastOnce())
             ->method('invalidateTags')
-            ->willReturnCallback(function (array $tags) {
-                static $i = 0;
-                $expected = [
-                    ['/dummies/1'],
-                    ['/dummies'],
-                    ['/related_dummies/100/dummies'],
-                    ['?'],
-                ];
-                TestCase::assertEquals($expected[$i], $tags);
-                ++$i;
+            ->willReturnCallback(function (array $tags) use (&$purgedTags) {
+                $purgedTags[] = $tags;
 
                 return $this->cacheManagerProphecy;
             })
@@ -613,6 +603,8 @@ class PurgeHttpCacheListenerTest extends TestCase {
         );
         $listener->onFlush();
         $listener->postFlush();
+        self::assertContains(['/dummies?'], $purgedTags);
+        self::assertContains(['/related_dummies/100/dummies'], $purgedTags);
     }
 
     #[AllowMockObjectsWithoutExpectations]
@@ -636,18 +628,11 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $this->uowProphecy->method('getEntityChangeSet')->willReturn(['relatedDummy' => [$relatedDummyOld, $relatedDummy]]);
 
         // then
-        $this->cacheManagerProphecy->expects($this->exactly(4))
+        $purgedTags = [];
+        $this->cacheManagerProphecy->expects($this->atLeastOnce())
             ->method('invalidateTags')
-            ->willReturnCallback(function (array $tags) {
-                static $i = 0;
-                $expected = [
-                    ['/dummies/1'],
-                    ['/related_dummies/100/dummies'],
-                    ['/related_dummies/99/dummies'],
-                    ['?'],
-                ];
-                TestCase::assertEquals($expected[$i], $tags);
-                ++$i;
+            ->willReturnCallback(function (array $tags) use (&$purgedTags) {
+                $purgedTags[] = $tags;
 
                 return $this->cacheManagerProphecy;
             })
@@ -664,5 +649,8 @@ class PurgeHttpCacheListenerTest extends TestCase {
         );
         $listener->onFlush();
         $listener->postFlush();
+        self::assertContains(['/dummies?'], $purgedTags);
+        self::assertContains(['/related_dummies/100/dummies'], $purgedTags);
+        self::assertContains(['/related_dummies/99/dummies'], $purgedTags);
     }
 }

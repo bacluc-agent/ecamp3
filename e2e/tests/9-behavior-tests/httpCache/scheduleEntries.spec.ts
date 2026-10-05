@@ -63,7 +63,7 @@ test.describe(
 
     test('invalidates /periods/{periodId}/schedule_entries for all users on scheduleEntry patch', async () => {
       const uri = `/api/periods/${grgrPeriodId}/schedule_entries`
-      const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}&page=1`
+      const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}`
       const excludedEntityUri = `${uri}?period=%2Fperiods%2F${skilagerPeriodId}`
       const scheduleEntryId = '12f34c89ce11'
 
@@ -111,7 +111,7 @@ test.describe(
 
     test('invalidates /periods/{periodId}/schedule_entries for new scheduleEntry', async () => {
       const uri = `/api/periods/${grgrPeriodId}/schedule_entries`
-      const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}&page=1`
+      const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}`
 
       const bipiApi = await getAuthContext(bipiUser)
 
@@ -150,8 +150,8 @@ test.describe(
     test('invalidates /periods/{periodId}/schedule_entries when moving a schedule entry to another period', async () => {
       const uri1 = `/api/periods/${harryMainPeriodId}/schedule_entries`
       const uri2 = `/api/periods/${harrySecondPeriodId}/schedule_entries`
-      const filteredUri1 = `${uri1}?period=%2Fperiods%2F${harryMainPeriodId}&page=1`
-      const filteredUri2 = `${uri2}?period=%2Fperiods%2F${harrySecondPeriodId}&page=1`
+      const filteredUri1 = `${uri1}?period=%2Fperiods%2F${harryMainPeriodId}`
+      const filteredUri2 = `${uri2}?period=%2Fperiods%2F${harrySecondPeriodId}`
       const scheduleEntryId = '9a4173c9bb73'
 
       const bipiApi = await getAuthContext(bipiUser)
@@ -203,7 +203,7 @@ test.describe(
 
     test('invalidates /periods/{periodId}/schedule_entries when changing the period dates', async () => {
       const uri = `/api/periods/${grgrPeriodId}/schedule_entries`
-      const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}&page=1`
+      const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}`
 
       const bipiApi = await getAuthContext(bipiUser)
 
