@@ -27,6 +27,8 @@ use ApiPlatform\Metadata\Util\ClassInfoTrait;
 use App\Entity\ActivityProgressLabel;
 use App\Entity\BaseEntity;
 use App\Entity\HasId;
+use App\Entity\Period;
+use App\Entity\ScheduleEntry;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
@@ -92,7 +94,7 @@ final readonly class PurgeHttpCacheListener {
             $originalEntity = $this->getOriginalEntity($entity);
             $this->addTagForItem($entity);
             $this->gatherResourceTags($entity, $originalEntity);
-            $this->gatherResourceTagsForRelatedActivities($entity);
+            $this->gatherRelatedActivityCollectionTags($entity);
         }
 
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
@@ -264,13 +266,23 @@ final readonly class PurgeHttpCacheListener {
         }
     }
 
-    private function gatherResourceTagsForRelatedActivities(object $entity): void {
-        if (!$entity instanceof ActivityProgressLabel) {
-            return;
+    private function gatherRelatedActivityCollectionTags(object $entity): void {
+        if ($entity instanceof ActivityProgressLabel) {
+            foreach ($entity->activities as $activity) {
+                $this->gatherResourceTags($activity);
+            }
         }
 
-        foreach ($entity->activities as $activity) {
-            $this->gatherResourceTags($activity);
+        if ($entity instanceof ScheduleEntry && $entity->activity) {
+            $this->gatherResourceTags($entity->activity);
+        }
+
+        if ($entity instanceof Period) {
+            foreach ($entity->scheduleEntries as $scheduleEntry) {
+                if ($scheduleEntry->activity) {
+                    $this->gatherResourceTags($scheduleEntry->activity);
+                }
+            }
         }
     }
 
