@@ -45,8 +45,8 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
 
   test('invalidates /camp/{campId}/checklists on checklist patch', async () => {
     const uri = `/api/camps/${basiskursCampId}/checklists`
-    const filteredUri = `${uri}?isPrototype=true&page=987654`
-    const excludedEntityUri = `${uri}?isPrototype=true`
+    const filteredUri = `${uri}?isPrototype=true`
+    const excludedEntityUri = `${uri}?isPrototype=false`
 
     // bring data into defined state
     const bipiApi = await getAuthContext(bipiUser)
@@ -63,7 +63,7 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
     expect(excludedEntity.headers()['x-cache']).toBe('MISS')
     const filteredItems: Array<{ id: string }> = (await excludedEntity.json())._embedded
       .items
-    expect(filteredItems.some((item) => item.id === 'ebbd0c61eb85')).toBe(false)
+    expect(filteredItems.some((item) => item.id === 'ebbd0c61eb85')).toBe(true)
     await expectCacheHit(bipiApi, excludedEntityUri)
 
     // touch checklist
@@ -85,7 +85,7 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
 
     test('try', async () => {
       const uri = `/api/camps/${basiskursCampId}/checklists`
-      const filteredUri = `${uri}?isPrototype=true&page=987653`
+      const filteredUri = `${uri}?isPrototype=true`
 
       const bipiApi = await getAuthContext(bipiUser)
 

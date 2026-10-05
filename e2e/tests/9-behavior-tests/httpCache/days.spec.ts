@@ -54,7 +54,7 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
 
   test('invalidates /periods/{periodId}/days when changing the period dates', async () => {
     const uri = `/api/periods/${grgrPeriodId}/days`
-    const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}&page=1`
+    const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
@@ -106,7 +106,7 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
 
   test('invalidates /periods/{periodId}/days when adding a day responsible', async () => {
     const uri = `/api/periods/${grgrPeriodId}/days`
-    const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}&page=1`
+    const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}`
     const excludedEntityUri = `${uri}?period=%2Fperiods%2F${skilagerPeriodId}`
 
     const bipiApi = await getAuthContext(bipiUser)

@@ -41,7 +41,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
 
   test('caches /camps/{campId}/categories separately for each login', async () => {
     const uri = `/api/camps/${grgrCampId}/categories`
-    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}&page=1`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
@@ -63,13 +63,13 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await expectCacheMiss(castorApi, filteredUri)
 
     const categoryUri = `${uri}/${grgrLACategoryId}`
-    await expectCacheMiss(bipiApi, `${categoryUri}?page=1`)
-    await expectCacheHit(bipiApi, `${categoryUri}?page=1`)
+    await expectCacheMiss(bipiApi, `${categoryUri}?camp=%2Fcamps%2F${grgrCampId}`)
+    await expectCacheHit(bipiApi, `${categoryUri}?camp=%2Fcamps%2F${grgrCampId}`)
   })
 
   test('invalidates /camps/{campId}/categories for all users on category patch', async () => {
     const uri = `/api/camps/${loremIpsumCampId}/categories`
-    const filteredUri = `${uri}?camp=%2Fcamps%2F${loremIpsumCampId}&page=1`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${loremIpsumCampId}`
     const excludedEntityUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
 
     // bring data into defined state
@@ -115,7 +115,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
 
   test('invalidates /camps/{campId}/categories for new category', async () => {
     const uri = `/api/camps/${grgrCampId}/categories`
-    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}&page=1`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
     const bipiApi = await getAuthContext(bipiUser)
 
     // warm up cache
@@ -260,7 +260,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
 
     test('when preferredContentTypes are removed', async () => {
       const uri = `/api/camps/${grgrCampId}/categories`
-      const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}&page=1`
+      const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
 
       // warm up cache
       await apiGet(bipiApi, uri)
@@ -282,7 +282,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
 
     test('when preferredContentType is added', async () => {
       const uri = `/api/camps/${grgrCampId}/categories`
-      const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}&page=1`
+      const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
 
       // warm up cache
       await apiGet(bipiApi, uri)

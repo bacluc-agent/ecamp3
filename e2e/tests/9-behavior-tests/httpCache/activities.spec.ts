@@ -106,8 +106,8 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
   })
 
   test('caches the same query params in a different order as a separate entry', async () => {
-    const uri = `/api/camps/${loremIpsumCampId}/activities?camp=%2Fcamps%2F${loremIpsumCampId}&page=1`
-    const reversedUri = `/api/camps/${loremIpsumCampId}/activities?page=1&camp=%2Fcamps%2F${loremIpsumCampId}`
+    const uri = `/api/camps/${loremIpsumCampId}/activities?camp=%2Fcamps%2F${loremIpsumCampId}&foo=bar`
+    const reversedUri = `/api/camps/${loremIpsumCampId}/activities?foo=bar&camp=%2Fcamps%2F${loremIpsumCampId}`
 
     const bruceApi = await getAuthContext(bruceWayneUser)
 
@@ -280,7 +280,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
 
   test('invalidates /camps/{campId}/activities when adding an activity responsible', async () => {
     const uri = `/api/camps/${grgrCampId}/activities`
-    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}&page=1`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
