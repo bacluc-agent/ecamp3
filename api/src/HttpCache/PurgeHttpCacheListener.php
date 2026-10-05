@@ -222,7 +222,7 @@ final readonly class PurgeHttpCacheListener {
                 // if such routes should be cached, custom logic is needed to purge the correct IRIs
             }
         }
-        if ($iri) {
+        if ($iri && (!$oldEntity || $iri !== $oldIri)) {
             $this->cacheManager->invalidateTags([$iri]);
         }
         if ($oldIri && $iri !== $oldIri) {
@@ -260,9 +260,6 @@ final readonly class PurgeHttpCacheListener {
                 $relatedObject,
                 $relatedProperty
             );
-            if (is_object($relatedObject)) {
-                $this->gatherResourceTags($relatedObject);
-            }
         }
     }
 
