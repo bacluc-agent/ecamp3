@@ -34,7 +34,8 @@ test.describe('cache test: /content-types', { tag: '@mature' }, () => {
   })
 
   test('caches collection with query params and tags it for invalidation', async () => {
-    const queryUri = '/api/content_types?page=1'
+    const uri = '/api/content_types'
+    const queryUri = `${uri}?page=1`
 
     const bipiApi = await getAuthContext(bipiUser)
 
@@ -42,7 +43,7 @@ test.describe('cache test: /content-types', { tag: '@mature' }, () => {
     const headers = res1.headers()
     expect(headers['x-cache']).toBe('MISS')
     const xkeyTags = headers['xkey'].split(' ')
-    expect(xkeyTags).toContain('?')
+    expect(xkeyTags).toContain(`${uri}?`)
 
     await expectCacheHit(bipiApi, queryUri)
   })

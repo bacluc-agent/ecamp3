@@ -264,18 +264,22 @@ final readonly class PurgeHttpCacheListener {
 
             $this->addTagsFor(
                 $relatedObject,
-                $relatedProperty
+                $relatedProperty,
+                true
             );
         }
     }
 
-    private function addTagsFor(mixed $value, ?string $property = null): void {
+    private function addTagsFor(mixed $value, ?string $property = null, bool $purgeCollectionTags = false): void {
         if (!$value || \is_scalar($value)) {
             return;
         }
 
         if (!is_iterable($value)) {
             $this->addTagForItem($value, $property);
+            if ($purgeCollectionTags && is_object($value)) {
+                $this->gatherResourceTags($value);
+            }
 
             return;
         }
@@ -286,6 +290,9 @@ final readonly class PurgeHttpCacheListener {
 
         foreach ($value as $v) {
             $this->addTagForItem($v, $property);
+            if ($purgeCollectionTags && is_object($v)) {
+                $this->gatherResourceTags($v);
+            }
         }
     }
 

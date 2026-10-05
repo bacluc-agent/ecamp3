@@ -94,7 +94,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     const headers = request.headers()
     const xkeyTags = headers['xkey'].split(' ')
     expect(xkeyTags).toContain(`/api/camps/${skilagerCampId}/activities`)
-    expect(xkeyTags).toContain('?')
+    expect(xkeyTags).toContain(`${uri}?`)
     expect(headers['x-cache']).toBe('MISS')
 
     // second request is a cache hit
