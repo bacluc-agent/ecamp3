@@ -56,6 +56,10 @@ test.describe(
       // second request is a cache hit
       await expectCacheHit(bipiApi, uri)
 
+      const queryUri = '/api/schedule_entries/12f34c89ce11?page=1'
+      await expectCacheMiss(bipiApi, queryUri)
+      await expectCacheHit(bipiApi, queryUri)
+
       // request with a new user is a cache miss
       const bruceApi = await getAuthContext(bruceWayneUser)
       await expectCacheMiss(bruceApi, uri)

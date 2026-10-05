@@ -38,6 +38,10 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
     // second request is a cache hit
     await expectCacheHit(bipiApi, uri)
 
+    const queryUri = '/api/checklists/ebbd0c61eb85?page=1'
+    await expectCacheMiss(bipiApi, queryUri)
+    await expectCacheHit(bipiApi, queryUri)
+
     // request with a new user is a cache miss
     const castorApi = await getAuthContext(castorUser)
     await expectCacheMiss(castorApi, uri)
