@@ -25,7 +25,9 @@ use ApiPlatform\Metadata\ResourceClassResolverInterface;
 use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\Metadata\Util\ClassInfoTrait;
 use App\Entity\ActivityProgressLabel;
+use App\Entity\ActivityResponsible;
 use App\Entity\BaseEntity;
+use App\Entity\Category;
 use App\Entity\HasId;
 use App\Entity\Period;
 use App\Entity\ScheduleEntry;
@@ -88,12 +90,15 @@ final readonly class PurgeHttpCacheListener {
         foreach ($uow->getScheduledEntityInsertions() as $entity) {
             $this->gatherResourceTags($entity);
             $this->gatherRelationTags($entity);
+            $this->gatherRelatedActivityCollectionTags($entity);
         }
 
         foreach ($uow->getScheduledEntityUpdates() as $entity) {
             $originalEntity = $this->getOriginalEntity($entity);
             $this->addTagForItem($entity);
-            $this->gatherResourceTags($entity, $originalEntity);
+            if (!$entity instanceof Category) {
+                $this->gatherResourceTags($entity, $originalEntity);
+            }
             $this->gatherRelatedActivityCollectionTags($entity);
         }
 
@@ -102,6 +107,7 @@ final readonly class PurgeHttpCacheListener {
             $this->addTagForItem($originalEntity);
             $this->gatherResourceTags($originalEntity);
             $this->gatherRelationTags($originalEntity);
+            $this->gatherRelatedActivityCollectionTags($originalEntity);
         }
 
         // trigger cache purges for changes on many-to-many relations
@@ -222,7 +228,7 @@ final readonly class PurgeHttpCacheListener {
                 // if such routes should be cached, custom logic is needed to purge the correct IRIs
             }
         }
-        if ($iri && (!$oldEntity || $iri !== $oldIri)) {
+        if ($iri) {
             $this->cacheManager->invalidateTags([$iri]);
         }
         if ($oldIri && $iri !== $oldIri) {
@@ -264,6 +270,10 @@ final readonly class PurgeHttpCacheListener {
     }
 
     private function gatherRelatedActivityCollectionTags(object $entity): void {
+        if ($entity instanceof ActivityResponsible && $entity->activity) {
+            $this->gatherResourceTags($entity->activity);
+        }
+
         if ($entity instanceof ActivityProgressLabel) {
             foreach ($entity->activities as $activity) {
                 $this->gatherResourceTags($activity);

@@ -634,12 +634,13 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $this->uowProphecy->method('getEntityChangeSet')->willReturn(['relatedDummy' => [$relatedDummyOld, $relatedDummy]]);
 
         // then
-        $this->cacheManagerProphecy->expects($this->exactly(3))
+        $this->cacheManagerProphecy->expects($this->exactly(4))
             ->method('invalidateTags')
             ->willReturnCallback(function (array $tags) {
                 static $i = 0;
                 $expected = [
                     ['/dummies/1'],
+                    ['/dummies'],
                     ['/related_dummies/100/dummies'],
                     ['/related_dummies/99/dummies'],
                 ];
