@@ -121,7 +121,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
   test('invalidates /camps/{campId}/activities for all users on activity patch', async () => {
     const uri = `/api/camps/${loremIpsumCampId}/activities`
     const filteredUri = `${uri}?camp=%2Fcamps%2F${loremIpsumCampId}`
-    const excludedEntityUri = `/api/activities?camp=%2Fcamps%2F${grgrCampId}`
+    const excludedEntityUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
     const activityId = '3d1e5c91ceb2'
 
     // bring data into defined state

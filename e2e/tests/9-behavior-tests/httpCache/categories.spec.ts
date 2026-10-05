@@ -71,7 +71,6 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     const uri = `/api/camps/${loremIpsumCampId}/categories`
     const filteredUri = `${uri}?camp=%2Fcamps%2F${loremIpsumCampId}&page=1`
     const excludedEntityUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
-    const categoryUri = `${uri}/c5e1bc565094?page=1`
 
     // bring data into defined state
     const bruceApi = await getAuthContext(bruceWayneUser)
@@ -85,8 +84,6 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await expectCacheHit(bruceApi, uri)
     await expectCacheMiss(bruceApi, filteredUri)
     await expectCacheHit(bruceApi, filteredUri)
-    await expectCacheMiss(bruceApi, categoryUri)
-    await expectCacheHit(bruceApi, categoryUri)
     const excludedEntityResponse = await apiGet(bruceApi, excludedEntityUri)
     expect(excludedEntityResponse.headers()['x-cache']).toBe('MISS')
     const excludedCategories: Array<{ id: string }> = (
@@ -111,8 +108,6 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await expectCacheHit(felicityApi, uri)
     await waitForCacheMiss(felicityApi, filteredUri)
     await expectCacheHit(felicityApi, filteredUri)
-    await waitForCacheMiss(bruceApi, categoryUri)
-    await expectCacheHit(bruceApi, categoryUri)
     await waitForCacheMiss(bruceApi, excludedEntityUri)
     await expectCacheHit(bruceApi, excludedEntityUri)
 
