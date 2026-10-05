@@ -85,7 +85,7 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
 
     test('try', async () => {
       const uri = `/api/camps/${basiskursCampId}/checklists`
-      const filteredUri = `${uri}?isPrototype=true&page=987655`
+      const filteredUri = `${uri}?isPrototype=true&page=987653`
 
       const bipiApi = await getAuthContext(bipiUser)
 
