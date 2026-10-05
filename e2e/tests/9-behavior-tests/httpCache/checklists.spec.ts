@@ -46,6 +46,7 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
   test('invalidates /camp/{campId}/checklists on checklist patch', async () => {
     const uri = `/api/camps/${basiskursCampId}/checklists`
     const filteredUri = `${uri}?isPrototype=true&page=987654`
+    const excludedEntityUri = `${uri}?isPrototype=true`
 
     // bring data into defined state
     const bipiApi = await getAuthContext(bipiUser)
@@ -58,6 +59,12 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
     await expectCacheHit(bipiApi, uri)
     await expectCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    const excludedEntity = await apiGet(bipiApi, excludedEntityUri)
+    expect(excludedEntity.headers()['x-cache']).toBe('MISS')
+    const filteredItems: Array<{ id: string }> = (await excludedEntity.json())._embedded
+      .items
+    expect(filteredItems.some((item) => item.id === 'ebbd0c61eb85')).toBe(false)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // touch checklist
     await apiPatch(bipiApi, '/api/checklists/ebbd0c61eb85', {
@@ -69,6 +76,8 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
     await expectCacheHit(bipiApi, uri)
     await waitForCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
   })
 
   test.describe('invalidates /camp/{campId}/checklists for new checklist', () => {

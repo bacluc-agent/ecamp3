@@ -64,12 +64,14 @@ test.describe(
     test('invalidates /periods/{periodId}/schedule_entries for all users on scheduleEntry patch', async () => {
       const uri = `/api/periods/${grgrPeriodId}/schedule_entries`
       const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}&page=1`
+      const excludedEntityUri = `${uri}?period=%2Fperiods%2F${skilagerPeriodId}`
       const scheduleEntryId = '12f34c89ce11'
 
       // bring data into defined state
       const bipiApi = await getAuthContext(bipiUser)
       await apiPatch(bipiApi, `/api/schedule_entries/${scheduleEntryId}`, {
         start: '2036-05-10T16:00:00+00:00',
+        end: '2036-05-10T18:00:00+00:00',
       })
 
       // warm up cache
@@ -77,6 +79,17 @@ test.describe(
       await expectCacheHit(bipiApi, uri)
       await expectCacheMiss(bipiApi, filteredUri)
       await expectCacheHit(bipiApi, filteredUri)
+      const excludedEntityResponse = await apiGet(bipiApi, excludedEntityUri)
+      expect(excludedEntityResponse.headers()['x-cache']).toBe('MISS')
+      const excludedEntries: Array<{ _links: { self: { href: string } } }> = (
+        await excludedEntityResponse.json()
+      )._embedded.items
+      expect(
+        excludedEntries.some((entry) =>
+          entry._links.self.href.endsWith(`/schedule_entries/${scheduleEntryId}`)
+        )
+      ).toBe(false)
+      await expectCacheHit(bipiApi, excludedEntityUri)
 
       const castorApi = await getAuthContext(castorUser)
       await apiGet(castorApi, uri)
@@ -85,6 +98,7 @@ test.describe(
       // touch scheduleEntry
       await apiPatch(castorApi, `/api/schedule_entries/${scheduleEntryId}`, {
         start: '2036-05-10T17:00:00+00:00',
+        end: '2036-05-10T19:00:00+00:00',
       })
 
       // ensure cache was invalidated
@@ -92,6 +106,8 @@ test.describe(
       await expectCacheHit(castorApi, uri)
       await waitForCacheMiss(castorApi, filteredUri)
       await expectCacheHit(castorApi, filteredUri)
+      await waitForCacheMiss(bipiApi, excludedEntityUri)
+      await expectCacheHit(bipiApi, excludedEntityUri)
 
       await expectCacheMiss(bipiApi, uri)
     })
