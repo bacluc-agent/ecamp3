@@ -59,7 +59,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await expectCacheMiss(castorApi, uri)
   })
 
-  test('keeps category collections cached on category patch', async () => {
+  test('invalidates /camps/{campId}/categories for all users on category patch', async () => {
     const uri = `/api/camps/${loremIpsumCampId}/categories`
     const filteredUri = `${uri}?camp=%2Fcamps%2F${loremIpsumCampId}&page=1`
     const excludedEntityUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
@@ -89,19 +89,21 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     // warm up cache (felicity)
     await apiGet(felicityApi, uri)
     await expectCacheHit(felicityApi, uri)
-    await apiGet(felicityApi, filteredUri)
-    await expectCacheHit(felicityApi, filteredUri)
 
     // touch category (bruce)
     await apiPatch(bruceApi, '/api/categories/c5e1bc565094', {
       name: 'new_name',
     })
 
+    // ensure cache was invalidated
+    await waitForCacheMiss(felicityApi, uri)
     await expectCacheHit(felicityApi, uri)
+    await waitForCacheMiss(felicityApi, filteredUri)
     await expectCacheHit(felicityApi, filteredUri)
+    await waitForCacheMiss(bruceApi, excludedEntityUri)
     await expectCacheHit(bruceApi, excludedEntityUri)
-    await expectCacheHit(bruceApi, uri)
-    await expectCacheHit(bruceApi, filteredUri)
+
+    await expectCacheMiss(bruceApi, uri)
   })
 
   test('invalidates /camps/{campId}/categories for new category', async () => {

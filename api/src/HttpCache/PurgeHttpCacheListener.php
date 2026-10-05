@@ -28,6 +28,7 @@ use App\Entity\ActivityProgressLabel;
 use App\Entity\ActivityResponsible;
 use App\Entity\BaseEntity;
 use App\Entity\Category;
+use App\Entity\DayResponsible;
 use App\Entity\HasId;
 use App\Entity\Period;
 use App\Entity\ScheduleEntry;
@@ -90,7 +91,7 @@ final readonly class PurgeHttpCacheListener {
         foreach ($uow->getScheduledEntityInsertions() as $entity) {
             $this->gatherResourceTags($entity);
             $this->gatherRelationTags($entity);
-            $this->gatherRelatedActivityCollectionTags($entity);
+            $this->gatherRelatedResourceCollectionTags($entity);
         }
 
         foreach ($uow->getScheduledEntityUpdates() as $entity) {
@@ -99,7 +100,7 @@ final readonly class PurgeHttpCacheListener {
             if (!$entity instanceof Category) {
                 $this->gatherResourceTags($entity, $originalEntity);
             }
-            $this->gatherRelatedActivityCollectionTags($entity);
+            $this->gatherRelatedResourceCollectionTags($entity);
         }
 
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
@@ -107,7 +108,7 @@ final readonly class PurgeHttpCacheListener {
             $this->addTagForItem($originalEntity);
             $this->gatherResourceTags($originalEntity);
             $this->gatherRelationTags($originalEntity);
-            $this->gatherRelatedActivityCollectionTags($originalEntity);
+            $this->gatherRelatedResourceCollectionTags($originalEntity);
         }
 
         // trigger cache purges for changes on many-to-many relations
@@ -269,9 +270,13 @@ final readonly class PurgeHttpCacheListener {
         }
     }
 
-    private function gatherRelatedActivityCollectionTags(object $entity): void {
+    private function gatherRelatedResourceCollectionTags(object $entity): void {
         if ($entity instanceof ActivityResponsible && $entity->activity) {
             $this->gatherResourceTags($entity->activity);
+        }
+
+        if ($entity instanceof DayResponsible && $entity->day) {
+            $this->gatherResourceTags($entity->day);
         }
 
         if ($entity instanceof ActivityProgressLabel) {
