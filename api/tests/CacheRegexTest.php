@@ -49,6 +49,7 @@ class CacheRegexTest extends KernelTestCase {
     }
 
     #[TestWith(data: ['/invitations'], name: '/invitations')]
+    #[TestWith(data: ['/invitations?foo=bar'], name: '/invitations?foo=bar')]
     #[TestWith(data: ['/personal_invitations'], name: '/personal_invitations')]
     #[TestWith(data: ['/activity_progress_labels'], name: '/activity_progress_labels')]
     #[TestWith(data: ['/activity_responsibles'], name: '/activity_responsibles')]
