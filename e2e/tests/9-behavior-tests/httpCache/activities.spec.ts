@@ -88,7 +88,9 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // first request is a cache miss
     const request = await apiGet(bipiApi, uri)
     const headers = request.headers()
-    expect(headers['xkey']).toContain(`/api/camps/${skilagerCampId}/activities?`)
+    const tags = headers['xkey'].split(' ')
+    expect(tags).toContain(`/api/camps/${skilagerCampId}/activities`)
+    expect(tags).not.toContain(`/api/camps/${skilagerCampId}/activities?`)
     expect(headers['x-cache']).toBe('MISS')
 
     // second request is a cache hit

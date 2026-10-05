@@ -91,6 +91,7 @@ final readonly class PurgeHttpCacheListener {
             $originalEntity = $this->getOriginalEntity($entity);
             $this->addTagForItem($entity);
             $this->gatherResourceTags($entity, $originalEntity);
+            $this->gatherRelationTags($entity);
         }
 
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
@@ -219,18 +220,10 @@ final readonly class PurgeHttpCacheListener {
             }
         }
         if ($iri) {
-            $this->cacheManager->invalidateTags([$iri.'?']);
+            $this->cacheManager->invalidateTags([$iri]);
         }
-        if ($oldIri) {
-            $this->cacheManager->invalidateTags([$oldIri.'?']);
-        }
-        if ($iri !== $oldIri) {
-            if ($iri) {
-                $this->cacheManager->invalidateTags([$iri]);
-            }
-            if ($oldIri) {
-                $this->cacheManager->invalidateTags([$oldIri]);
-            }
+        if ($oldIri && $iri !== $oldIri) {
+            $this->cacheManager->invalidateTags([$oldIri]);
         }
     }
 
@@ -264,7 +257,13 @@ final readonly class PurgeHttpCacheListener {
                 $relatedObject,
                 $relatedProperty
             );
-            if (is_object($relatedObject)) {
+            if (is_iterable($relatedObject)) {
+                foreach ($relatedObject as $relatedEntity) {
+                    if (is_object($relatedEntity)) {
+                        $this->gatherResourceTags($relatedEntity);
+                    }
+                }
+            } elseif (is_object($relatedObject)) {
                 $this->gatherResourceTags($relatedObject);
             }
         }

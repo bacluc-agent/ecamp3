@@ -533,14 +533,12 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $this->uowProphecy->method('getScheduledCollectionDeletions')->willReturn([]);
 
         // then
-        $this->cacheManagerProphecy->expects($this->exactly(4))
+        $this->cacheManagerProphecy->expects($this->exactly(2))
             ->method('invalidateTags')
             ->willReturnCallback(function (array $tags) {
                 static $i = 0;
                 $expected = [
-                    ['/dummies?'],
                     ['/dummies'],
-                    ['/related_dummies/100/dummies?'],
                     ['/related_dummies/100/dummies'],
                 ];
                 TestCase::assertEquals($expected[$i], $tags);
@@ -586,15 +584,13 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $em->method('getUnitOfWork')->willReturn($unitOfWork);
 
         // then
-        $this->cacheManagerProphecy->expects($this->exactly(5))
+        $this->cacheManagerProphecy->expects($this->exactly(3))
             ->method('invalidateTags')
             ->willReturnCallback(function (array $tags) {
                 static $i = 0;
                 $expected = [
                     ['/dummies/1'],
-                    ['/dummies?'],
                     ['/dummies'],
-                    ['/related_dummies/100/dummies?'],
                     ['/related_dummies/100/dummies'],
                 ];
                 TestCase::assertEquals($expected[$i], $tags);
@@ -638,16 +634,13 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $this->uowProphecy->method('getEntityChangeSet')->willReturn(['relatedDummy' => [$relatedDummyOld, $relatedDummy]]);
 
         // then
-        $this->cacheManagerProphecy->expects($this->exactly(7))
+        $this->cacheManagerProphecy->expects($this->exactly(4))
             ->method('invalidateTags')
             ->willReturnCallback(function (array $tags) {
                 static $i = 0;
                 $expected = [
                     ['/dummies/1'],
-                    ['/dummies?'],
-                    ['/dummies?'],
-                    ['/related_dummies/100/dummies?'],
-                    ['/related_dummies/99/dummies?'],
+                    ['/dummies'],
                     ['/related_dummies/100/dummies'],
                     ['/related_dummies/99/dummies'],
                 ];
