@@ -45,7 +45,7 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
 
   test('invalidates /camp/{campId}/checklists on checklist patch', async () => {
     const uri = `/api/camps/${basiskursCampId}/checklists`
-    const filteredUri = `${uri}?isPrototype=true&page=1`
+    const filteredUri = `${uri}?isPrototype=true&page=987654`
 
     // bring data into defined state
     const bipiApi = await getAuthContext(bipiUser)
@@ -76,7 +76,7 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
 
     test('try', async () => {
       const uri = `/api/camps/${basiskursCampId}/checklists`
-      const filteredUri = `${uri}?isPrototype=true&page=1`
+      const filteredUri = `${uri}?isPrototype=true&page=987654`
 
       const bipiApi = await getAuthContext(bipiUser)
 

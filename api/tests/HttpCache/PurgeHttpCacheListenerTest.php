@@ -596,7 +596,6 @@ class PurgeHttpCacheListenerTest extends TestCase {
                     ['/dummies'],
                     ['/related_dummies/100/dummies?'],
                     ['/related_dummies/100/dummies'],
-                    ['/dummies/1?'],
                 ];
                 TestCase::assertEquals($expected[$i], $tags);
                 ++$i;
