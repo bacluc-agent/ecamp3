@@ -594,9 +594,13 @@ class CreateCategoryTest extends ECampApiTestCase {
         self::assertEqualsCanonicalizing([
             '?'.$camp1->getId(),
             '/categories',
+            '/categories?',
             '/camps/'.$camp1->getId().'/categories',
+            '/camps/'.$camp1->getId().'/categories?',
             '/content_nodes',
+            '/content_nodes?',
             '/content_node/column_layouts',
+            '/content_node/column_layouts?',
             $camp1->getId().'#categories',
             $contentType->getId().'#categories',
         ], $cacheManager->getInvalidatedTags());

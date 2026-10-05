@@ -55,15 +55,23 @@ final class AddCollectionTagsListener {
 
             $this->responseTagger->addTags([$iri]);
             if (null !== $request->getQueryString()) {
-                preg_match('~/camps/([^/?&#]+)~', $request->getPathInfo().' '.$request->query->get('camp'), $matches);
-                if (!isset($matches[1]) && is_string($periodIri = $request->query->get('period'))) {
-                    $periodId = basename((string) parse_url($periodIri, PHP_URL_PATH));
-                    $period = $this->em->find(Period::class, $periodId);
-                    $matches[1] = $period?->camp?->getId();
+                preg_match('~/camps/([^/?&#]+)~', $request->getPathInfo(), $matches);
+                if (empty($matches[1])) {
+                    preg_match('~/periods/([^/?&#]+)~', $request->getPathInfo(), $periodMatches);
+                    $periodIri = $periodMatches[0] ?? $request->query->get('period');
+                    if (is_string($periodIri)) {
+                        $periodId = basename((string) parse_url($periodIri, PHP_URL_PATH));
+                        $matches[1] = $this->em->find(Period::class, $periodId)?->camp?->getId();
+                    }
                 }
-                $this->responseTagger->addTags([
-                    !empty($matches[1]) ? PurgeHttpCacheListener::QUERY_TAG.$matches[1] : PurgeHttpCacheListener::QUERY_TAG,
-                ]);
+                if (empty($matches[1]) && is_string($campIri = $request->query->get('camp'))) {
+                    preg_match('~/camps/([^/?&#]+)~', $campIri, $matches);
+                }
+                $queryTags = [$iri.PurgeHttpCacheListener::QUERY_TAG];
+                if (!empty($matches[1])) {
+                    $queryTags[] = PurgeHttpCacheListener::QUERY_TAG.$matches[1];
+                }
+                $this->responseTagger->addTags($queryTags);
             }
         }
     }

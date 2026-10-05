@@ -125,7 +125,7 @@ final readonly class PurgeHttpCacheListener {
         foreach ($uow->getScheduledCollectionDeletions() as $collection) {
             $this->addTagsForManyToManyRelations($collection, $collection->getDeleteDiff());
         }
-        foreach (array_keys($queryTags ?: [self::QUERY_TAG => true]) as $queryTag) {
+        foreach (array_keys($queryTags) as $queryTag) {
             $this->cacheManager->invalidateTags([$queryTag]);
         }
     }
