@@ -592,7 +592,7 @@ class CreateCategoryTest extends ECampApiTestCase {
         $camp1 = static::getFixture('camp1');
         $contentType = static::getFixture('contentTypeSafetyConsiderations');
         self::assertEqualsCanonicalizing([
-            '?',
+            '?'.$camp1->getId(),
             '/categories',
             '/camps/'.$camp1->getId().'/categories',
             '/content_nodes',

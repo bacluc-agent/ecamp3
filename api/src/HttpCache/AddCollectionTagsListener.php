@@ -21,13 +21,15 @@ use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\State\UriVariablesResolverTrait;
 use ApiPlatform\State\Util\OperationRequestInitiatorTrait;
 use ApiPlatform\State\Util\RequestAttributesExtractor;
+use App\Entity\Period;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 
 final class AddCollectionTagsListener {
     use OperationRequestInitiatorTrait;
     use UriVariablesResolverTrait;
 
-    public function __construct(private readonly IriConverterInterface $iriConverter, ResourceMetadataCollectionFactoryInterface $resourceMetadataCollectionFactory, private ResponseTagger $responseTagger) {
+    public function __construct(private readonly IriConverterInterface $iriConverter, ResourceMetadataCollectionFactoryInterface $resourceMetadataCollectionFactory, private ResponseTagger $responseTagger, private readonly EntityManagerInterface $em) {
         $this->resourceMetadataCollectionFactory = $resourceMetadataCollectionFactory;
     }
 
@@ -53,7 +55,15 @@ final class AddCollectionTagsListener {
 
             $this->responseTagger->addTags([$iri]);
             if (null !== $request->getQueryString()) {
-                $this->responseTagger->addTags([$iri.PurgeHttpCacheListener::QUERY_TAG]);
+                preg_match('~/camps/([^/?&#]+)~', $request->getPathInfo().' '.$request->query->get('camp'), $matches);
+                if (!isset($matches[1]) && is_string($periodIri = $request->query->get('period'))) {
+                    $periodId = basename((string) parse_url($periodIri, PHP_URL_PATH));
+                    $period = $this->em->find(Period::class, $periodId);
+                    $matches[1] = $period?->camp?->getId();
+                }
+                $this->responseTagger->addTags([
+                    !empty($matches[1]) ? PurgeHttpCacheListener::QUERY_TAG.$matches[1] : PurgeHttpCacheListener::QUERY_TAG,
+                ]);
             }
         }
     }

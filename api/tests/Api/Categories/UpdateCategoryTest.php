@@ -589,7 +589,7 @@ class UpdateCategoryTest extends ECampApiTestCase {
         $contentTypeSafetyConsiderations = static::getFixture('contentTypeSafetyConsiderations');
         self::assertEqualsCanonicalizing([
             $category->getId(),
-            '?',
+            '?'.$category->getCamp()->getId(),
             $contentTypeColumnLayout->getId().'#categories',
             $contentTypeNotes->getId().'#categories',
             $contentTypeSafetyConsiderations->getId().'#categories', // SafetyConsiderations was previously in the list, so this is purged because it was removed

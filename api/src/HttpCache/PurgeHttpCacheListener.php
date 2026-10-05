@@ -25,6 +25,7 @@ use ApiPlatform\Metadata\ResourceClassResolverInterface;
 use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\Metadata\Util\ClassInfoTrait;
 use App\Entity\BaseEntity;
+use App\Entity\BelongsToCampInterface;
 use App\Entity\HasId;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
@@ -83,20 +84,33 @@ final readonly class PurgeHttpCacheListener {
      */
     public function onFlush(): void {
         $uow = $this->em->getUnitOfWork();
+        $queryTags = [];
 
         foreach ($uow->getScheduledEntityInsertions() as $entity) {
+            if ($tag = $this->getQueryTag($entity)) {
+                $queryTags[$tag] = true;
+            }
             $this->gatherResourceTags($entity);
             $this->gatherRelationTags($entity);
         }
 
         foreach ($uow->getScheduledEntityUpdates() as $entity) {
             $originalEntity = $this->getOriginalEntity($entity);
+            if ($tag = $this->getQueryTag($entity)) {
+                $queryTags[$tag] = true;
+            }
+            if ($tag = $this->getQueryTag($originalEntity)) {
+                $queryTags[$tag] = true;
+            }
             $this->addTagForItem($entity);
             $this->gatherResourceTags($entity, $originalEntity);
         }
 
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
             $originalEntity = $this->getOriginalEntity($entity);
+            if ($tag = $this->getQueryTag($originalEntity)) {
+                $queryTags[$tag] = true;
+            }
             $this->addTagForItem($originalEntity);
             $this->gatherResourceTags($originalEntity);
             $this->gatherRelationTags($originalEntity);
@@ -110,6 +124,9 @@ final readonly class PurgeHttpCacheListener {
         }
         foreach ($uow->getScheduledCollectionDeletions() as $collection) {
             $this->addTagsForManyToManyRelations($collection, $collection->getDeleteDiff());
+        }
+        foreach (array_keys($queryTags ?: [self::QUERY_TAG => true]) as $queryTag) {
+            $this->cacheManager->invalidateTags([$queryTag]);
         }
     }
 
@@ -335,5 +352,11 @@ final readonly class PurgeHttpCacheListener {
         }
 
         return true;
+    }
+
+    private function getQueryTag(object $entity): ?string {
+        $camp = $entity instanceof BelongsToCampInterface ? $entity->getCamp() : null;
+
+        return $camp?->getId() ? self::QUERY_TAG.$camp->getId() : null;
     }
 }
