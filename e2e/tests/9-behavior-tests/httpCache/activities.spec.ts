@@ -94,7 +94,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     const headers = request.headers()
     const xkeyTags = headers['xkey'].split(' ')
     expect(xkeyTags).toContain(`/api/camps/${skilagerCampId}/activities`)
-    expect(xkeyTags).not.toContain(`/api/camps/${skilagerCampId}/activities?`)
+    expect(xkeyTags).toContain(`/api/camps/${skilagerCampId}/activities?`)
     expect(headers['x-cache']).toBe('MISS')
 
     // second request is a cache hit
@@ -121,6 +121,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
   test('invalidates /camps/{campId}/activities for all users on activity patch', async () => {
     const uri = `/api/camps/${loremIpsumCampId}/activities`
     const filteredUri = `${uri}?camp=%2Fcamps%2F${loremIpsumCampId}`
+    const excludedEntityUri = `/api/camps/${grgrCampId}/activities?camp=%2Fcamps%2F${grgrCampId}`
     const activityId = '3d1e5c91ceb2'
 
     // bring data into defined state
@@ -134,6 +135,17 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     await expectCacheHit(bruceApi, uri)
     await expectCacheMiss(bruceApi, filteredUri)
     await expectCacheHit(bruceApi, filteredUri)
+    const excludedEntityResponse = await apiGet(bruceApi, excludedEntityUri)
+    expect(excludedEntityResponse.headers()['x-cache']).toBe('MISS')
+    const excludedActivities: Array<{ _links: { self: { href: string } } }> = (
+      await excludedEntityResponse.json()
+    )._embedded.items
+    expect(
+      excludedActivities.some((activity) =>
+        activity._links.self.href.endsWith(`/activities/${activityId}`)
+      )
+    ).toBe(false)
+    await expectCacheHit(bruceApi, excludedEntityUri)
 
     const felicityApi = await getAuthContext(felicitySmoakUser)
     await expectCacheMiss(felicityApi, uri)
@@ -149,6 +161,8 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     await expectCacheHit(bruceApi, uri)
     await waitForCacheMiss(bruceApi, filteredUri)
     await expectCacheHit(bruceApi, filteredUri)
+    await waitForCacheMiss(bruceApi, excludedEntityUri)
+    await expectCacheHit(bruceApi, excludedEntityUri)
 
     const bruceApi2 = await getAuthContext(bruceWayneUser)
     await expectCacheMiss(bruceApi2, uri)

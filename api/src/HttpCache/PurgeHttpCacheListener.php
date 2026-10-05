@@ -226,10 +226,10 @@ final readonly class PurgeHttpCacheListener {
             }
         }
         if ($iri) {
-            $this->cacheManager->invalidateTags([$iri]);
+            $this->cacheManager->invalidateTags([$iri, $iri.'?']);
         }
         if ($oldIri && $iri !== $oldIri) {
-            $this->cacheManager->invalidateTags([$oldIri]);
+            $this->cacheManager->invalidateTags([$oldIri, $oldIri.'?']);
         }
     }
 

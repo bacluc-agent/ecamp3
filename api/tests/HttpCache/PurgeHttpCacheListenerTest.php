@@ -266,7 +266,7 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $listener->onFlush();
         $listener->postFlush();
 
-        assertThat($cacheManagerInvalidateTagsCalls, logicalAnd(containsEqual(['/dummies']), containsEqual(['/dummies/3']), containsEqual(['/dummies/4'])));
+        assertThat($cacheManagerInvalidateTagsCalls, logicalAnd(containsEqual(['/dummies', '/dummies?']), containsEqual(['/dummies/3', '/dummies/3?']), containsEqual(['/dummies/4', '/dummies/4?'])));
     }
 
     #[AllowMockObjectsWithoutExpectations]
@@ -529,8 +529,8 @@ class PurgeHttpCacheListenerTest extends TestCase {
             ->willReturnCallback(function (array $tags) {
                 static $i = 0;
                 $expected = [
-                    ['/dummies'],
-                    ['/related_dummies/100/dummies'],
+                    ['/dummies', '/dummies?'],
+                    ['/related_dummies/100/dummies', '/related_dummies/100/dummies?'],
                 ];
                 TestCase::assertEquals($expected[$i], $tags);
                 ++$i;
@@ -581,8 +581,8 @@ class PurgeHttpCacheListenerTest extends TestCase {
                 static $i = 0;
                 $expected = [
                     ['1'],
-                    ['/dummies'],
-                    ['/related_dummies/100/dummies'],
+                    ['/dummies', '/dummies?'],
+                    ['/related_dummies/100/dummies', '/related_dummies/100/dummies?'],
                 ];
                 TestCase::assertEquals($expected[$i], $tags);
                 ++$i;
@@ -631,9 +631,9 @@ class PurgeHttpCacheListenerTest extends TestCase {
                 static $i = 0;
                 $expected = [
                     ['1'],
-                    ['/dummies'],
-                    ['/related_dummies/100/dummies'],
-                    ['/related_dummies/99/dummies'],
+                    ['/dummies', '/dummies?'],
+                    ['/related_dummies/100/dummies', '/related_dummies/100/dummies?'],
+                    ['/related_dummies/99/dummies', '/related_dummies/99/dummies?'],
                 ];
                 TestCase::assertEquals($expected[$i], $tags);
                 ++$i;
