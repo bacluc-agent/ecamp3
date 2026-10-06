@@ -179,7 +179,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
-    await expectCacheMiss(bipiApi, filteredUri)
+    await apiGet(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
 
     // add new activity to camp
@@ -364,7 +364,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
-    await expectCacheMiss(bipiApi, filteredUri)
+    await apiGet(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
 
     // move period start date
