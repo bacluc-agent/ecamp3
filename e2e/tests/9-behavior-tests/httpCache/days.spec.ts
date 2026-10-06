@@ -70,6 +70,7 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await apiGet(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
     // move period start date

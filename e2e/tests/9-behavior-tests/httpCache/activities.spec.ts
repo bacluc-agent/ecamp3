@@ -85,7 +85,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
   })
 
   test('caches /camps/{campId}/activities?camp={campId} separately for each login', async () => {
-    const uri = `/api/camps/${skilagerCampId}/activities?camp=%2Fcamps%2F${skilagerCampId}`
+    const uri = `/api/camps/${skilagerCampId}/activities?camp=%2Fcamps%2F${skilagerCampId}&source=tag-test`
 
     const bipiApi = await getAuthContext(bipiUser)
 
