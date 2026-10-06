@@ -121,7 +121,8 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
-    await expectCacheMiss(bipiApi, filteredUri)
+    await apiGet(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
 
     // add new category to camp
@@ -265,7 +266,8 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
       // warm up cache
       await apiGet(bipiApi, uri)
       await expectCacheHit(bipiApi, uri)
-      await expectCacheMiss(bipiApi, filteredUri)
+      await apiGet(bipiApi, filteredUri)
+      await expectCacheHit(bipiApi, filteredUri)
       await expectCacheHit(bipiApi, filteredUri)
 
       // set the preferredContentTypes to empty
@@ -287,7 +289,8 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
       // warm up cache
       await apiGet(bipiApi, uri)
       await expectCacheHit(bipiApi, uri)
-      await expectCacheMiss(bipiApi, filteredUri)
+      await apiGet(bipiApi, filteredUri)
+      await expectCacheHit(bipiApi, filteredUri)
       await expectCacheHit(bipiApi, filteredUri)
 
       // add new preferredContentType

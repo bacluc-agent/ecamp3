@@ -35,7 +35,7 @@ test.describe('cache test: /content-types', { tag: '@mature' }, () => {
 
   test('caches collection with query params and tags it for invalidation', async () => {
     const uri = '/api/content_types'
-    const queryUri = `${uri}?name=Checklist`
+    const queryUri = `${uri}?name=ColumnLayout`
 
     const bipiApi = await getAuthContext(bipiUser)
 

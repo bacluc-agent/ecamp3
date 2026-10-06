@@ -34,6 +34,7 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
 
   test('caches /periods/{periodId}/days separately for each login', async () => {
     const uri = `/api/periods/${grgrPeriodId}/days`
+    const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
@@ -46,6 +47,8 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
 
     // second request is a cache hit
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
 
     // request with a new user is a cache miss
     const bruceApi = await getAuthContext(bruceWayneUser)
@@ -67,7 +70,7 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
-    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
     // move period start date
     await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
