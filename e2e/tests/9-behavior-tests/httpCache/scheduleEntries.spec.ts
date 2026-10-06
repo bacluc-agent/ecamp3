@@ -43,6 +43,7 @@ test.describe(
 
     test('caches /periods/{periodId}/schedule_entries separately for each login', async () => {
       const uri = `/api/periods/${skilagerPeriodId}/schedule_entries`
+      const filteredUri = `${uri}?period=%2Fperiods%2F${skilagerPeriodId}`
 
       const bipiApi = await getAuthContext(bipiUser)
 
@@ -55,6 +56,10 @@ test.describe(
 
       // second request is a cache hit
       await expectCacheHit(bipiApi, uri)
+
+      // the query param variant is a separate cache entry
+      await expectCacheMiss(bipiApi, filteredUri)
+      await expectCacheHit(bipiApi, filteredUri)
 
       // request with a new user is a cache miss
       const bruceApi = await getAuthContext(bruceWayneUser)
