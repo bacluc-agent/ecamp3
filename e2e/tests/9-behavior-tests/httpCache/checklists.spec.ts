@@ -46,6 +46,7 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
     // request with a new user is a cache miss
     const castorApi = await getAuthContext(castorUser)
     await expectCacheMiss(castorApi, uri)
+    await expectCacheMiss(castorApi, filteredUri)
   })
 
   test('invalidates /camp/{campId}/checklists on checklist patch', async () => {

@@ -64,6 +64,7 @@ test.describe(
       // request with a new user is a cache miss
       const bruceApi = await getAuthContext(bruceWayneUser)
       await expectCacheMiss(bruceApi, uri)
+      await expectCacheMiss(bruceApi, filteredUri)
     })
 
     test('invalidates /periods/{periodId}/schedule_entries for all users on scheduleEntry patch', async () => {
