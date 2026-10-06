@@ -253,7 +253,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
 
   test('invalidates /camps/{campId}/activities when patching a progress label', async () => {
     const uri = `/api/camps/${grgrCampId}/activities`
-    const filteredUri = `${uri}?camp=%2Fcamps%2F${loremIpsumCampId}`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
     const progressLabelId = '82547049ea38'
 
     // bring data into defined state
@@ -318,7 +318,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
 
   test('invalidates /camps/{campId}/activities when changing the period dates (moveScheduleEntries: true)', async () => {
     const uri = `/api/camps/${grgrCampId}/activities`
-    const filteredUri = `${uri}?camp=%2Fcamps%2F${loremIpsumCampId}`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
@@ -357,7 +357,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
 
   test('invalidates /camps/{campId}/activities when changing the period dates (moveScheduleEntries: false)', async () => {
     const uri = `/api/camps/${grgrCampId}/activities`
-    const filteredUri = `${uri}?camp=%2Fcamps%2F${loremIpsumCampId}`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
