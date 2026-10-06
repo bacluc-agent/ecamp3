@@ -39,6 +39,7 @@ test.describe('cache test: /content-types', { tag: '@mature' }, () => {
     // request with a new user is a cache miss
     const castorApi = await getAuthContext(castorUser)
     await expectCacheMiss(castorApi, uri)
+    await expectCacheMiss(castorApi, queryUri)
   })
 
   test('caches collection with query params and tags it for invalidation', async () => {

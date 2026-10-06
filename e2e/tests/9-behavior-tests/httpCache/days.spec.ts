@@ -53,6 +53,7 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     // request with a new user is a cache miss
     const bruceApi = await getAuthContext(bruceWayneUser)
     await expectCacheMiss(bruceApi, uri)
+    await expectCacheMiss(bruceApi, filteredUri)
   })
 
   test('invalidates /periods/{periodId}/days when changing the period dates', async () => {

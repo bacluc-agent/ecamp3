@@ -71,6 +71,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // request with a new user is a cache miss
     const bruceApi = await getAuthContext(bruceWayneUser)
     await expectCacheMiss(bruceApi, uri)
+    await expectCacheMiss(bruceApi, queryUri)
   })
 
   test('invalidates /activities/{activitiyId} for all users on activity patch', async () => {
