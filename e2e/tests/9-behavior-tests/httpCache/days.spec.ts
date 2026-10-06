@@ -72,7 +72,6 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     await expectCacheHit(bipiApi, uri)
     await apiGet(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
-    await expectCacheHit(bipiApi, filteredUri)
     // move period start date
     await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
       start: '2036-05-09',

@@ -119,7 +119,6 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, uri)
     await apiGet(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
-    await expectCacheHit(bipiApi, filteredUri)
 
     // add new category to camp
     const postRes = await apiPost(bipiApi, '/api/categories', {
@@ -264,7 +263,6 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
       await expectCacheHit(bipiApi, uri)
       await apiGet(bipiApi, filteredUri)
       await expectCacheHit(bipiApi, filteredUri)
-      await expectCacheHit(bipiApi, filteredUri)
 
       // set the preferredContentTypes to empty
       await apiPatch(bipiApi, `/api/categories/${grgrLACategoryId}`, {
@@ -285,8 +283,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
       // warm up cache
       await apiGet(bipiApi, uri)
       await expectCacheHit(bipiApi, uri)
-      await apiGet(bipiApi, filteredUri)
-      await expectCacheHit(bipiApi, filteredUri)
+      await expectCacheMiss(bipiApi, filteredUri)
       await expectCacheHit(bipiApi, filteredUri)
 
       // add new preferredContentType
