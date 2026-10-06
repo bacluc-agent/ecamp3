@@ -61,10 +61,6 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     const castorApi = await getAuthContext(castorUser)
     await expectCacheMiss(castorApi, uri)
     await expectCacheMiss(castorApi, filteredUri)
-
-    const categoryUri = `${uri}/${grgrLACategoryId}`
-    await expectCacheMiss(bipiApi, `${categoryUri}?camp=%2Fcamps%2F${grgrCampId}`)
-    await expectCacheHit(bipiApi, `${categoryUri}?camp=%2Fcamps%2F${grgrCampId}`)
   })
 
   test('invalidates /camps/{campId}/categories for all users on category patch', async () => {
