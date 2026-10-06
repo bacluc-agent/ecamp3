@@ -25,6 +25,7 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
 
   test('caches /camp/{campId}/checklists separately for each login', async () => {
     const uri = `/api/camps/${basiskursCampId}/checklists`
+    const filteredUri = `${uri}?isPrototype=true`
 
     const bipiApi = await getAuthContext(bipiUser)
 
@@ -37,6 +38,10 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
 
     // second request is a cache hit
     await expectCacheHit(bipiApi, uri)
+
+    // the query param variant is a separate cache entry
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
 
     // request with a new user is a cache miss
     const castorApi = await getAuthContext(castorUser)
