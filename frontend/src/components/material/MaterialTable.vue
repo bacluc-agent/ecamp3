@@ -477,17 +477,9 @@ export default {
     },
 
     postToApi(key, data) {
-      // post new item to the writable root collection; the subresource collections are read-only,
-      // so the parent has to be carried in the payload
-      this.api
-        .get()
-        .materialItems()
-        .$post({
-          ...data,
-          ...(this.period
-            ? { period: this.period._meta.self }
-            : { materialNode: this.materialNode._meta.self }),
-        })
+      // post new item to the API collection
+      this.materialItemCollection
+        .$post(data)
         .then(() => {
           // reload list after item has successfully been added
           this.api.reload(this.materialItemCollection).then(() => {

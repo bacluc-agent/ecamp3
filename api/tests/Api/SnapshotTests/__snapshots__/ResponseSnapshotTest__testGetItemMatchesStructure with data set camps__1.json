@@ -28,7 +28,39 @@
                             "profile": {
                                 "href": "escaped_value"
                             },
-                            "profiles": {
+                            "self": {
+                                "href": "escaped_value"
+                            }
+                        },
+                        "abbreviation": "escaped_value",
+                        "color": "escaped_value",
+                        "displayName": "escaped_value",
+                        "id": "escaped_value"
+                    }
+                },
+                "_links": {
+                    "camp": {
+                        "href": "escaped_value"
+                    },
+                    "self": {
+                        "href": "escaped_value"
+                    },
+                    "user": {
+                        "href": "escaped_value"
+                    }
+                },
+                "abbreviation": "escaped_value",
+                "color": "escaped_value",
+                "id": "escaped_value",
+                "inviteEmail": "escaped_value",
+                "role": "escaped_value",
+                "status": "escaped_value"
+            },
+            {
+                "_embedded": {
+                    "user": {
+                        "_links": {
+                            "profile": {
                                 "href": "escaped_value"
                             },
                             "self": {
@@ -66,9 +98,6 @@
                             "profile": {
                                 "href": "escaped_value"
                             },
-                            "profiles": {
-                                "href": "escaped_value"
-                            },
                             "self": {
                                 "href": "escaped_value"
                             }
@@ -104,9 +133,6 @@
                             "profile": {
                                 "href": "escaped_value"
                             },
-                            "profiles": {
-                                "href": "escaped_value"
-                            },
                             "self": {
                                 "href": "escaped_value"
                             }
@@ -140,47 +166,6 @@
                     "user": {
                         "_links": {
                             "profile": {
-                                "href": "escaped_value"
-                            },
-                            "profiles": {
-                                "href": "escaped_value"
-                            },
-                            "self": {
-                                "href": "escaped_value"
-                            }
-                        },
-                        "abbreviation": "escaped_value",
-                        "color": "escaped_value",
-                        "displayName": "escaped_value",
-                        "id": "escaped_value"
-                    }
-                },
-                "_links": {
-                    "camp": {
-                        "href": "escaped_value"
-                    },
-                    "self": {
-                        "href": "escaped_value"
-                    },
-                    "user": {
-                        "href": "escaped_value"
-                    }
-                },
-                "abbreviation": "escaped_value",
-                "color": "escaped_value",
-                "id": "escaped_value",
-                "inviteEmail": "escaped_value",
-                "role": "escaped_value",
-                "status": "escaped_value"
-            },
-            {
-                "_embedded": {
-                    "user": {
-                        "_links": {
-                            "profile": {
-                                "href": "escaped_value"
-                            },
-                            "profiles": {
                                 "href": "escaped_value"
                             },
                             "self": {
@@ -422,13 +407,7 @@
         "checklists": {
             "href": "escaped_value"
         },
-        "comments": {
-            "href": "escaped_value"
-        },
         "creator": {
-            "href": "escaped_value"
-        },
-        "materialItems": {
             "href": "escaped_value"
         },
         "materialLists": {

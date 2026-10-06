@@ -21,7 +21,7 @@
             "href": "/api/activities/a13fadc97610"
           },
           "scheduleEntries": {
-            "href": "/api/activities/a13fadc97610/schedule_entries"
+            "href": "/api/schedule_entries?activity=%2Fapi%2Factivities%2Fa13fadc97610"
           },
           "camp": {
             "href": "/api/camps/70ca971c992f"
@@ -33,7 +33,7 @@
             "href": "/api/activity_progress_labels/af92782262d7"
           },
           "activityResponsibles": {
-            "href": "/api/activities/a13fadc97610/activity_responsibles"
+            "href": "/api/activity_responsibles?activity=%2Fapi%2Factivities%2Fa13fadc97610"
           },
           "comments": {
             "href": "/api/activities/a13fadc97610/comments"
@@ -174,7 +174,7 @@
             "href": "/api/activities/b29d387cc403"
           },
           "scheduleEntries": {
-            "href": "/api/activities/b29d387cc403/schedule_entries"
+            "href": "/api/schedule_entries?activity=%2Fapi%2Factivities%2Fb29d387cc403"
           },
           "camp": {
             "href": "/api/camps/70ca971c992f"
@@ -189,7 +189,7 @@
             "href": "/api/activities/b29d387cc403/comments"
           },
           "activityResponsibles": {
-            "href": "/api/activities/b29d387cc403/activity_responsibles"
+            "href": "/api/activity_responsibles?activity=%2Fapi%2Factivities%2Fb29d387cc403"
           },
           "rootContentNode": {
             "href": "/api/content_node/column_layouts/335448226d2a"

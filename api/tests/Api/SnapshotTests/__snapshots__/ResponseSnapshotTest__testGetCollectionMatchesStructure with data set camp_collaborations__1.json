@@ -17,13 +17,7 @@
                             "checklists": {
                                 "href": "escaped_value"
                             },
-                            "comments": {
-                                "href": "escaped_value"
-                            },
                             "creator": {
-                                "href": "escaped_value"
-                            },
-                            "materialItems": {
                                 "href": "escaped_value"
                             },
                             "materialLists": {
@@ -98,13 +92,7 @@
                             "checklists": {
                                 "href": "escaped_value"
                             },
-                            "comments": {
-                                "href": "escaped_value"
-                            },
                             "creator": {
-                                "href": "escaped_value"
-                            },
-                            "materialItems": {
                                 "href": "escaped_value"
                             },
                             "materialLists": {
@@ -148,9 +136,6 @@
                     "user": {
                         "_links": {
                             "profile": {
-                                "href": "escaped_value"
-                            },
-                            "profiles": {
                                 "href": "escaped_value"
                             },
                             "self": {
@@ -197,13 +182,7 @@
                             "checklists": {
                                 "href": "escaped_value"
                             },
-                            "comments": {
-                                "href": "escaped_value"
-                            },
                             "creator": {
-                                "href": "escaped_value"
-                            },
-                            "materialItems": {
                                 "href": "escaped_value"
                             },
                             "materialLists": {
@@ -247,9 +226,6 @@
                     "user": {
                         "_links": {
                             "profile": {
-                                "href": "escaped_value"
-                            },
-                            "profiles": {
                                 "href": "escaped_value"
                             },
                             "self": {
@@ -296,13 +272,7 @@
                             "checklists": {
                                 "href": "escaped_value"
                             },
-                            "comments": {
-                                "href": "escaped_value"
-                            },
                             "creator": {
-                                "href": "escaped_value"
-                            },
-                            "materialItems": {
                                 "href": "escaped_value"
                             },
                             "materialLists": {
@@ -346,9 +316,6 @@
                     "user": {
                         "_links": {
                             "profile": {
-                                "href": "escaped_value"
-                            },
-                            "profiles": {
                                 "href": "escaped_value"
                             },
                             "self": {
@@ -395,13 +362,7 @@
                             "checklists": {
                                 "href": "escaped_value"
                             },
-                            "comments": {
-                                "href": "escaped_value"
-                            },
                             "creator": {
-                                "href": "escaped_value"
-                            },
-                            "materialItems": {
                                 "href": "escaped_value"
                             },
                             "materialLists": {
@@ -445,9 +406,6 @@
                     "user": {
                         "_links": {
                             "profile": {
-                                "href": "escaped_value"
-                            },
-                            "profiles": {
                                 "href": "escaped_value"
                             },
                             "self": {
@@ -494,13 +452,7 @@
                             "checklists": {
                                 "href": "escaped_value"
                             },
-                            "comments": {
-                                "href": "escaped_value"
-                            },
                             "creator": {
-                                "href": "escaped_value"
-                            },
-                            "materialItems": {
                                 "href": "escaped_value"
                             },
                             "materialLists": {
@@ -544,9 +496,6 @@
                     "user": {
                         "_links": {
                             "profile": {
-                                "href": "escaped_value"
-                            },
-                            "profiles": {
                                 "href": "escaped_value"
                             },
                             "self": {

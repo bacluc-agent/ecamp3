@@ -116,7 +116,11 @@ export default {
   computed: {
     campChecklistItems() {
       if (!this.itemsLoaded) return []
-      return this.camp?.checklists()?.items.flatMap((c) => c.checklistItems().items) ?? []
+      return (
+        this.api.get().checklistItems({
+          'checklist.camp': this.camp?._meta.self,
+        }).items ?? []
+      )
     },
     selectionContentNode() {
       return this.campChecklistItems.filter((item) =>
@@ -188,11 +192,14 @@ export default {
         this.openChecklistPanels = [checklists.items[0]._meta.self]
       }
 
-      Promise.all(checklists.items.map((c) => c.checklistItems().$loadItems())).then(
-        () => {
+      this.api
+        .get()
+        .checklistItems({
+          'checklist.camp': this.camp?._meta.self,
+        })
+        ._meta.load.then(() => {
           this.itemsLoaded = true
-        }
-      )
+        })
     })
   },
   beforeUnmount() {

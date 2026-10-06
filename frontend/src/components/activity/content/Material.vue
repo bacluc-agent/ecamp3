@@ -25,7 +25,7 @@ export default {
   mixins: [contentNodeMixin],
   computed: {
     materialItemCollection() {
-      return this.contentNode.materialItems()
+      return this.api.get().materialItems({ materialNode: this.contentNode._meta.self })
     },
   },
 }

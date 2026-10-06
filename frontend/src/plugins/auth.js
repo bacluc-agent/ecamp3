@@ -141,8 +141,8 @@ async function loadUser() {
 
   try {
     const profiles = await apiStore
-      .get(parseJWTPayload(getJWTPayloadFromCookie()).user)
-      .profiles()._meta.load
+      .get()
+      .profiles({ user: parseJWTPayload(getJWTPayloadFromCookie()).user })._meta.load
     store.commit('login', profiles.items[0].user())
     return profiles.items[0].user()
   } catch (e) {

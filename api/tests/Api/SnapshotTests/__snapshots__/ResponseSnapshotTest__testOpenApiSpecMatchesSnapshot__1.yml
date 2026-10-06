@@ -71,10 +71,10 @@ components:
           readOnly: true
           type: string
         scheduleEntries:
-          example: 'https://example.com/'
-          format: iri-reference
+          items:
+            $ref: '#/components/schemas/ScheduleEntry'
           readOnly: true
-          type: string
+          type: array
         title:
           description: 'The title of this activity that is shown in the picasso.'
           example: Sportolympiade
@@ -124,7 +124,6 @@ components:
           items:
             $ref: '#/components/schemas/ScheduleEntry-create_write.jsonMergePatch'
           type: array
-          writeOnly: true
         title:
           description: 'The title of this activity that is shown in the picasso.'
           example: Sportolympiade
@@ -136,10 +135,12 @@ components:
       properties:
         activityResponsibles:
           description: 'The list of people that are responsible for planning or carrying out this activity.'
-          example: 'https://example.com/'
-          format: iri-reference
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         camp:
           description: 'The camp to which this activity belongs.'
           example: /camps/1a2b3c4d
@@ -196,10 +197,16 @@ components:
           readOnly: true
           type: string
         scheduleEntries:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
+          description: "The list of points in time when this activity's programme will be carried out."
+          example:
+            - end: '2023-05-01T16:00:00+00:00'
+              period: /periods/1a2b3c4a
+              start: '2023-05-01T15:00:00+00:00'
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
+          type: array
         title:
           description: 'The title of this activity that is shown in the picasso.'
           example: Sportolympiade
@@ -275,10 +282,10 @@ components:
           readOnly: true
           type: string
         scheduleEntries:
-          example: 'https://example.com/'
-          format: iri-reference
+          items:
+            $ref: '#/components/schemas/ScheduleEntry-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
           readOnly: true
-          type: string
+          type: array
         title:
           description: 'The title of this activity that is shown in the picasso.'
           example: Sportolympiade
@@ -352,10 +359,10 @@ components:
           readOnly: true
           type: string
         scheduleEntries:
-          example: 'https://example.com/'
-          format: iri-reference
+          items:
+            $ref: '#/components/schemas/ScheduleEntry-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
           readOnly: true
-          type: string
+          type: array
         title:
           description: 'The title of this activity that is shown in the picasso.'
           example: Sportolympiade
@@ -373,10 +380,12 @@ components:
       properties:
         activityResponsibles:
           description: 'The list of people that are responsible for planning or carrying out this activity.'
-          example: 'https://example.com/'
-          format: iri-reference
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         camp:
           description: 'The camp to which this activity belongs.'
           example: /camps/1a2b3c4d
@@ -433,10 +442,16 @@ components:
           readOnly: true
           type: string
         scheduleEntries:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
+          description: "The list of points in time when this activity's programme will be carried out."
+          example:
+            - end: '2023-05-01T16:00:00+00:00'
+              period: /periods/1a2b3c4a
+              start: '2023-05-01T15:00:00+00:00'
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
+          type: array
         title:
           description: 'The title of this activity that is shown in the picasso.'
           example: Sportolympiade
@@ -514,7 +529,6 @@ components:
             $ref: '#/components/schemas/ScheduleEntry-write_create.jsonMergePatch'
           minItems: 1
           type: array
-          writeOnly: true
         title:
           description: 'The title of this activity that is shown in the picasso.'
           example: Sportolympiade
@@ -562,7 +576,6 @@ components:
           items:
             $ref: '#/components/schemas/ScheduleEntry-write_create.jsonMergePatch'
           type: array
-          writeOnly: true
         title:
           description: 'The title of this activity that is shown in the picasso.'
           example: Sportolympiade
@@ -574,10 +587,12 @@ components:
       properties:
         activityResponsibles:
           description: 'The list of people that are responsible for planning or carrying out this activity.'
-          example: 'https://example.com/'
-          format: iri-reference
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         camp:
           description: 'The camp to which this activity belongs.'
           example: /camps/1a2b3c4d
@@ -634,10 +649,16 @@ components:
           readOnly: true
           type: string
         scheduleEntries:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
+          description: "The list of points in time when this activity's programme will be carried out."
+          example:
+            - end: '2023-05-01T16:00:00+00:00'
+              period: /periods/1a2b3c4a
+              start: '2023-05-01T15:00:00+00:00'
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
+          type: array
         title:
           description: 'The title of this activity that is shown in the picasso.'
           example: Sportolympiade
@@ -713,10 +734,10 @@ components:
           readOnly: true
           type: string
         scheduleEntries:
-          example: 'https://example.com/'
-          format: iri-reference
+          items:
+            $ref: '#/components/schemas/ScheduleEntry.html-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
           readOnly: true
-          type: string
+          type: array
         title:
           description: 'The title of this activity that is shown in the picasso.'
           example: Sportolympiade
@@ -790,10 +811,10 @@ components:
           readOnly: true
           type: string
         scheduleEntries:
-          example: 'https://example.com/'
-          format: iri-reference
+          items:
+            $ref: '#/components/schemas/ScheduleEntry.html-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
           readOnly: true
-          type: string
+          type: array
         title:
           description: 'The title of this activity that is shown in the picasso.'
           example: Sportolympiade
@@ -811,10 +832,12 @@ components:
       properties:
         activityResponsibles:
           description: 'The list of people that are responsible for planning or carrying out this activity.'
-          example: 'https://example.com/'
-          format: iri-reference
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         camp:
           description: 'The camp to which this activity belongs.'
           example: /camps/1a2b3c4d
@@ -871,10 +894,16 @@ components:
           readOnly: true
           type: string
         scheduleEntries:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
+          description: "The list of points in time when this activity's programme will be carried out."
+          example:
+            - end: '2023-05-01T16:00:00+00:00'
+              period: /periods/1a2b3c4a
+              start: '2023-05-01T15:00:00+00:00'
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
+          type: array
         title:
           description: 'The title of this activity that is shown in the picasso.'
           example: Sportolympiade
@@ -1020,10 +1049,12 @@ components:
           properties:
             activityResponsibles:
               description: 'The list of people that are responsible for planning or carrying out this activity.'
-              example: 'https://example.com/'
-              format: iri-reference
+              items:
+                example: 'https://example.com/'
+                format: iri-reference
+                type: string
               readOnly: true
-              type: string
+              type: array
             camp:
               description: 'The camp to which this activity belongs.'
               example: /camps/1a2b3c4d
@@ -1080,10 +1111,16 @@ components:
               readOnly: true
               type: string
             scheduleEntries:
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
-              type: string
+              description: "The list of points in time when this activity's programme will be carried out."
+              example:
+                - end: '2023-05-01T16:00:00+00:00'
+                  period: /periods/1a2b3c4a
+                  start: '2023-05-01T15:00:00+00:00'
+              items:
+                example: 'https://example.com/'
+                format: iri-reference
+                type: string
+              type: array
             title:
               description: 'The title of this activity that is shown in the picasso.'
               example: Sportolympiade
@@ -1162,10 +1199,10 @@ components:
               readOnly: true
               type: string
             scheduleEntries:
-              example: 'https://example.com/'
-              format: iri-reference
+              items:
+                $ref: '#/components/schemas/ScheduleEntry.jsonld-read_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries'
               readOnly: true
-              type: string
+              type: array
             title:
               description: 'The title of this activity that is shown in the picasso.'
               example: Sportolympiade
@@ -1242,10 +1279,10 @@ components:
               readOnly: true
               type: string
             scheduleEntries:
-              example: 'https://example.com/'
-              format: iri-reference
+              items:
+                $ref: '#/components/schemas/ScheduleEntry.jsonld-read_Activity.Category_Activity.ActivityProgressLabel_Activity.ActivityResponsibles_Activity.ScheduleEntries_Activity.ContentNodes'
               readOnly: true
-              type: string
+              type: array
             title:
               description: 'The title of this activity that is shown in the picasso.'
               example: Sportolympiade
@@ -1267,10 +1304,12 @@ components:
           properties:
             activityResponsibles:
               description: 'The list of people that are responsible for planning or carrying out this activity.'
-              example: 'https://example.com/'
-              format: iri-reference
+              items:
+                example: 'https://example.com/'
+                format: iri-reference
+                type: string
               readOnly: true
-              type: string
+              type: array
             camp:
               description: 'The camp to which this activity belongs.'
               example: /camps/1a2b3c4d
@@ -1327,10 +1366,16 @@ components:
               readOnly: true
               type: string
             scheduleEntries:
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
-              type: string
+              description: "The list of points in time when this activity's programme will be carried out."
+              example:
+                - end: '2023-05-01T16:00:00+00:00'
+                  period: /periods/1a2b3c4a
+                  start: '2023-05-01T15:00:00+00:00'
+              items:
+                example: 'https://example.com/'
+                format: iri-reference
+                type: string
+              type: array
             title:
               description: 'The title of this activity that is shown in the picasso.'
               example: Sportolympiade
@@ -2157,12 +2202,6 @@ components:
           type:
             - 'null'
             - string
-        comments:
-          description: 'All comments of the camp.'
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
         courseKind:
           description: |-
             The official name for the type of this course, required on picassos of youth
@@ -2243,20 +2282,17 @@ components:
           type:
             - 'null'
             - string
-        materialItems:
-          description: 'List of MaterialItems that belong to this Camp.'
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
         materialLists:
           description: |-
             Lists for collecting the required materials needed for carrying out the programme. Each collaborator
             has a material list, and there may be more, such as shopping lists.
           example: '["/material_lists/1a2b3c4d"]'
-          format: iri-reference
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         motto:
           description: "The thematic topic (if any) of the camp's programme and storyline."
           example: Piraten
@@ -2275,10 +2311,10 @@ components:
             - 'null'
             - string
         periods:
-          example: 'https://example.com/'
-          format: iri-reference
+          items:
+            $ref: '#/components/schemas/Period'
           readOnly: true
-          type: string
+          type: array
         printYSLogoOnPicasso:
           default: false
           description: |-
@@ -2350,9 +2386,8 @@ components:
         - campCollaborations
         - categories
         - checklists
-        - comments
-        - materialItems
         - materialLists
+        - periods
         - printYSLogoOnPicasso
         - progressLabels
         - title
@@ -2496,7 +2531,6 @@ components:
           items:
             $ref: '#/components/schemas/Period-create_write.jsonMergePatch'
           type: array
-          writeOnly: true
         printYSLogoOnPicasso:
           default: false
           description: |-
@@ -2575,10 +2609,11 @@ components:
             - 'null'
             - string
         campCollaborations:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
+          type: array
         categories:
           description: 'Types of programme, such as sports activities or meal times.'
           example: '"/camp/1a2b3c4d/categories"'
@@ -2600,12 +2635,6 @@ components:
           type:
             - 'null'
             - string
-        comments:
-          description: 'All comments of the camp.'
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
         courseKind:
           description: |-
             The official name for the type of this course, required on picassos of youth
@@ -2684,20 +2713,17 @@ components:
           type:
             - 'null'
             - string
-        materialItems:
-          description: 'List of MaterialItems that belong to this Camp.'
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
         materialLists:
           description: |-
             Lists for collecting the required materials needed for carrying out the programme. Each collaborator
             has a material list, and there may be more, such as shopping lists.
           example: '["/material_lists/1a2b3c4d"]'
-          format: iri-reference
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         motto:
           description: "The thematic topic (if any) of the camp's programme and storyline."
           example: Piraten
@@ -2716,10 +2742,20 @@ components:
             - 'null'
             - string
         periods:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
+          description: |-
+            The time periods of the camp, there must be at least one. Periods in a camp may not
+            overlap. When creating a camp, the initial periods may be specified as nested payload,
+            but updating, adding or removing periods later should be done through the period
+            endpoints.
+          example:
+            - description: Hauptlager
+              end: '2022-01-08'
+              start: '2022-01-01'
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
+          type: array
         printYSLogoOnPicasso:
           default: false
           description: |-
@@ -2790,8 +2826,6 @@ components:
         - campCollaborations
         - categories
         - checklists
-        - comments
-        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -2868,12 +2902,6 @@ components:
           type:
             - 'null'
             - string
-        comments:
-          description: 'All comments of the camp.'
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
         courseKind:
           description: |-
             The official name for the type of this course, required on picassos of youth
@@ -2952,20 +2980,17 @@ components:
           type:
             - 'null'
             - string
-        materialItems:
-          description: 'List of MaterialItems that belong to this Camp.'
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
         materialLists:
           description: |-
             Lists for collecting the required materials needed for carrying out the programme. Each collaborator
             has a material list, and there may be more, such as shopping lists.
           example: '["/material_lists/1a2b3c4d"]'
-          format: iri-reference
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         motto:
           description: "The thematic topic (if any) of the camp's programme and storyline."
           example: Piraten
@@ -2984,10 +3009,10 @@ components:
             - 'null'
             - string
         periods:
-          example: 'https://example.com/'
-          format: iri-reference
+          items:
+            $ref: '#/components/schemas/Period-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
           readOnly: true
-          type: string
+          type: array
         printYSLogoOnPicasso:
           default: false
           description: |-
@@ -3058,8 +3083,6 @@ components:
         - campCollaborations
         - categories
         - checklists
-        - comments
-        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -3105,10 +3128,11 @@ components:
             - 'null'
             - string
         campCollaborations:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
+          type: array
         categories:
           description: 'Types of programme, such as sports activities or meal times.'
           example: '"/camp/1a2b3c4d/categories"'
@@ -3130,12 +3154,6 @@ components:
           type:
             - 'null'
             - string
-        comments:
-          description: 'All comments of the camp.'
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
         courseKind:
           description: |-
             The official name for the type of this course, required on picassos of youth
@@ -3214,20 +3232,17 @@ components:
           type:
             - 'null'
             - string
-        materialItems:
-          description: 'List of MaterialItems that belong to this Camp.'
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
         materialLists:
           description: |-
             Lists for collecting the required materials needed for carrying out the programme. Each collaborator
             has a material list, and there may be more, such as shopping lists.
           example: '["/material_lists/1a2b3c4d"]'
-          format: iri-reference
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         motto:
           description: "The thematic topic (if any) of the camp's programme and storyline."
           example: Piraten
@@ -3246,10 +3261,20 @@ components:
             - 'null'
             - string
         periods:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
+          description: |-
+            The time periods of the camp, there must be at least one. Periods in a camp may not
+            overlap. When creating a camp, the initial periods may be specified as nested payload,
+            but updating, adding or removing periods later should be done through the period
+            endpoints.
+          example:
+            - description: Hauptlager
+              end: '2022-01-08'
+              start: '2022-01-01'
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
+          type: array
         printYSLogoOnPicasso:
           default: false
           description: |-
@@ -3320,8 +3345,6 @@ components:
         - campCollaborations
         - categories
         - checklists
-        - comments
-        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -3367,10 +3390,11 @@ components:
             - 'null'
             - string
         campCollaborations:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
+          type: array
         categories:
           description: 'Types of programme, such as sports activities or meal times.'
           example: '"/camp/1a2b3c4d/categories"'
@@ -3392,12 +3416,6 @@ components:
           type:
             - 'null'
             - string
-        comments:
-          description: 'All comments of the camp.'
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
         courseKind:
           description: |-
             The official name for the type of this course, required on picassos of youth
@@ -3476,20 +3494,17 @@ components:
           type:
             - 'null'
             - string
-        materialItems:
-          description: 'List of MaterialItems that belong to this Camp.'
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
         materialLists:
           description: |-
             Lists for collecting the required materials needed for carrying out the programme. Each collaborator
             has a material list, and there may be more, such as shopping lists.
           example: '["/material_lists/1a2b3c4d"]'
-          format: iri-reference
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         motto:
           description: "The thematic topic (if any) of the camp's programme and storyline."
           example: Piraten
@@ -3508,10 +3523,20 @@ components:
             - 'null'
             - string
         periods:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
+          description: |-
+            The time periods of the camp, there must be at least one. Periods in a camp may not
+            overlap. When creating a camp, the initial periods may be specified as nested payload,
+            but updating, adding or removing periods later should be done through the period
+            endpoints.
+          example:
+            - description: Hauptlager
+              end: '2022-01-08'
+              start: '2022-01-01'
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
+          type: array
         printYSLogoOnPicasso:
           default: false
           description: |-
@@ -3582,8 +3607,6 @@ components:
         - campCollaborations
         - categories
         - checklists
-        - comments
-        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -3730,7 +3753,6 @@ components:
             $ref: '#/components/schemas/Period-write_create.jsonMergePatch'
           minItems: 1
           type: array
-          writeOnly: true
         printYSLogoOnPicasso:
           default: false
           description: |-
@@ -3910,7 +3932,6 @@ components:
           items:
             $ref: '#/components/schemas/Period-write_create.jsonMergePatch'
           type: array
-          writeOnly: true
         printYSLogoOnPicasso:
           default: false
           description: |-
@@ -4124,10 +4145,11 @@ components:
             - 'null'
             - string
         campCollaborations:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
+          type: array
         categories:
           description: 'Types of programme, such as sports activities or meal times.'
           example: '"/camp/1a2b3c4d/categories"'
@@ -4149,12 +4171,6 @@ components:
           type:
             - 'null'
             - string
-        comments:
-          description: 'All comments of the camp.'
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
         courseKind:
           description: |-
             The official name for the type of this course, required on picassos of youth
@@ -4233,20 +4249,17 @@ components:
           type:
             - 'null'
             - string
-        materialItems:
-          description: 'List of MaterialItems that belong to this Camp.'
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
         materialLists:
           description: |-
             Lists for collecting the required materials needed for carrying out the programme. Each collaborator
             has a material list, and there may be more, such as shopping lists.
           example: '["/material_lists/1a2b3c4d"]'
-          format: iri-reference
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         motto:
           description: "The thematic topic (if any) of the camp's programme and storyline."
           example: Piraten
@@ -4265,10 +4278,20 @@ components:
             - 'null'
             - string
         periods:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
+          description: |-
+            The time periods of the camp, there must be at least one. Periods in a camp may not
+            overlap. When creating a camp, the initial periods may be specified as nested payload,
+            but updating, adding or removing periods later should be done through the period
+            endpoints.
+          example:
+            - description: Hauptlager
+              end: '2022-01-08'
+              start: '2022-01-01'
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
+          type: array
         printYSLogoOnPicasso:
           default: false
           description: |-
@@ -4339,8 +4362,6 @@ components:
         - campCollaborations
         - categories
         - checklists
-        - comments
-        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -4417,12 +4438,6 @@ components:
           type:
             - 'null'
             - string
-        comments:
-          description: 'All comments of the camp.'
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
         courseKind:
           description: |-
             The official name for the type of this course, required on picassos of youth
@@ -4501,20 +4516,17 @@ components:
           type:
             - 'null'
             - string
-        materialItems:
-          description: 'List of MaterialItems that belong to this Camp.'
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
         materialLists:
           description: |-
             Lists for collecting the required materials needed for carrying out the programme. Each collaborator
             has a material list, and there may be more, such as shopping lists.
           example: '["/material_lists/1a2b3c4d"]'
-          format: iri-reference
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         motto:
           description: "The thematic topic (if any) of the camp's programme and storyline."
           example: Piraten
@@ -4533,10 +4545,10 @@ components:
             - 'null'
             - string
         periods:
-          example: 'https://example.com/'
-          format: iri-reference
+          items:
+            $ref: '#/components/schemas/Period.html-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
           readOnly: true
-          type: string
+          type: array
         printYSLogoOnPicasso:
           default: false
           description: |-
@@ -4607,8 +4619,6 @@ components:
         - campCollaborations
         - categories
         - checklists
-        - comments
-        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -4654,10 +4664,11 @@ components:
             - 'null'
             - string
         campCollaborations:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
+          type: array
         categories:
           description: 'Types of programme, such as sports activities or meal times.'
           example: '"/camp/1a2b3c4d/categories"'
@@ -4679,12 +4690,6 @@ components:
           type:
             - 'null'
             - string
-        comments:
-          description: 'All comments of the camp.'
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
         courseKind:
           description: |-
             The official name for the type of this course, required on picassos of youth
@@ -4763,20 +4768,17 @@ components:
           type:
             - 'null'
             - string
-        materialItems:
-          description: 'List of MaterialItems that belong to this Camp.'
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
         materialLists:
           description: |-
             Lists for collecting the required materials needed for carrying out the programme. Each collaborator
             has a material list, and there may be more, such as shopping lists.
           example: '["/material_lists/1a2b3c4d"]'
-          format: iri-reference
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         motto:
           description: "The thematic topic (if any) of the camp's programme and storyline."
           example: Piraten
@@ -4795,10 +4797,20 @@ components:
             - 'null'
             - string
         periods:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
+          description: |-
+            The time periods of the camp, there must be at least one. Periods in a camp may not
+            overlap. When creating a camp, the initial periods may be specified as nested payload,
+            but updating, adding or removing periods later should be done through the period
+            endpoints.
+          example:
+            - description: Hauptlager
+              end: '2022-01-08'
+              start: '2022-01-01'
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
+          type: array
         printYSLogoOnPicasso:
           default: false
           description: |-
@@ -4869,8 +4881,6 @@ components:
         - campCollaborations
         - categories
         - checklists
-        - comments
-        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -4916,10 +4926,11 @@ components:
             - 'null'
             - string
         campCollaborations:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
+          type: array
         categories:
           description: 'Types of programme, such as sports activities or meal times.'
           example: '"/camp/1a2b3c4d/categories"'
@@ -4941,12 +4952,6 @@ components:
           type:
             - 'null'
             - string
-        comments:
-          description: 'All comments of the camp.'
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
         courseKind:
           description: |-
             The official name for the type of this course, required on picassos of youth
@@ -5025,20 +5030,17 @@ components:
           type:
             - 'null'
             - string
-        materialItems:
-          description: 'List of MaterialItems that belong to this Camp.'
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
         materialLists:
           description: |-
             Lists for collecting the required materials needed for carrying out the programme. Each collaborator
             has a material list, and there may be more, such as shopping lists.
           example: '["/material_lists/1a2b3c4d"]'
-          format: iri-reference
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         motto:
           description: "The thematic topic (if any) of the camp's programme and storyline."
           example: Piraten
@@ -5057,10 +5059,20 @@ components:
             - 'null'
             - string
         periods:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
+          description: |-
+            The time periods of the camp, there must be at least one. Periods in a camp may not
+            overlap. When creating a camp, the initial periods may be specified as nested payload,
+            but updating, adding or removing periods later should be done through the period
+            endpoints.
+          example:
+            - description: Hauptlager
+              end: '2022-01-08'
+              start: '2022-01-01'
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
+          type: array
         printYSLogoOnPicasso:
           default: false
           description: |-
@@ -5131,8 +5143,6 @@ components:
         - campCollaborations
         - categories
         - checklists
-        - comments
-        - materialItems
         - materialLists
         - periods
         - printYSLogoOnPicasso
@@ -5293,12 +5303,8 @@ components:
                   properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } }
                 checklists:
                   properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } }
-                comments:
-                  properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } }
                 creator:
                   properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } }
-                materialItems:
-                  properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } }
                 materialLists:
                   properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } }
                 periods:
@@ -5327,8 +5333,6 @@ components:
               - $ref: '#/components/schemas/CampCollaboration.jsonapi'
               - $ref: '#/components/schemas/Category.jsonapi'
               - $ref: '#/components/schemas/Checklist.jsonapi'
-              - $ref: '#/components/schemas/Comment.jsonapi'
-              - $ref: '#/components/schemas/MaterialItem.jsonapi'
               - $ref: '#/components/schemas/MaterialList.jsonapi'
               - $ref: '#/components/schemas/Period.jsonapi'
               - $ref: '#/components/schemas/Profile.jsonapi'
@@ -5422,10 +5426,11 @@ components:
                 - 'null'
                 - string
             campCollaborations:
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
-              type: string
+              items:
+                example: 'https://example.com/'
+                format: iri-reference
+                type: string
+              type: array
             categories:
               description: 'Types of programme, such as sports activities or meal times.'
               example: '"/camp/1a2b3c4d/categories"'
@@ -5447,12 +5452,6 @@ components:
               type:
                 - 'null'
                 - string
-            comments:
-              description: 'All comments of the camp.'
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
-              type: string
             courseKind:
               description: |-
                 The official name for the type of this course, required on picassos of youth
@@ -5531,20 +5530,17 @@ components:
               type:
                 - 'null'
                 - string
-            materialItems:
-              description: 'List of MaterialItems that belong to this Camp.'
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
-              type: string
             materialLists:
               description: |-
                 Lists for collecting the required materials needed for carrying out the programme. Each collaborator
                 has a material list, and there may be more, such as shopping lists.
               example: '["/material_lists/1a2b3c4d"]'
-              format: iri-reference
+              items:
+                example: 'https://example.com/'
+                format: iri-reference
+                type: string
               readOnly: true
-              type: string
+              type: array
             motto:
               description: "The thematic topic (if any) of the camp's programme and storyline."
               example: Piraten
@@ -5563,10 +5559,20 @@ components:
                 - 'null'
                 - string
             periods:
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
-              type: string
+              description: |-
+                The time periods of the camp, there must be at least one. Periods in a camp may not
+                overlap. When creating a camp, the initial periods may be specified as nested payload,
+                but updating, adding or removing periods later should be done through the period
+                endpoints.
+              example:
+                - description: Hauptlager
+                  end: '2022-01-08'
+                  start: '2022-01-01'
+              items:
+                example: 'https://example.com/'
+                format: iri-reference
+                type: string
+              type: array
             printYSLogoOnPicasso:
               default: false
               description: |-
@@ -5637,8 +5643,6 @@ components:
             - campCollaborations
             - categories
             - checklists
-            - comments
-            - materialItems
             - materialLists
             - periods
             - printYSLogoOnPicasso
@@ -5718,12 +5722,6 @@ components:
               type:
                 - 'null'
                 - string
-            comments:
-              description: 'All comments of the camp.'
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
-              type: string
             courseKind:
               description: |-
                 The official name for the type of this course, required on picassos of youth
@@ -5802,20 +5800,17 @@ components:
               type:
                 - 'null'
                 - string
-            materialItems:
-              description: 'List of MaterialItems that belong to this Camp.'
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
-              type: string
             materialLists:
               description: |-
                 Lists for collecting the required materials needed for carrying out the programme. Each collaborator
                 has a material list, and there may be more, such as shopping lists.
               example: '["/material_lists/1a2b3c4d"]'
-              format: iri-reference
+              items:
+                example: 'https://example.com/'
+                format: iri-reference
+                type: string
               readOnly: true
-              type: string
+              type: array
             motto:
               description: "The thematic topic (if any) of the camp's programme and storyline."
               example: Piraten
@@ -5834,10 +5829,10 @@ components:
                 - 'null'
                 - string
             periods:
-              example: 'https://example.com/'
-              format: iri-reference
+              items:
+                $ref: '#/components/schemas/Period.jsonld-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User'
               readOnly: true
-              type: string
+              type: array
             printYSLogoOnPicasso:
               default: false
               description: |-
@@ -5908,8 +5903,6 @@ components:
             - campCollaborations
             - categories
             - checklists
-            - comments
-            - materialItems
             - materialLists
             - periods
             - printYSLogoOnPicasso
@@ -5961,10 +5954,11 @@ components:
                 - 'null'
                 - string
             campCollaborations:
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
-              type: string
+              items:
+                example: 'https://example.com/'
+                format: iri-reference
+                type: string
+              type: array
             categories:
               description: 'Types of programme, such as sports activities or meal times.'
               example: '"/camp/1a2b3c4d/categories"'
@@ -5986,12 +5980,6 @@ components:
               type:
                 - 'null'
                 - string
-            comments:
-              description: 'All comments of the camp.'
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
-              type: string
             courseKind:
               description: |-
                 The official name for the type of this course, required on picassos of youth
@@ -6070,20 +6058,17 @@ components:
               type:
                 - 'null'
                 - string
-            materialItems:
-              description: 'List of MaterialItems that belong to this Camp.'
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
-              type: string
             materialLists:
               description: |-
                 Lists for collecting the required materials needed for carrying out the programme. Each collaborator
                 has a material list, and there may be more, such as shopping lists.
               example: '["/material_lists/1a2b3c4d"]'
-              format: iri-reference
+              items:
+                example: 'https://example.com/'
+                format: iri-reference
+                type: string
               readOnly: true
-              type: string
+              type: array
             motto:
               description: "The thematic topic (if any) of the camp's programme and storyline."
               example: Piraten
@@ -6102,10 +6087,20 @@ components:
                 - 'null'
                 - string
             periods:
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
-              type: string
+              description: |-
+                The time periods of the camp, there must be at least one. Periods in a camp may not
+                overlap. When creating a camp, the initial periods may be specified as nested payload,
+                but updating, adding or removing periods later should be done through the period
+                endpoints.
+              example:
+                - description: Hauptlager
+                  end: '2022-01-08'
+                  start: '2022-01-01'
+              items:
+                example: 'https://example.com/'
+                format: iri-reference
+                type: string
+              type: array
             printYSLogoOnPicasso:
               default: false
               description: |-
@@ -6176,8 +6171,6 @@ components:
             - campCollaborations
             - categories
             - checklists
-            - comments
-            - materialItems
             - materialLists
             - periods
             - printYSLogoOnPicasso
@@ -6229,10 +6222,11 @@ components:
                 - 'null'
                 - string
             campCollaborations:
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
-              type: string
+              items:
+                example: 'https://example.com/'
+                format: iri-reference
+                type: string
+              type: array
             categories:
               description: 'Types of programme, such as sports activities or meal times.'
               example: '"/camp/1a2b3c4d/categories"'
@@ -6254,12 +6248,6 @@ components:
               type:
                 - 'null'
                 - string
-            comments:
-              description: 'All comments of the camp.'
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
-              type: string
             courseKind:
               description: |-
                 The official name for the type of this course, required on picassos of youth
@@ -6338,20 +6326,17 @@ components:
               type:
                 - 'null'
                 - string
-            materialItems:
-              description: 'List of MaterialItems that belong to this Camp.'
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
-              type: string
             materialLists:
               description: |-
                 Lists for collecting the required materials needed for carrying out the programme. Each collaborator
                 has a material list, and there may be more, such as shopping lists.
               example: '["/material_lists/1a2b3c4d"]'
-              format: iri-reference
+              items:
+                example: 'https://example.com/'
+                format: iri-reference
+                type: string
               readOnly: true
-              type: string
+              type: array
             motto:
               description: "The thematic topic (if any) of the camp's programme and storyline."
               example: Piraten
@@ -6370,10 +6355,20 @@ components:
                 - 'null'
                 - string
             periods:
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
-              type: string
+              description: |-
+                The time periods of the camp, there must be at least one. Periods in a camp may not
+                overlap. When creating a camp, the initial periods may be specified as nested payload,
+                but updating, adding or removing periods later should be done through the period
+                endpoints.
+              example:
+                - description: Hauptlager
+                  end: '2022-01-08'
+                  start: '2022-01-01'
+              items:
+                example: 'https://example.com/'
+                format: iri-reference
+                type: string
+              type: array
             printYSLogoOnPicasso:
               default: false
               description: |-
@@ -6444,8 +6439,6 @@ components:
             - campCollaborations
             - categories
             - checklists
-            - comments
-            - materialItems
             - materialLists
             - periods
             - printYSLogoOnPicasso
@@ -15594,9 +15587,12 @@ components:
         materialItems:
           description: 'The items that are part of this list.'
           example: '["/material_items/1a2b3c4d"]'
-          format: iri-reference
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         name:
           description: 'The human readable name of the material list.'
           example: Lebensmittel
@@ -15640,9 +15636,12 @@ components:
         materialItems:
           description: 'The items that are part of this list.'
           example: '["/material_items/1a2b3c4d"]'
-          format: iri-reference
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         name:
           description: 'The human readable name of the material list.'
           example: Lebensmittel
@@ -15736,9 +15735,12 @@ components:
         materialItems:
           description: 'The items that are part of this list.'
           example: '["/material_items/1a2b3c4d"]'
-          format: iri-reference
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         name:
           description: 'The human readable name of the material list.'
           example: Lebensmittel
@@ -15862,9 +15864,12 @@ components:
             materialItems:
               description: 'The items that are part of this list.'
               example: '["/material_items/1a2b3c4d"]'
-              format: iri-reference
+              items:
+                example: 'https://example.com/'
+                format: iri-reference
+                type: string
               readOnly: true
-              type: string
+              type: array
             name:
               description: 'The human readable name of the material list.'
               example: Lebensmittel
@@ -16030,7 +16035,6 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem-read'
-          readOnly: true
           type: array
         parent:
           description: |-
@@ -16336,7 +16340,6 @@ components:
         materialItems:
           items:
             $ref: '#/components/schemas/MaterialItem.html-read'
-          readOnly: true
           type: array
         parent:
           description: |-
@@ -16536,7 +16539,6 @@ components:
             materialItems:
               items:
                 $ref: '#/components/schemas/MaterialItem.jsonld-read'
-              readOnly: true
               type: array
             parent:
               description: |-
@@ -17262,10 +17264,13 @@ components:
           description: |-
             Material items that are assigned directly to the period, as opposed to individual
             activities.
-          example: 'https://example.com/'
-          format: iri-reference
+          example: '["/material_items/1a2b3c4d"]'
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         moveScheduleEntries:
           default: true
           description: |-
@@ -17425,10 +17430,13 @@ components:
           description: |-
             Material items that are assigned directly to the period, as opposed to individual
             activities.
-          example: 'https://example.com/'
-          format: iri-reference
+          example: '["/material_items/1a2b3c4d"]'
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         scheduleEntries:
           description: |-
             All time slots for programme that are part of this time period. A schedule entry
@@ -17512,10 +17520,13 @@ components:
           description: |-
             Material items that are assigned directly to the period, as opposed to individual
             activities.
-          example: 'https://example.com/'
-          format: iri-reference
+          example: '["/material_items/1a2b3c4d"]'
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         scheduleEntries:
           description: |-
             All time slots for programme that are part of this time period. A schedule entry
@@ -17602,10 +17613,13 @@ components:
           description: |-
             Material items that are assigned directly to the period, as opposed to individual
             activities.
-          example: 'https://example.com/'
-          format: iri-reference
+          example: '["/material_items/1a2b3c4d"]'
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         scheduleEntries:
           description: |-
             All time slots for programme that are part of this time period. A schedule entry
@@ -17823,10 +17837,13 @@ components:
           description: |-
             Material items that are assigned directly to the period, as opposed to individual
             activities.
-          example: 'https://example.com/'
-          format: iri-reference
+          example: '["/material_items/1a2b3c4d"]'
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         scheduleEntries:
           description: |-
             All time slots for programme that are part of this time period. A schedule entry
@@ -17910,10 +17927,13 @@ components:
           description: |-
             Material items that are assigned directly to the period, as opposed to individual
             activities.
-          example: 'https://example.com/'
-          format: iri-reference
+          example: '["/material_items/1a2b3c4d"]'
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         scheduleEntries:
           description: |-
             All time slots for programme that are part of this time period. A schedule entry
@@ -18000,10 +18020,13 @@ components:
           description: |-
             Material items that are assigned directly to the period, as opposed to individual
             activities.
-          example: 'https://example.com/'
-          format: iri-reference
+          example: '["/material_items/1a2b3c4d"]'
+          items:
+            example: 'https://example.com/'
+            format: iri-reference
+            type: string
           readOnly: true
-          type: string
+          type: array
         scheduleEntries:
           description: |-
             All time slots for programme that are part of this time period. A schedule entry
@@ -18242,10 +18265,13 @@ components:
               description: |-
                 Material items that are assigned directly to the period, as opposed to individual
                 activities.
-              example: 'https://example.com/'
-              format: iri-reference
+              example: '["/material_items/1a2b3c4d"]'
+              items:
+                example: 'https://example.com/'
+                format: iri-reference
+                type: string
               readOnly: true
-              type: string
+              type: array
             scheduleEntries:
               description: |-
                 All time slots for programme that are part of this time period. A schedule entry
@@ -18335,10 +18361,13 @@ components:
               description: |-
                 Material items that are assigned directly to the period, as opposed to individual
                 activities.
-              example: 'https://example.com/'
-              format: iri-reference
+              example: '["/material_items/1a2b3c4d"]'
+              items:
+                example: 'https://example.com/'
+                format: iri-reference
+                type: string
               readOnly: true
-              type: string
+              type: array
             scheduleEntries:
               description: |-
                 All time slots for programme that are part of this time period. A schedule entry
@@ -18428,10 +18457,13 @@ components:
               description: |-
                 Material items that are assigned directly to the period, as opposed to individual
                 activities.
-              example: 'https://example.com/'
-              format: iri-reference
+              example: '["/material_items/1a2b3c4d"]'
+              items:
+                example: 'https://example.com/'
+                format: iri-reference
+                type: string
               readOnly: true
-              type: string
+              type: array
             scheduleEntries:
               description: |-
                 All time slots for programme that are part of this time period. A schedule entry
@@ -23193,11 +23225,6 @@ components:
         profile:
           $ref: '#/components/schemas/Profile'
           readOnly: true
-        profiles:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
         recaptchaToken:
           description: 'ReCaptchaToken used on Register-View.'
           type:
@@ -23311,11 +23338,6 @@ components:
             surname: Baden-Powell
           format: iri-reference
           type: string
-        profiles:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
       type: object
     User-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User:
       properties:
@@ -23354,11 +23376,6 @@ components:
             nickname: Bi-Pi
             surname: Baden-Powell
           format: iri-reference
-          type: string
-        profiles:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
           type: string
       type: object
     User-read_CampCollaboration.Camp_CampCollaboration.User:
@@ -23399,11 +23416,6 @@ components:
             surname: Baden-Powell
           format: iri-reference
           type: string
-        profiles:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
       type: object
     User-read_CampCollaboration.User:
       properties:
@@ -23443,11 +23455,6 @@ components:
             surname: Baden-Powell
           format: iri-reference
           type: string
-        profiles:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
       type: object
     User-read_User.create:
       description: |-
@@ -23484,11 +23491,6 @@ components:
         profile:
           $ref: '#/components/schemas/Profile-read_User.create'
           readOnly: true
-        profiles:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
       required:
         - profile
       type: object
@@ -23630,11 +23632,6 @@ components:
             surname: Baden-Powell
           format: iri-reference
           type: string
-        profiles:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
       type: object
     User.html-read_Camp.Periods_Period.Days_Camp.CampCollaborations_CampCollaboration.User:
       properties:
@@ -23673,11 +23670,6 @@ components:
             nickname: Bi-Pi
             surname: Baden-Powell
           format: iri-reference
-          type: string
-        profiles:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
           type: string
       type: object
     User.html-read_CampCollaboration.Camp_CampCollaboration.User:
@@ -23718,11 +23710,6 @@ components:
             surname: Baden-Powell
           format: iri-reference
           type: string
-        profiles:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
       type: object
     User.html-read_CampCollaboration.User:
       properties:
@@ -23762,11 +23749,6 @@ components:
             surname: Baden-Powell
           format: iri-reference
           type: string
-        profiles:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
       type: object
     User.html-read_User.create:
       description: |-
@@ -23803,11 +23785,6 @@ components:
         profile:
           $ref: '#/components/schemas/Profile.html-read_User.create'
           readOnly: true
-        profiles:
-          example: 'https://example.com/'
-          format: iri-reference
-          readOnly: true
-          type: string
       required:
         - profile
       type: object
@@ -23862,11 +23839,6 @@ components:
                   description: 'The hashed password-reset-key. Of course not exposed through the API.'
                   maxLength: 255
                   type: ['null', string]
-                profiles:
-                  example: 'https://example.com/'
-                  format: iri-reference
-                  readOnly: true
-                  type: string
                 recaptchaToken:
                   description: 'ReCaptchaToken used on Register-View.'
                   type: ['null', string]
@@ -23990,11 +23962,6 @@ components:
                 surname: Baden-Powell
               format: iri-reference
               type: string
-            profiles:
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
-              type: string
           type: object
       description: |-
         A person using eCamp.
@@ -24039,11 +24006,6 @@ components:
                 nickname: Bi-Pi
                 surname: Baden-Powell
               format: iri-reference
-              type: string
-            profiles:
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
               type: string
           type: object
       description: |-
@@ -24090,11 +24052,6 @@ components:
                 surname: Baden-Powell
               format: iri-reference
               type: string
-            profiles:
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
-              type: string
           type: object
       description: |-
         A person using eCamp.
@@ -24140,11 +24097,6 @@ components:
                 surname: Baden-Powell
               format: iri-reference
               type: string
-            profiles:
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
-              type: string
           type: object
       description: |-
         A person using eCamp.
@@ -24189,11 +24141,6 @@ components:
                 nickname: Bi-Pi
                 surname: Baden-Powell
               format: iri-reference
-              type: string
-            profiles:
-              example: 'https://example.com/'
-              format: iri-reference
-              readOnly: true
               type: string
           required:
             - profile
@@ -26607,7 +26554,7 @@ paths:
               schema:
                 allOf:
                   - { $ref: '#/components/schemas/JsonApiCollectionBaseSchemaNoPagination' }
-                  - { properties: { data: { items: { properties: { attributes: { properties: { _id: { description: 'An internal, unique, randomly generated identifier of this entity.', example: 1a2b3c4d, maxLength: 16, readOnly: true, type: string }, addressCity: { description: 'The name of the town where the camp will take place.', example: Hintertüpfingen, maxLength: 128, type: ['null', string] }, addressName: { description: 'A textual description of the location of the camp.', example: 'Wiese hinter der alten Mühle', maxLength: 128, type: ['null', string] }, addressStreet: { description: 'The street name and number (if any) of the location of the camp.', example: 'Schönriedweg 23', maxLength: 128, type: ['null', string] }, addressZipcode: { description: 'The zipcode of the location of the camp.', example: '1234', maxLength: 128, type: ['null', string] }, coachName: { description: "The name of the Y+S coach who is in charge of the camp, required on picassos of Y+S\ncamps: Name des J+S-Coachs / Nom du coach J+S / Nome del coach G+S.", example: 'Albert Anderegg', maxLength: 64, type: ['null', string] }, courseKind: { description: "The official name for the type of this course, required on picassos of youth\norganization courses: Kursbezeichnung (bei J+S Kurs: J+S Bezeichnung) / Description\n(cours de base, d’animation, etc.) / Nome del corso (in caso di corso G+S: tipo di\ncorso G+S).", example: 'PBS AG 123-23', maxLength: 64, type: ['null', string] }, courseNumber: { description: "The official course number, identifying this course, required on picassos of youth\norganization courses: Kursnummer / Le numéro du cours / Numero di corso.", example: 'PBS AG 123-23', maxLength: 64, type: ['null', string] }, hitobitoEventId: { description: 'The id of the corresponding event in Hitobito, if this camp was created from one.', example: '1234', maxLength: 255, readOnly: true, type: ['null', string] }, hitobitoProvider: { description: 'The Hitobito provider (such as MiData) this camp was created from, if any.', enum: [cevidb, jubladb, pbsmidata, null], example: pbsmidata, readOnly: true, type: ['null', string] }, isPrototype: { default: false, description: 'Whether this camp may serve as a template for creating other camps.', example: true, readOnly: true, type: boolean }, isShared: { default: false, description: "Whether the programme of this camp is publicly available to anyone (including\npersonal data such as camp collaborations, personal material lists,\nresponsibilities and comments).", example: true, type: boolean }, kind: { description: "Rough categorization of the camp (house, tent, traveling, summer, autumn), required\non picassos of Y+S camps: Lagerart (Haus-, Zelt-, Unterwegslager, Sommer-,\nHerbstlager) / Forme de camp (camp sous toit, camp sous tente, camp itinérant, camp\nd’été, camp d’automne) / Tipo di campo (campo sotto tetto, in tenda, itinerante,\nestivo, autunnale).", example: Zeltlager, maxLength: 64, type: ['null', string] }, motto: { description: "The thematic topic (if any) of the camp's programme and storyline.", example: Piraten, maxLength: 128, type: ['null', string] }, organizer: { description: "The name of the organization which plans and carries out the camp, required on\npicassos of Y+S camps: Organisator (Name der Jugendorganisation) / Organisateur (nom\nde l’organisation de jeunesse) / Organizzatore (nome dell’organizzazione giovanile).", example: 'Pfadi Luftig', maxLength: 64, type: ['null', string] }, printYSLogoOnPicasso: { default: false, description: "Whether the Y+S logo should be printed on the picasso of this camp, required for Y+S\ncourses: J+S-Logo (bei J+S-Kurs) / Le logo J+S (pour des cours J+S) / Logo G+S\n(solamente per corsi G+S).", example: true, type: boolean }, sharedSince: { description: 'Date and time when the camp was last set to be shared publicly.', example: '2025-10-01T00:00:00+00:00', format: date-time, readOnly: true, type: ['null', string] }, shortTitle: { description: "An optional short title for the camp. Can be used in the UI where space is tight. If\nnot present, frontends may auto-shorten the title if the shortTitle is not set.", example: 'SoLa 2022', maxLength: 32, type: ['null', string] }, title: { description: "The full title of the camp. Used for identifying the camp in lists of camps, so\nthis should include all necessary information to distinguish this camp from\nother camps that the collaborators are part of.", example: 'Abteilungs-Sommerlager 2022', maxLength: 32, type: string }, trainingAdvisorName: { description: "The name of the training advisor who is in charge of the course, required on picassos\nof youth organization courses: Bürgerlicher Name von LKB / Le nom d’origine du CàF /\nCognome e nome (non totem) del CaF.", example: 'Albert Anderegg', maxLength: 64, type: ['null', string] } }, type: object }, id: { type: string }, relationships: { properties: { activities: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, campCollaborations: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, categories: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, checklists: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, comments: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, creator: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } }, materialItems: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, materialLists: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, periods: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, profiles: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, progressLabels: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, sharedBy: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } } }, type: object }, type: { type: string } }, required: [id, type], type: object }, type: array }, included: { description: 'Related resources requested via the "include" query parameter.', externalDocs: { url: 'https://jsonapi.org/format/#fetching-includes' }, items: { anyOf: [{ $ref: '#/components/schemas/Activity.jsonapi' }, { $ref: '#/components/schemas/ActivityProgressLabel.jsonapi' }, { $ref: '#/components/schemas/CampCollaboration.jsonapi' }, { $ref: '#/components/schemas/Category.jsonapi' }, { $ref: '#/components/schemas/Checklist.jsonapi' }, { $ref: '#/components/schemas/Comment.jsonapi' }, { $ref: '#/components/schemas/MaterialItem.jsonapi' }, { $ref: '#/components/schemas/MaterialList.jsonapi' }, { $ref: '#/components/schemas/Period.jsonapi' }, { $ref: '#/components/schemas/Profile.jsonapi' }, { $ref: '#/components/schemas/User.jsonapi' }] }, readOnly: true, type: array } }, type: object }
+                  - { properties: { data: { items: { properties: { attributes: { properties: { _id: { description: 'An internal, unique, randomly generated identifier of this entity.', example: 1a2b3c4d, maxLength: 16, readOnly: true, type: string }, addressCity: { description: 'The name of the town where the camp will take place.', example: Hintertüpfingen, maxLength: 128, type: ['null', string] }, addressName: { description: 'A textual description of the location of the camp.', example: 'Wiese hinter der alten Mühle', maxLength: 128, type: ['null', string] }, addressStreet: { description: 'The street name and number (if any) of the location of the camp.', example: 'Schönriedweg 23', maxLength: 128, type: ['null', string] }, addressZipcode: { description: 'The zipcode of the location of the camp.', example: '1234', maxLength: 128, type: ['null', string] }, coachName: { description: "The name of the Y+S coach who is in charge of the camp, required on picassos of Y+S\ncamps: Name des J+S-Coachs / Nom du coach J+S / Nome del coach G+S.", example: 'Albert Anderegg', maxLength: 64, type: ['null', string] }, courseKind: { description: "The official name for the type of this course, required on picassos of youth\norganization courses: Kursbezeichnung (bei J+S Kurs: J+S Bezeichnung) / Description\n(cours de base, d’animation, etc.) / Nome del corso (in caso di corso G+S: tipo di\ncorso G+S).", example: 'PBS AG 123-23', maxLength: 64, type: ['null', string] }, courseNumber: { description: "The official course number, identifying this course, required on picassos of youth\norganization courses: Kursnummer / Le numéro du cours / Numero di corso.", example: 'PBS AG 123-23', maxLength: 64, type: ['null', string] }, hitobitoEventId: { description: 'The id of the corresponding event in Hitobito, if this camp was created from one.', example: '1234', maxLength: 255, readOnly: true, type: ['null', string] }, hitobitoProvider: { description: 'The Hitobito provider (such as MiData) this camp was created from, if any.', enum: [cevidb, jubladb, pbsmidata, null], example: pbsmidata, readOnly: true, type: ['null', string] }, isPrototype: { default: false, description: 'Whether this camp may serve as a template for creating other camps.', example: true, readOnly: true, type: boolean }, isShared: { default: false, description: "Whether the programme of this camp is publicly available to anyone (including\npersonal data such as camp collaborations, personal material lists,\nresponsibilities and comments).", example: true, type: boolean }, kind: { description: "Rough categorization of the camp (house, tent, traveling, summer, autumn), required\non picassos of Y+S camps: Lagerart (Haus-, Zelt-, Unterwegslager, Sommer-,\nHerbstlager) / Forme de camp (camp sous toit, camp sous tente, camp itinérant, camp\nd’été, camp d’automne) / Tipo di campo (campo sotto tetto, in tenda, itinerante,\nestivo, autunnale).", example: Zeltlager, maxLength: 64, type: ['null', string] }, motto: { description: "The thematic topic (if any) of the camp's programme and storyline.", example: Piraten, maxLength: 128, type: ['null', string] }, organizer: { description: "The name of the organization which plans and carries out the camp, required on\npicassos of Y+S camps: Organisator (Name der Jugendorganisation) / Organisateur (nom\nde l’organisation de jeunesse) / Organizzatore (nome dell’organizzazione giovanile).", example: 'Pfadi Luftig', maxLength: 64, type: ['null', string] }, printYSLogoOnPicasso: { default: false, description: "Whether the Y+S logo should be printed on the picasso of this camp, required for Y+S\ncourses: J+S-Logo (bei J+S-Kurs) / Le logo J+S (pour des cours J+S) / Logo G+S\n(solamente per corsi G+S).", example: true, type: boolean }, sharedSince: { description: 'Date and time when the camp was last set to be shared publicly.', example: '2025-10-01T00:00:00+00:00', format: date-time, readOnly: true, type: ['null', string] }, shortTitle: { description: "An optional short title for the camp. Can be used in the UI where space is tight. If\nnot present, frontends may auto-shorten the title if the shortTitle is not set.", example: 'SoLa 2022', maxLength: 32, type: ['null', string] }, title: { description: "The full title of the camp. Used for identifying the camp in lists of camps, so\nthis should include all necessary information to distinguish this camp from\nother camps that the collaborators are part of.", example: 'Abteilungs-Sommerlager 2022', maxLength: 32, type: string }, trainingAdvisorName: { description: "The name of the training advisor who is in charge of the course, required on picassos\nof youth organization courses: Bürgerlicher Name von LKB / Le nom d’origine du CàF /\nCognome e nome (non totem) del CaF.", example: 'Albert Anderegg', maxLength: 64, type: ['null', string] } }, type: object }, id: { type: string }, relationships: { properties: { activities: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, campCollaborations: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, categories: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, checklists: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, creator: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } }, materialLists: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, periods: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, profiles: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, progressLabels: { properties: { data: { items: { properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, type: array } } }, sharedBy: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } } }, type: object }, type: { type: string } }, required: [id, type], type: object }, type: array }, included: { description: 'Related resources requested via the "include" query parameter.', externalDocs: { url: 'https://jsonapi.org/format/#fetching-includes' }, items: { anyOf: [{ $ref: '#/components/schemas/Activity.jsonapi' }, { $ref: '#/components/schemas/ActivityProgressLabel.jsonapi' }, { $ref: '#/components/schemas/CampCollaboration.jsonapi' }, { $ref: '#/components/schemas/Category.jsonapi' }, { $ref: '#/components/schemas/Checklist.jsonapi' }, { $ref: '#/components/schemas/MaterialList.jsonapi' }, { $ref: '#/components/schemas/Period.jsonapi' }, { $ref: '#/components/schemas/Profile.jsonapi' }, { $ref: '#/components/schemas/User.jsonapi' }] }, readOnly: true, type: array } }, type: object }
                 description: 'Camp.jsonapi collection.'
             text/html:
               schema:
@@ -36445,7 +36392,7 @@ paths:
               schema:
                 allOf:
                   - { $ref: '#/components/schemas/JsonApiCollectionBaseSchemaNoPagination' }
-                  - { properties: { data: { items: { properties: { attributes: { properties: { _id: { description: 'An internal, unique, randomly generated identifier of this entity.', example: 1a2b3c4d, maxLength: 16, readOnly: true, type: string }, abbreviation: { description: 'A displayable name of the user.', example: AB, readOnly: true, type: ['null', string] }, activationKey: { description: 'User-Input for activation.', type: ['null', string], writeOnly: true }, color: { description: 'A displayable name of the user.', example: '#ff0000', readOnly: true, type: ['null', string] }, currentPassword: { type: ['null', string], writeOnly: true }, displayName: { description: 'A displayable name of the user.', example: 'Robert Baden-Powell', readOnly: true, type: ['null', string] }, email: { readOnly: true, type: ['null', string] }, password: { description: "A new password for this user. At least 12 characters, as is explicitly recommended by OWASP:\nhttps://github.com/OWASP/ASVS/blob/master/4.0/en/0x11-V2-Authentication.md#v21-password-security\n2.1.1: Verify that user set passwords are at least 12 characters in length (after multiple spaces are combined).", example: learning-by-doing-101, maxLength: 128, minLength: 12, type: ['null', string], writeOnly: true }, passwordResetKeyHash: { description: 'The hashed password-reset-key. Of course not exposed through the API.', maxLength: 255, type: ['null', string] }, profiles: { example: 'https://example.com/', format: iri-reference, readOnly: true, type: string }, recaptchaToken: { description: 'ReCaptchaToken used on Register-View.', type: ['null', string], writeOnly: true }, roles: { items: { type: ['null', string] }, readOnly: true, type: array }, userCamps: { description: "UserCamp Collections\nBased von view_user_camps; lists all camps a user can see.", items: { $ref: '#/components/schemas/UserCamp' }, type: array }, userIdentifier: { readOnly: true, type: string } }, type: object }, id: { type: string }, relationships: { properties: { profile: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } } }, type: object }, type: { type: string } }, required: [id, type], type: object }, type: array }, included: { description: 'Related resources requested via the "include" query parameter.', externalDocs: { url: 'https://jsonapi.org/format/#fetching-includes' }, items: { anyOf: [{ $ref: '#/components/schemas/Profile.jsonapi' }] }, readOnly: true, type: array } }, type: object }
+                  - { properties: { data: { items: { properties: { attributes: { properties: { _id: { description: 'An internal, unique, randomly generated identifier of this entity.', example: 1a2b3c4d, maxLength: 16, readOnly: true, type: string }, abbreviation: { description: 'A displayable name of the user.', example: AB, readOnly: true, type: ['null', string] }, activationKey: { description: 'User-Input for activation.', type: ['null', string], writeOnly: true }, color: { description: 'A displayable name of the user.', example: '#ff0000', readOnly: true, type: ['null', string] }, currentPassword: { type: ['null', string], writeOnly: true }, displayName: { description: 'A displayable name of the user.', example: 'Robert Baden-Powell', readOnly: true, type: ['null', string] }, email: { readOnly: true, type: ['null', string] }, password: { description: "A new password for this user. At least 12 characters, as is explicitly recommended by OWASP:\nhttps://github.com/OWASP/ASVS/blob/master/4.0/en/0x11-V2-Authentication.md#v21-password-security\n2.1.1: Verify that user set passwords are at least 12 characters in length (after multiple spaces are combined).", example: learning-by-doing-101, maxLength: 128, minLength: 12, type: ['null', string], writeOnly: true }, passwordResetKeyHash: { description: 'The hashed password-reset-key. Of course not exposed through the API.', maxLength: 255, type: ['null', string] }, recaptchaToken: { description: 'ReCaptchaToken used on Register-View.', type: ['null', string], writeOnly: true }, roles: { items: { type: ['null', string] }, readOnly: true, type: array }, userCamps: { description: "UserCamp Collections\nBased von view_user_camps; lists all camps a user can see.", items: { $ref: '#/components/schemas/UserCamp' }, type: array }, userIdentifier: { readOnly: true, type: string } }, type: object }, id: { type: string }, relationships: { properties: { profile: { properties: { data: { oneOf: [{ properties: { id: { format: iri-reference, type: string }, type: { type: string } }, required: [id, type], type: object }, { type: 'null' }] } } } }, type: object }, type: { type: string } }, required: [id, type], type: object }, type: array }, included: { description: 'Related resources requested via the "include" query parameter.', externalDocs: { url: 'https://jsonapi.org/format/#fetching-includes' }, items: { anyOf: [{ $ref: '#/components/schemas/Profile.jsonapi' }] }, readOnly: true, type: array } }, type: object }
                 description: 'User.jsonapi collection.'
             text/html:
               schema:
