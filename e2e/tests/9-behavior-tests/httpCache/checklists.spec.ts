@@ -61,8 +61,8 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
     await expectCacheHit(bipiApi, filteredUri)
     const excludedEntity = await apiGet(bipiApi, excludedEntityUri)
     expect(excludedEntity.headers()['x-cache']).toBe('MISS')
-    const filteredItems: Array<{ id: string }> = (await excludedEntity.json())._embedded
-      .items
+    const filteredItems: Array<{ id: string }> =
+      (await excludedEntity.json())._embedded?.items ?? []
     expect(filteredItems.some((item) => item.id === 'ebbd0c61eb85')).toBe(false)
     await expectCacheHit(bipiApi, excludedEntityUri)
 
