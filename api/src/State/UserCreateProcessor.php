@@ -30,7 +30,7 @@ class UserCreateProcessor extends AbstractPersistProcessor {
      */
     #[\Override]
     public function onBefore($data, Operation $operation, array $uriVariables = [], array $context = []): User {
-        $resp = $this->reCaptcha->verify($data->recaptchaToken);
+        $resp = $this->reCaptcha->verify($data->recaptchaToken, 'register');
         if (!$resp->isSuccess()) {
             throw new HttpException(422, 'ReCaptcha failed');
         }

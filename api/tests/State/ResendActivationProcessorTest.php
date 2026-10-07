@@ -46,7 +46,11 @@ class ResendActivationProcessorTest extends TestCase {
         $this->userRepository = $this->createMock(UserRepository::class);
         $this->mailService = $this->createMock(MailService::class);
 
-        $recaptcha->method('verify')->willReturn($this->recaptchaResponse);
+        $recaptcha->expects(self::once())
+            ->method('verify')
+            ->with(self::anything(), 'resend_activation')
+            ->willReturn($this->recaptchaResponse)
+        ;
 
         $this->processor = new ResendActivationProcessor(
             $recaptcha,

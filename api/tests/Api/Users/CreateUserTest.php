@@ -8,9 +8,13 @@ use App\Entity\Camp;
 use App\Entity\CampCollaboration;
 use App\Entity\Profile;
 use App\Entity\User;
+use App\Security\ReCaptcha\ReCaptchaWrapper;
 use App\Tests\Api\ECampApiTestCase;
 use App\Tests\Constraints\CompatibleHalResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Psr\Log\LoggerInterface;
+use ReCaptcha\ReCaptcha;
+use ReCaptcha\RequestMethod;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -35,6 +39,26 @@ class CreateUserTest extends ECampApiTestCase {
 
         $this->assertResponseStatusCodeSame(201);
         $this->assertJsonContains($this->getExampleReadPayload([], ['password']));
+    }
+
+    public function testCreateUserWithFailedRecaptchaIsRejectedWith422InsteadOf500() {
+        $client = static::createBasicClient();
+        $client->disableReboot();
+        $requestMethod = $this->createMock(RequestMethod::class);
+        $requestMethod->expects($this->once())
+            ->method('submit')
+            ->willReturn('{"success":false,"error-codes":["invalid-input-response"]}')
+        ;
+        static::getContainer()->set(ReCaptchaWrapper::class, new ReCaptchaWrapper(
+            'test-secret',
+            new ReCaptcha('test-secret', $requestMethod),
+            $this->createStub(LoggerInterface::class),
+        ));
+
+        $client->request('POST', '/users', ['json' => $this->getExampleWritePayload(['recaptchaToken' => 'test-token'])]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertJsonContains(['detail' => 'ReCaptcha failed']);
     }
 
     public function testLoginFailsWithoutActivation() {
