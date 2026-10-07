@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use App\Doctrine\DBAL\CockroachDb;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -21,7 +22,11 @@ final class Version20220210070753 extends AbstractMigration {
         $this->addSql('ALTER TABLE profile ADD googleId VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE profile ADD pbsmidataId VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE profile ADD cevidbId VARCHAR(255) DEFAULT NULL');
-        $this->addSql('ALTER TABLE profile ALTER username TYPE VARCHAR(64)');
+        $this->addSql(
+            CockroachDb::is($this->connection)
+            ? 'ALTER TABLE profile ALTER username TYPE STRING'
+            : 'ALTER TABLE profile ALTER username TYPE VARCHAR(64)'
+        );
         $this->addSql('ALTER TABLE "user" ALTER password DROP NOT NULL');
     }
 
@@ -32,6 +37,10 @@ final class Version20220210070753 extends AbstractMigration {
         $this->addSql('ALTER TABLE "profile" DROP googleId');
         $this->addSql('ALTER TABLE "profile" DROP pbsmidataId');
         $this->addSql('ALTER TABLE "profile" DROP cevidbId');
-        $this->addSql('ALTER TABLE "profile" ALTER username TYPE VARCHAR(32)');
+        $this->addSql(
+            CockroachDb::is($this->connection)
+            ? 'ALTER TABLE "profile" ALTER username TYPE STRING'
+            : 'ALTER TABLE "profile" ALTER username TYPE VARCHAR(32)'
+        );
     }
 }
