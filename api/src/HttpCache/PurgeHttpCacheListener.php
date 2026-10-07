@@ -26,6 +26,7 @@ use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\Metadata\Util\ClassInfoTrait;
 use App\Entity\BaseEntity;
 use App\Entity\BelongsToCampInterface;
+use App\Entity\Category;
 use App\Entity\HasId;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
@@ -96,10 +97,12 @@ final readonly class PurgeHttpCacheListener {
 
         foreach ($uow->getScheduledEntityUpdates() as $entity) {
             $originalEntity = $this->getOriginalEntity($entity);
-            if ($tag = $this->getQueryTag($entity)) {
+            $tag = $entity instanceof Category ? null : $this->getQueryTag($entity);
+            if ($tag) {
                 $queryTags[$tag] = true;
             }
-            if ($tag = $this->getQueryTag($originalEntity)) {
+            $tag = $originalEntity instanceof Category ? null : $this->getQueryTag($originalEntity);
+            if ($tag) {
                 $queryTags[$tag] = true;
             }
             $this->addTagForItem($entity);
