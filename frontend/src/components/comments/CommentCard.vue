@@ -102,6 +102,7 @@ export default {
 
 .ec-comment-card:not(:hover) :deep(button.visible-on-hover:not(:focus)) {
   opacity: 0;
+  pointer-events: none;
 }
 
 .ec-comment-card :deep(button.visible-on-hover) {
