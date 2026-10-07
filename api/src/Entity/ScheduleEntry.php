@@ -64,6 +64,21 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'filter_by_current_user' => false,
             ]
         ),
+        new GetCollection(
+            uriTemplate: self::ACTIVITY_SUBRESOURCE_URI_TEMPLATE,
+            uriVariables: [
+                'activityId' => new Link(
+                    toProperty: 'activity',
+                    fromClass: Activity::class,
+                    security: 'is_granted("CAMP_COLLABORATOR", activity) or
+                               is_granted("CAMP_IS_PUBLIC", activity)'
+                ),
+            ],
+            security: 'is_fully_authenticated()',
+            extraProperties: [
+                'filter_by_current_user' => false,
+            ]
+        ),
         new Post(
             normalizationContext: self::ITEM_NORMALIZATION_CONTEXT,
             denormalizationContext: ['groups' => ['write', 'create']],
@@ -84,6 +99,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Index(columns: ['endOffset'])]
 class ScheduleEntry extends BaseEntity implements BelongsToCampInterface, CanGenerateTagsInterface {
     public const PERIOD_SUBRESOURCE_URI_TEMPLATE = '/periods/{periodId}/schedule_entries{._format}';
+    public const ACTIVITY_SUBRESOURCE_URI_TEMPLATE = '/activities/{activityId}/schedule_entries{._format}';
 
     public const ITEM_NORMALIZATION_CONTEXT = [
         'groups' => ['read', 'ScheduleEntry:Activity'],

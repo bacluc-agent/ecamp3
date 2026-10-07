@@ -310,9 +310,9 @@ final readonly class PurgeHttpCacheListener {
                     && is_string($uriVariable->getToProperty())
                     && is_a($uriVariable->getFromClass(), HasId::class, true)
                 ) {
-                    // value of toProperty is NULL; Read of its ID will throw Exception
+                    // value of toProperty is NULL or uninitialized; Read of its ID will throw Exception
                     // -> invalid
-                    if (null == $entity->{$uriVariable->getToProperty()}) {
+                    if (!isset($entity->{$uriVariable->getToProperty()})) {
                         return false;
                     }
                 }

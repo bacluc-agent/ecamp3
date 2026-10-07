@@ -33,6 +33,7 @@ final class MaterialItemPeriodFilter extends AbstractFilter {
             'property' => self::PERIOD_QUERY_NAME,
             'type' => Type::string()->__toString(),
             'required' => false,
+            'description' => 'Deprecated: use subresource routes instead.',
         ]];
     }
 

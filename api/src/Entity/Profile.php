@@ -8,7 +8,9 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use App\Doctrine\Filter\ProfileSearchFilter;
 use App\InputFilter;
 use App\Repository\ProfileRepository;
@@ -34,9 +36,22 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new GetCollection(
             security: 'is_authenticated()',
+            openapi: new OpenApiOperation(description: 'Deprecated: use /users/{userId}/profiles instead.'),
             extraProperties: [
                 'scoping_filters' => ['user', 'user.collaborations.camp', 'search'],
             ]
+        ),
+        new GetCollection(
+            uriTemplate: self::USER_SUBRESOURCE_URI_TEMPLATE,
+            uriVariables: [
+                'userId' => new Link(
+                    toProperty: 'user',
+                    fromClass: User::class,
+                    security: 'is_authenticated()'
+                ),
+            ],
+            normalizationContext: ['groups' => ['read']],
+            security: 'is_authenticated()'
         ),
     ],
     normalizationContext: ['groups' => ['read']],
@@ -47,6 +62,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: ProfileRepository::class)]
 #[ORM\Table(name: '`profile`')]
 class Profile extends BaseEntity {
+    public const USER_SUBRESOURCE_URI_TEMPLATE = '/users/{userId}/profiles{._format}'; // ponytail: assume /users/{userId}/profiles is acceptable; if /camps/{campId}/profiles needed, escalate.
     public const EXAMPLE_EMAIL = 'bi-pi@example.com';
     public const EXAMPLE_FIRSTNAME = 'Robert';
     public const EXAMPLE_SURNAME = 'Baden-Powell';
@@ -204,7 +220,12 @@ class Profile extends BaseEntity {
     #[ORM\Column(type: 'json')]
     public array $roles = ['ROLE_USER'];
 
-    #[ApiProperty(writable: false, readableLink: true, example: '/users/1a2b3c4d')]
+    #[ApiProperty(
+        writable: false,
+        readableLink: true,
+        example: '/users/1a2b3c4d',
+        description: 'The user this profile belongs to. Deprecated: the ?user= filter is superseded by the '.self::USER_SUBRESOURCE_URI_TEMPLATE.' subresource. The ?user.collaborations.camp= filter is unaffected and still the way to list the profiles of a camp\'s collaborators.'
+    )]
     #[Groups(['read'])]
     #[ORM\OneToOne(targetEntity: User::class, mappedBy: 'profile')]
     public User $user;
