@@ -649,6 +649,7 @@ class PurgeHttpCacheListenerTest extends TestCase {
         );
         $listener->onFlush();
         $listener->postFlush();
+        self::assertContains(['/dummies'], $purgedTags);
         self::assertContains(['/dummies?'], $purgedTags);
         self::assertContains(['/related_dummies/100/dummies'], $purgedTags);
         self::assertContains(['/related_dummies/99/dummies'], $purgedTags);
