@@ -113,7 +113,8 @@ final readonly class PurgeHttpCacheListener {
 
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
             $originalEntity = $this->getOriginalEntity($entity);
-            if ($tag = $this->getQueryTag($originalEntity)) {
+            $tag = $originalEntity instanceof Category ? null : $this->getQueryTag($originalEntity);
+            if ($tag) {
                 $queryTags[$tag] = true;
             }
             $this->addTagForItem($originalEntity);
