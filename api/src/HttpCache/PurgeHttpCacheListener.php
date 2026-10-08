@@ -88,7 +88,8 @@ final readonly class PurgeHttpCacheListener {
         $queryTags = [];
 
         foreach ($uow->getScheduledEntityInsertions() as $entity) {
-            if ($tag = $this->getQueryTag($entity)) {
+            $tag = $entity instanceof Category ? null : $this->getQueryTag($entity);
+            if ($tag) {
                 $queryTags[$tag] = true;
             }
             $this->gatherResourceTags($entity);
