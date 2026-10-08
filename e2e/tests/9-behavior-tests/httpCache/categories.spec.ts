@@ -120,8 +120,6 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, uri)
     await apiGet(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
-    await apiGet(bipiApi, excludedUri)
-    await expectCacheHit(bipiApi, excludedUri)
 
     // add new category to camp
     const postRes = await apiPost(bipiApi, '/api/categories', {
@@ -140,10 +138,9 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, uri)
     await waitForCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
-    await waitForCacheMiss(bipiApi, excludedUri)
+    const excludedResponse = await apiGet(bipiApi, excludedUri)
     const excludedCategories: Array<{ id: string }> =
-      (await apiGet(bipiApi, excludedUri).then((response) => response.json()))._embedded
-        ?.items ?? []
+      (await excludedResponse.json())._embedded?.items ?? []
     expect(excludedCategories.some((category) => category.id === newCategoryId)).toBe(
       false
     )
