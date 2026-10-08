@@ -26,6 +26,7 @@ use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\Metadata\Util\ClassInfoTrait;
 use App\Entity\BaseEntity;
 use App\Entity\BelongsToCampInterface;
+use App\Entity\Camp;
 use App\Entity\Category;
 use App\Entity\HasId;
 use Doctrine\Common\Util\ClassUtils;
@@ -284,7 +285,7 @@ final readonly class PurgeHttpCacheListener {
             $this->addTagsFor(
                 $relatedObject,
                 $relatedProperty,
-                true
+                !($entity instanceof Category && $relatedObject instanceof Camp)
             );
         }
     }

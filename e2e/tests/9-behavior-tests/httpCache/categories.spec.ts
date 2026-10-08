@@ -112,6 +112,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
   test('invalidates /camps/{campId}/categories for new category', async () => {
     const uri = `/api/camps/${grgrCampId}/categories`
     const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
+    const excludedUri = `/api/categories?camp=%2Fcamps%2F${loremIpsumCampId}`
     const bipiApi = await getAuthContext(bipiUser)
 
     // warm up cache
@@ -119,6 +120,8 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, uri)
     await apiGet(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    await apiGet(bipiApi, excludedUri)
+    await expectCacheHit(bipiApi, excludedUri)
 
     // add new category to camp
     const postRes = await apiPost(bipiApi, '/api/categories', {
@@ -130,12 +133,20 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     })
     const body = await postRes.json()
     const newContentNodeUri = body._links.self.href
+    const newCategoryId = newContentNodeUri.split('/').pop()
 
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
     await waitForCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedUri)
+    const excludedCategories: Array<{ id: string }> =
+      (await apiGet(bipiApi, excludedUri).then((response) => response.json()))._embedded
+        ?.items ?? []
+    expect(excludedCategories.some((category) => category.id === newCategoryId)).toBe(
+      false
+    )
 
     // delete newly created contentNode
     await apiDelete(bipiApi, newContentNodeUri)
