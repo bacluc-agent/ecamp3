@@ -19,6 +19,7 @@ test.describe('comments on an activity', () => {
     const composer = panel.getByTestId('comment-composer')
     await composer.locator('.ProseMirror').click()
     await composer.locator('.ProseMirror').pressSequentially(text, { delay: 30 })
+    await expect(composer.locator('.ProseMirror')).toHaveText(text)
     await composer.getByTestId('comment-submit').click()
 
     const comment = page.getByTestId('comment-card').filter({ hasText: text })
@@ -50,6 +51,7 @@ test.describe('comments on an activity', () => {
     const composer = page.getByTestId('comments-panel').getByTestId('comment-composer')
     await composer.locator('.ProseMirror').click()
     await composer.locator('.ProseMirror').pressSequentially(text, { delay: 30 })
+    await expect(composer.locator('.ProseMirror')).toHaveText(text)
     await page.keyboard.press('ControlOrMeta+Enter')
 
     const comment = page.getByTestId('comment-card').filter({ hasText: text })
