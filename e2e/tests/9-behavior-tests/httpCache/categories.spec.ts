@@ -78,8 +78,14 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     // warm up cache (bruce)
     await apiGet(bruceApi, uri)
     await expectCacheHit(bruceApi, uri)
-    await expectCacheMiss(bruceApi, filteredUri)
+    const filteredResponse = await apiGet(bruceApi, filteredUri)
+    expect(filteredResponse.headers()['x-cache']).toBe('MISS')
     await expectCacheHit(bruceApi, filteredUri)
+    const filteredCategories: Array<{ id: string; name: string }> =
+      (await filteredResponse.json())._embedded?.items ?? []
+    expect(filteredCategories.some((category) => category.id === 'c5e1bc565094')).toBe(
+      true
+    )
     const excludedEntityResponse = await apiGet(bruceApi, excludedEntityUri)
     expect(excludedEntityResponse.headers()['x-cache']).toBe('MISS')
     const excludedCategories: Array<{ id: string }> =
@@ -103,6 +109,13 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await expectCacheHit(felicityApi, uri)
     await waitForCacheMiss(felicityApi, filteredUri)
     await expectCacheHit(felicityApi, filteredUri)
+    const refreshedFilteredResponse = await apiGet(felicityApi, filteredUri)
+    expect(refreshedFilteredResponse.headers()['x-cache']).toBe('HIT')
+    const refreshedFilteredCategories: Array<{ id: string; name: string }> =
+      (await refreshedFilteredResponse.json())._embedded?.items ?? []
+    expect(
+      refreshedFilteredCategories.find((category) => category.id === 'c5e1bc565094')?.name
+    ).toBe('new_name')
     const excludedEntityAfterMutation = await apiGet(bruceApi, excludedEntityUri)
     expect(excludedEntityAfterMutation.headers()['x-cache']).toBe('HIT')
     const categoriesAfterMutation: Array<{ id: string }> =
