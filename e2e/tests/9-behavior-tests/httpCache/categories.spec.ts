@@ -103,8 +103,13 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await expectCacheHit(felicityApi, uri)
     await waitForCacheMiss(felicityApi, filteredUri)
     await expectCacheHit(felicityApi, filteredUri)
-    await waitForCacheMiss(bruceApi, excludedEntityUri)
-    await expectCacheHit(bruceApi, excludedEntityUri)
+    const excludedEntityAfterMutation = await apiGet(bruceApi, excludedEntityUri)
+    expect(excludedEntityAfterMutation.headers()['x-cache']).toBe('HIT')
+    const categoriesAfterMutation: Array<{ id: string }> =
+      (await excludedEntityAfterMutation.json())._embedded?.items ?? []
+    expect(
+      categoriesAfterMutation.some((category) => category.id === 'c5e1bc565094')
+    ).toBe(false)
 
     await expectCacheMiss(bruceApi, uri)
   })

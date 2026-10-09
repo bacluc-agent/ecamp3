@@ -207,7 +207,9 @@ final readonly class PurgeHttpCacheListener {
             $metadata = $resourceIterator->current();
 
             foreach ($metadata->getOperations() ?? [] as $operation) {
-                if ($operation instanceof GetCollection) {
+                if ($operation instanceof GetCollection
+                    && !($entity instanceof Category && $oldEntity && Category::CAMP_SUBRESOURCE_URI_TEMPLATE === $operation->getUriTemplate())
+                ) {
                     $this->invalidateCollection($operation, $entity, $oldEntity);
                 }
             }
