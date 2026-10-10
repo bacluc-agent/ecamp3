@@ -108,3 +108,88 @@ async function clickOnItemWithLabel(page: Page, label: string) {
 
   await item.click()
 }
+
+import { test as pageObjectTest } from '@/utils/etest'
+import { bipiUser } from '@/utils/constants'
+
+pageObjectTest('can be shared via url via page objects', async ({ loginPage, page }) => {
+  const campListPage = await (await loginPage.open()).loginToCampList(bipiUser)
+  const dashboard = await campListPage.openCamp('GRGR')
+  const category = dashboard.filters.category
+  const progressLabel = dashboard.filters.progressLabel
+
+  await category.open()
+  await category.toggle('Essen')
+  await category.toggle('Lagersport')
+  await expect(category.chip).toContainText('Kategorie: ES oder LS')
+
+  await progressLabel.open()
+  await progressLabel.toggle('Geplant')
+  await progressLabel.toggle('Coach OK')
+  await expect(progressLabel.chip).toContainText('Status: Geplant oder Coach OK')
+
+  await dashboard.reload()
+  await expect(category.chip).toBeVisible()
+
+  await expect(category.chip).toContainText('Kategorie: ES oder LS')
+  await expect(progressLabel.chip).toContainText('Status: Geplant oder Coach OK')
+
+  await expectNoRequestsInFlight(page)
+})
+
+pageObjectTest(
+  'are removed from the url when removed in the gui via page objects',
+  async ({ loginPage, page }) => {
+    const campListPage = await (await loginPage.open()).loginToCampList(bipiUser)
+    const dashboard = await campListPage.openCamp('GRGR')
+    const category = dashboard.filters.category
+
+    await category.open()
+    await category.toggle('Essen')
+    await category.toggle('Lagersport')
+    await expect(category.chip).toContainText('Kategorie: ES oder LS')
+
+    await dashboard.reload()
+    await expect(category.chip).toBeVisible()
+    await expect(category.chip).toContainText('Kategorie: ES oder LS')
+
+    await category.open()
+    await category.toggle('Essen')
+    await category.toggle('Lagersport')
+    await expect(category.chip).not.toContainText('Kategorie:')
+
+    await dashboard.reload()
+    await expect(category.chip).toBeVisible()
+    await expect(category.chip).not.toContainText('Kategorie:')
+
+    await expectNoRequestsInFlight(page)
+  }
+)
+
+pageObjectTest(
+  'support selecting activities without responsibles via page objects',
+  async ({ loginPage, page }) => {
+    const campListPage = await (await loginPage.open()).loginToCampList(bipiUser)
+    const dashboard = await campListPage.openCamp('GRGR')
+    const responsible = dashboard.filters.responsible
+
+    await responsible.open()
+    await responsible.toggle('Keine Verantwortlichen')
+    await expect(responsible.chip).toContainText('Verantwortlich: Keine Verantwortlichen')
+
+    await dashboard.reload()
+    await expect(responsible.chip).toBeVisible()
+    await expect(responsible.chip).toContainText('Verantwortlich: Keine Verantwortlichen')
+
+    await expectNoRequestsInFlight(page)
+  }
+)
+
+async function expectNoRequestsInFlight(page: Page) {
+  /**
+   * Firefox does not like it if a test is finished while
+   * requests are still running. Thus, we wait for this text to be rendered.
+   * This worked better than intercepting requests.
+   */
+  await expect(page.locator('body')).toContainText('Hauptlager')
+}
