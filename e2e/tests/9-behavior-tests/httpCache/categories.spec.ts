@@ -138,11 +138,21 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, uri)
     await apiGet(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    const excludedBeforePost = await apiGet(bipiApi, excludedUri)
+    expect(excludedBeforePost.headers()['x-cache']).toBe('MISS')
+    const excludedCategoriesBeforePost: Array<{ short: string }> =
+      (await excludedBeforePost.json())._embedded?.items ?? []
+    expect(
+      excludedCategoriesBeforePost.some(
+        (category) => category.short === 'http-cache-new-category'
+      )
+    ).toBe(false)
+    await expectCacheHit(bipiApi, excludedUri)
 
     // add new category to camp
     const postRes = await apiPost(bipiApi, '/api/categories', {
       camp: `/api/camps/${grgrCampId}`,
-      short: 'new',
+      short: 'http-cache-new-category',
       name: 'new Category',
       color: '#000000',
       numberingStyle: '1',
@@ -150,6 +160,9 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     const body = await postRes.json()
     const newContentNodeUri = body._links.self.href
     const newCategoryId = newContentNodeUri.split('/').pop()
+    expect(
+      excludedCategoriesBeforePost.some((category) => category.short === body.short)
+    ).toBe(false)
 
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
@@ -157,6 +170,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await waitForCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
     const excludedResponse = await apiGet(bipiApi, excludedUri)
+    expect(excludedResponse.headers()['x-cache']).toBe('HIT')
     const excludedCategories: Array<{ id: string }> =
       (await excludedResponse.json())._embedded?.items ?? []
     expect(excludedCategories.some((category) => category.id === newCategoryId)).toBe(
@@ -171,6 +185,13 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, uri)
     await waitForCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    const excludedAfterDelete = await apiGet(bipiApi, excludedUri)
+    expect(excludedAfterDelete.headers()['x-cache']).toBe('HIT')
+    const excludedCategoriesAfterDelete: Array<{ id: string }> =
+      (await excludedAfterDelete.json())._embedded?.items ?? []
+    expect(
+      excludedCategoriesAfterDelete.some((category) => category.id === newCategoryId)
+    ).toBe(false)
   })
 
   // eslint-disable-next-line playwright/no-skipped-test
