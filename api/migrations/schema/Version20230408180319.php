@@ -22,9 +22,9 @@ final class Version20230408180319 extends AbstractMigration {
         $this->addSql('CREATE INDEX IDX_701777B36D299429 ON activity_progress_label (campId)');
         $this->addSql('CREATE INDEX IDX_701777B39D468A55 ON activity_progress_label (createTime)');
         $this->addSql('CREATE INDEX IDX_701777B355AA53E2 ON activity_progress_label (updateTime)');
-        $this->addSql('ALTER TABLE activity_progress_label ADD CONSTRAINT FK_701777B36D299429 FOREIGN KEY (campId) REFERENCES camp (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE activity_progress_label ADD CONSTRAINT FK_701777B36D299429 FOREIGN KEY (campId) REFERENCES camp (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE activity ADD progressLabelId VARCHAR(16) DEFAULT NULL');
-        $this->addSql('ALTER TABLE activity ADD CONSTRAINT FK_AC74095A5016EA8D FOREIGN KEY (progressLabelId) REFERENCES activity_progress_label (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE activity ADD CONSTRAINT FK_AC74095A5016EA8D FOREIGN KEY (progressLabelId) REFERENCES activity_progress_label (id)');
         $this->addSql('CREATE INDEX IDX_AC74095A5016EA8D ON activity (progressLabelId)');
     }
 

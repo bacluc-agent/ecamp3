@@ -23,8 +23,8 @@ final class Version20240615180024 extends AbstractMigration {
         $this->addSql('CREATE INDEX IDX_99EB20F910EE4CEE ON checklist_item (parentId)');
         $this->addSql('CREATE INDEX IDX_99EB20F99D468A55 ON checklist_item (createTime)');
         $this->addSql('CREATE INDEX IDX_99EB20F955AA53E2 ON checklist_item (updateTime)');
-        $this->addSql('ALTER TABLE checklist_item ADD CONSTRAINT FK_99EB20F9BA23A13 FOREIGN KEY (checklistId) REFERENCES checklist (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE checklist_item ADD CONSTRAINT FK_99EB20F910EE4CEE FOREIGN KEY (parentId) REFERENCES checklist_item (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE checklist_item ADD CONSTRAINT FK_99EB20F9BA23A13 FOREIGN KEY (checklistId) REFERENCES checklist (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE checklist_item ADD CONSTRAINT FK_99EB20F910EE4CEE FOREIGN KEY (parentId) REFERENCES checklist_item (id) ON DELETE CASCADE');
     }
 
     #[\Override]

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use App\Doctrine\DBAL\CockroachDb;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -14,6 +15,11 @@ final class Version20251004093025 extends AbstractMigration {
     #[\Override]
     public function getDescription(): string {
         return '';
+    }
+
+    #[\Override]
+    public function isTransactional(): bool {
+        return !CockroachDb::is($this->connection);
     }
 
     public function up(Schema $schema): void {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use App\Doctrine\DBAL\CockroachDb;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -14,6 +15,11 @@ final class Version20250520220800 extends AbstractMigration {
     #[\Override]
     public function getDescription(): string {
         return 'MaterialItem.MaterialList is nullable';
+    }
+
+    #[\Override]
+    public function isTransactional(): bool {
+        return !CockroachDb::is($this->connection);
     }
 
     public function up(Schema $schema): void {
@@ -61,7 +67,7 @@ final class Version20250520220800 extends AbstractMigration {
             ALTER TABLE material_item ALTER campId SET NOT NULL
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE material_item ADD CONSTRAINT FK_4B73482B6D299429 FOREIGN KEY (campId) REFERENCES camp (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE
+            ALTER TABLE material_item ADD CONSTRAINT FK_4B73482B6D299429 FOREIGN KEY (campId) REFERENCES camp (id) ON DELETE CASCADE
         SQL);
         $this->addSql(<<<'SQL'
             CREATE INDEX IDX_4B73482B6D299429 ON material_item (campId)

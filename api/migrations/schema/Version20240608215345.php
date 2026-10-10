@@ -22,7 +22,7 @@ final class Version20240608215345 extends AbstractMigration {
         $this->addSql('CREATE INDEX IDX_5C696D2F6D299429 ON checklist (campId)');
         $this->addSql('CREATE INDEX IDX_5C696D2F9D468A55 ON checklist (createTime)');
         $this->addSql('CREATE INDEX IDX_5C696D2F55AA53E2 ON checklist (updateTime)');
-        $this->addSql('ALTER TABLE checklist ADD CONSTRAINT FK_5C696D2F6D299429 FOREIGN KEY (campId) REFERENCES camp (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE checklist ADD CONSTRAINT FK_5C696D2F6D299429 FOREIGN KEY (campId) REFERENCES camp (id) ON DELETE CASCADE');
     }
 
     #[\Override]
