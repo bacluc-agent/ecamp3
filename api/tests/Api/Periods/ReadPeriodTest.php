@@ -61,7 +61,7 @@ class ReadPeriodTest extends ECampApiTestCase {
             'end' => $period->end->format('Y-m-d'),
             '_links' => [
                 'camp' => ['href' => $this->getIriFor('camp1')],
-                'materialItems' => ['href' => '/material_items?period=%2Fperiods%2F'.$period->getId()],
+                'materialItems' => ['href' => '/periods/'.$period->getId().'/material_items'],
                 'days' => ['href' => '/periods/'.$period->getId().'/days'],
                 'scheduleEntries' => ['href' => '/periods/'.$period->getId().'/schedule_entries'],
                 'contentNodes' => ['href' => '/content_nodes?period=%2Fperiods%2F'.$period->getId()],
@@ -85,7 +85,7 @@ class ReadPeriodTest extends ECampApiTestCase {
             'end' => $period->end->format('Y-m-d'),
             '_links' => [
                 'camp' => ['href' => $this->getIriFor('camp1')],
-                'materialItems' => ['href' => '/material_items?period=%2Fperiods%2F'.$period->getId()],
+                'materialItems' => ['href' => '/periods/'.$period->getId().'/material_items'],
                 'days' => ['href' => '/periods/'.$period->getId().'/days'],
                 'scheduleEntries' => ['href' => '/periods/'.$period->getId().'/schedule_entries'],
             ],
@@ -104,7 +104,7 @@ class ReadPeriodTest extends ECampApiTestCase {
             'end' => $period->end->format('Y-m-d'),
             '_links' => [
                 'camp' => ['href' => $this->getIriFor('camp1')],
-                'materialItems' => ['href' => '/material_items?period=%2Fperiods%2F'.$period->getId()],
+                'materialItems' => ['href' => '/periods/'.$period->getId().'/material_items'],
                 'days' => ['href' => '/periods/'.$period->getId().'/days'],
                 'scheduleEntries' => ['href' => '/periods/'.$period->getId().'/schedule_entries'],
             ],

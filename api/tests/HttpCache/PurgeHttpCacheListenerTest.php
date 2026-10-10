@@ -18,6 +18,7 @@ use ApiPlatform\HttpCache\PurgerInterface;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\IriConverterInterface;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Operations;
 use ApiPlatform\Metadata\Resource\Factory\ResourceMetadataCollectionFactoryInterface;
 use ApiPlatform\Metadata\Resource\ResourceMetadataCollection;
@@ -27,6 +28,7 @@ use App\HttpCache\PurgeHttpCacheListener;
 use App\Tests\HttpCache\Entity\ContainNonResource;
 use App\Tests\HttpCache\Entity\Dummy;
 use App\Tests\HttpCache\Entity\DummyNoGetOperation;
+use App\Tests\HttpCache\Entity\DummyWithUninitializedRelation;
 use App\Tests\HttpCache\Entity\NotAResource;
 use App\Tests\HttpCache\Entity\RelatedDummy;
 use App\Tests\HttpCache\Entity\RelatedOwningDummy;
@@ -556,6 +558,72 @@ class PurgeHttpCacheListenerTest extends TestCase {
             resourceClassResolver: $this->resourceClassResolverProphecy,
             propertyAccessor: $this->propertyAccessorProphecy,
             resourceMetadataCollectionFactory: $this->metadataFactoryProphecy,
+            cacheManager: $this->cacheManagerProphecy,
+            em: $em,
+        );
+        $listener->onFlush();
+        $listener->postFlush();
+    }
+
+    public function testInsertingWithUninitializedRelationShouldNotThrow(): void {
+        // given
+        $toInsert = new DummyWithUninitializedRelation();
+        $toInsert->setId('1');
+
+        $unitOfWork = $this->createStub(UnitOfWork::class);
+        $unitOfWork->method('getScheduledEntityInsertions')->willReturn([$toInsert]);
+        $unitOfWork->method('getScheduledEntityUpdates')->willReturn([]);
+        $unitOfWork->method('getScheduledEntityDeletions')->willReturn([]);
+        $unitOfWork->method('getScheduledCollectionUpdates')->willReturn([]);
+        $unitOfWork->method('getScheduledCollectionDeletions')->willReturn([]);
+
+        $em = $this->createStub(EntityManagerInterface::class);
+        $em->method('getUnitOfWork')->willReturn($unitOfWork);
+        $classMetadata = new ClassMetadata(DummyWithUninitializedRelation::class);
+        $classMetadata->wakeupReflection(new StaticReflectionService());
+        $em->method('getClassMetadata')->willReturn($classMetadata);
+
+        $resourceClassResolver = $this->createStub(ResourceClassResolverInterface::class);
+        $resourceClassResolver->method('isResourceClass')->willReturn(true);
+        $resourceClassResolver->method('getResourceClass')->willReturn(DummyWithUninitializedRelation::class);
+
+        $rootOperation = new GetCollection()->withShortName('DummyWithUninitializedRelation')->withClass(DummyWithUninitializedRelation::class);
+        $subresourceOperation = (new GetCollection())->withShortName('DummyWithUninitializedRelationAsSubresource')->withClass(DummyWithUninitializedRelation::class)->withUriVariables(['relatedDummyId' => new Link(toProperty: 'relatedDummy', fromClass: RelatedDummy::class)]);
+        $metadataFactory = $this->createStub(ResourceMetadataCollectionFactoryInterface::class);
+        $metadataFactory->method('create')->willReturn(new ResourceMetadataCollection('DummyWithUninitializedRelation', [
+            new ApiResource('DummyWithUninitializedRelation')
+                ->withShortName('DummyWithUninitializedRelation')
+                ->withOperations(new Operations([
+                    'get_collection' => $rootOperation,
+                    'related_dummies/{relatedDummyId}/dummies_get_collection' => $subresourceOperation,
+                ])),
+        ]));
+
+        $iriConverter = $this->createStub(IriConverterInterface::class);
+        $iriConverter->method('getIriFromResource')->willReturnCallback(function (object|string $resource, ...$args) use ($rootOperation): ?string {
+            if ($resource instanceof DummyWithUninitializedRelation && isset($args[1]) && $args[1] === $rootOperation) {
+                return '/dummies';
+            }
+
+            return null;
+        });
+
+        $propertyAccessor = $this->createStub(PropertyAccessorInterface::class);
+        $propertyAccessor->method('isReadable')->willReturn(false);
+        $propertyAccessor->method('getValue')->willReturn(null);
+
+        // then
+        $this->cacheManagerProphecy->expects($this->once())
+            ->method('invalidateTags')
+            ->with(['/dummies'])
+        ;
+
+        // when
+        $listener = new PurgeHttpCacheListener(
+            iriConverter: $iriConverter,
+            resourceClassResolver: $resourceClassResolver,
+            propertyAccessor: $propertyAccessor,
+            resourceMetadataCollectionFactory: $metadataFactory,
             cacheManager: $this->cacheManagerProphecy,
             em: $em,
         );

@@ -9,8 +9,10 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use App\Doctrine\Filter\MaterialItemPeriodFilter;
 use App\Entity\ContentNode\MaterialNode;
 use App\InputFilter;
@@ -44,8 +46,69 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new GetCollection(
             security: 'is_authenticated()',
+            openapi: new OpenApiOperation(description: 'Deprecated: use subresource routes (/camps/{campId}/material_items, /material_lists/{materialListId}/material_items, /content_node/material_nodes/{materialNodeId}/material_items) instead.'),
             extraProperties: [
                 'scoping_filters' => ['camp', 'period', 'materialList', 'materialNode'],
+            ]
+        ),
+        new GetCollection(
+            uriTemplate: self::CAMP_SUBRESOURCE_URI_TEMPLATE,
+            uriVariables: [
+                'campId' => new Link(
+                    toProperty: 'camp',
+                    fromClass: Camp::class,
+                    security: 'is_granted("CAMP_COLLABORATOR", camp) or is_granted("CAMP_IS_PUBLIC", camp)'
+                ),
+            ],
+            normalizationContext: ['groups' => ['read']],
+            security: 'is_fully_authenticated()',
+            extraProperties: [
+                'filter_by_current_user' => false,
+            ]
+        ),
+        new GetCollection(
+            uriTemplate: self::MATERIALLIST_SUBRESOURCE_URI_TEMPLATE,
+            uriVariables: [
+                'materialListId' => new Link(
+                    toProperty: 'materialList',
+                    fromClass: MaterialList::class,
+                    security: 'is_granted("CAMP_COLLABORATOR", materialList) or is_granted("CAMP_IS_PUBLIC", materialList)'
+                ),
+            ],
+            normalizationContext: ['groups' => ['read']],
+            security: 'is_fully_authenticated()',
+            extraProperties: [
+                'filter_by_current_user' => false,
+            ]
+        ),
+        new GetCollection(
+            uriTemplate: self::MATERIALNODE_SUBRESOURCE_URI_TEMPLATE,
+            uriVariables: [
+                'materialNodeId' => new Link(
+                    toProperty: 'materialNode',
+                    fromClass: MaterialNode::class,
+                    security: 'is_granted("CAMP_COLLABORATOR", materialNode) or is_granted("CAMP_IS_PUBLIC", materialNode)'
+                ),
+            ],
+            normalizationContext: ['groups' => ['read']],
+            security: 'is_fully_authenticated()',
+            extraProperties: [
+                'filter_by_current_user' => false,
+            ]
+        ),
+        new GetCollection(
+            uriTemplate: self::PERIOD_SUBRESOURCE_URI_TEMPLATE,
+            uriVariables: [
+                'periodId' => new Link(
+                    toProperty: 'period',
+                    fromClass: Period::class,
+                    security: 'is_granted("CAMP_COLLABORATOR", period) or is_granted("CAMP_IS_PUBLIC", period)'
+                ),
+            ],
+            normalizationContext: ['groups' => ['read']],
+            security: 'is_fully_authenticated()',
+            extraProperties: [
+                'filter_by_current_user' => false,
             ]
         ),
         new Post(
@@ -61,6 +124,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(filterClass: MaterialItemPeriodFilter::class)]
 #[ORM\Entity(repositoryClass: MaterialItemRepository::class)]
 class MaterialItem extends BaseEntity implements BelongsToCampInterface, CopyFromPrototypeInterface {
+    public const CAMP_SUBRESOURCE_URI_TEMPLATE = '/camps/{campId}/material_items{._format}'; // ponytail: no custom controller needed; API Platform subresource handles filtering via Doctrine relation.
+    public const MATERIALLIST_SUBRESOURCE_URI_TEMPLATE = '/material_lists/{materialListId}/material_items{._format}';
+    public const MATERIALNODE_SUBRESOURCE_URI_TEMPLATE = '/content_node/material_nodes/{materialNodeId}/material_items{._format}';
+    public const PERIOD_SUBRESOURCE_URI_TEMPLATE = '/periods/{periodId}/material_items{._format}';
+
     /**
      * The Camp to which this item belongs.
      *

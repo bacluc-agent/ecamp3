@@ -58,7 +58,7 @@ class ReadMaterialListTest extends ECampApiTestCase {
             'name' => $materialList->name,
             '_links' => [
                 'camp' => ['href' => $this->getIriFor('camp1')],
-                'materialItems' => ['href' => '/material_items?materialList=%2Fmaterial_lists%2F'.$materialList->getId()],
+                'materialItems' => ['href' => '/material_lists/'.$materialList->getId().'/material_items'],
             ],
         ]);
     }
@@ -75,7 +75,7 @@ class ReadMaterialListTest extends ECampApiTestCase {
             'name' => $materialList->name,
             '_links' => [
                 'camp' => ['href' => $this->getIriFor('camp1')],
-                'materialItems' => ['href' => '/material_items?materialList=%2Fmaterial_lists%2F'.$materialList->getId()],
+                'materialItems' => ['href' => '/material_lists/'.$materialList->getId().'/material_items'],
             ],
         ]);
     }
@@ -90,7 +90,7 @@ class ReadMaterialListTest extends ECampApiTestCase {
             'name' => $materialList->name,
             '_links' => [
                 'camp' => ['href' => $this->getIriFor('camp1')],
-                'materialItems' => ['href' => '/material_items?materialList=%2Fmaterial_lists%2F'.$materialList->getId()],
+                'materialItems' => ['href' => '/material_lists/'.$materialList->getId().'/material_items'],
             ],
         ]);
     }
@@ -105,7 +105,7 @@ class ReadMaterialListTest extends ECampApiTestCase {
             'name' => $materialList->name,
             '_links' => [
                 'camp' => ['href' => $this->getIriFor('campPrototype')],
-                'materialItems' => ['href' => '/material_items?materialList=%2Fmaterial_lists%2F'.$materialList->getId()],
+                'materialItems' => ['href' => '/material_lists/'.$materialList->getId().'/material_items'],
             ],
         ]);
     }
@@ -120,7 +120,7 @@ class ReadMaterialListTest extends ECampApiTestCase {
             'name' => $materialList->name,
             '_links' => [
                 'camp' => ['href' => $this->getIriFor('campShared')],
-                'materialItems' => ['href' => '/material_items?materialList=%2Fmaterial_lists%2F'.$materialList->getId()],
+                'materialItems' => ['href' => '/material_lists/'.$materialList->getId().'/material_items'],
             ],
         ]);
     }
@@ -137,7 +137,7 @@ class ReadMaterialListTest extends ECampApiTestCase {
             'name' => $materialList->name,
             '_links' => [
                 'camp' => ['href' => $this->getIriFor('campShared')],
-                'materialItems' => ['href' => '/material_items?materialList=%2Fmaterial_lists%2F'.$materialList->getId()],
+                'materialItems' => ['href' => '/material_lists/'.$materialList->getId().'/material_items'],
             ],
         ]);
     }
@@ -154,7 +154,7 @@ class ReadMaterialListTest extends ECampApiTestCase {
             'name' => $materialList->name,
             '_links' => [
                 'camp' => ['href' => $this->getIriFor('campShared')],
-                'materialItems' => ['href' => '/material_items?materialList=%2Fmaterial_lists%2F'.$materialList->getId()],
+                'materialItems' => ['href' => '/material_lists/'.$materialList->getId().'/material_items'],
             ],
         ]);
     }
