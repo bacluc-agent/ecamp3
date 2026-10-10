@@ -22,12 +22,16 @@ check() {
 }
 
 check 'prettier (root lint:check)' docker compose run --rm prettier npm run lint:check
-check 'php-cs-fixer (api cs-fix)' docker compose exec api composer cs-fix
+while IFS='|' read -r folder _container _service check_service cmd _use_cmd_as_entrypoint; do
+  case "$folder" in
+    frontend) check 'eslint+prettier (frontend lint)' docker compose exec "$check_service" $cmd ;;
+    api) check 'php-cs-fixer (api cs-fix)' docker compose exec "$check_service" $cmd ;;
+    print) check 'eslint+prettier (print lint)' docker compose exec "$check_service" $cmd ;;
+    e2e) check 'eslint+prettier+typecheck (e2e lint)' docker compose run --rm "$check_service" $cmd ;;
+  esac
+done < .agents/scripts/lint-command-map
 check 'psalm (api)' docker compose exec api composer psalm
 check 'phpstan (api)' docker compose exec api composer phpstan
-check 'eslint+prettier (frontend lint)' docker compose exec frontend npm run lint
-check 'eslint+prettier (print lint)' docker compose exec print npm run lint
-check 'eslint+prettier+typecheck (e2e lint)' docker compose run --rm e2e npm run lint
 
 if (( status != 0 )); then
   exit 2
