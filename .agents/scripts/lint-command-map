@@ -1,0 +1,4 @@
+frontend|ecamp3-frontend|frontend|frontend|npm run lint|false
+api|ecamp3-api|php|api|composer cs-fix|false
+print|ecamp3-print|print|print|npm run lint|false
+e2e|ecamp3-e2e|e2e|e2e|npm run lint|true
