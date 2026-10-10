@@ -1,4 +1,6 @@
-import { test, expect } from '@playwright/test'
+import { expect } from '@playwright/test'
+import { bipiUser } from '@/utils/constants'
+import { test } from '@/utils/etest'
 
 test.describe('Login test', { tag: '@mature' }, () => {
   test('displays the login page', async ({ page }) => {
@@ -23,3 +25,30 @@ test.describe('Login test', { tag: '@mature' }, () => {
     await expect(page.getByText('Harry Potter Lager', { exact: true })).toBeVisible()
   })
 })
+
+test(
+  'displays the login page via page objects',
+  { tag: '@mature' },
+  async ({ loginPage }) => {
+    await loginPage.open()
+
+    await expect(loginPage.locator).toContainText('Login')
+    await expect(loginPage.locator).toContainText(
+      'This is the development version of eCamp v3.'
+    )
+    await expect(loginPage.locator).toContainText('Register now')
+  }
+)
+
+test(
+  'can login with default user via page objects',
+  { tag: '@mature' },
+  async ({ loginPage }) => {
+    await loginPage.open()
+    const campListPage = await loginPage.loginToCampList(bipiUser)
+
+    await expect(campListPage.loggedInUserButton('Bi-Pi')).toBeVisible()
+    await expect(campListPage.campTitle('GRGR')).toBeVisible()
+    await expect(campListPage.campTitle('Harry Potter Lager')).toBeVisible()
+  }
+)
