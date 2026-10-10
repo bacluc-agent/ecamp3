@@ -4,27 +4,24 @@ import { boxedStep } from '@/utils/decorators/boxedStep'
 export class ESelect {
   constructor(
     private readonly _locator: Locator,
-    private readonly _selectOpenLocator = _locator.page().locator('.v-overlay--active'),
-    private readonly _selectClosedLocator = _locator.page().locator('.v-overlay')
+    // the select's own aria-expanded is the only open/closed signal it publishes
+    private readonly _activator = _locator.locator('input[aria-expanded]'),
+    private readonly _page = _locator.page()
   ) {}
 
   @boxedStep
   async open() {
     await this._locator.click()
-    await expect(this._selectOpenLocator).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(this._activator).toHaveAttribute('aria-expanded', 'true')
     return this
   }
 
   @boxedStep
   async select(value: string) {
-    await this._selectOpenLocator.getByText(value, { exact: true }).click()
-
-    await expect(this._selectClosedLocator).toBeHidden({
-      timeout: 10000,
-    })
-
+    // ponytail: page-scoped role=option assumes a single open select per page;
+    // scope it through the activator's aria-controls id if that ever changes
+    await this._page.getByRole('option', { name: value, exact: true }).click()
+    await expect(this._activator).toHaveAttribute('aria-expanded', 'false')
     return this
   }
 
