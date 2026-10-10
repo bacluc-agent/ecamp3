@@ -23,6 +23,7 @@ import { getEnv } from '@/environment.js'
 import { isChunkLoadError } from '@/helpers/chunkLoadError.js'
 import { notifyNewVersionAvailable } from '@/helpers/newVersionAvailable.js'
 import { warnAboutSelfXss } from '@/helpers/selfXssWarning.js'
+import { sentryRelease } from '@/sentryRelease.js'
 
 browserUpdate({
   required: {
@@ -44,6 +45,7 @@ if (env && env.SENTRY_FRONTEND_DSN) {
     app,
     dsn: env.SENTRY_FRONTEND_DSN,
     environment: sentryEnvironment,
+    release: sentryRelease,
     enableTracing: false,
     autoSessionTracking: false,
     logErrors: process.env.NODE_ENV !== 'production',
