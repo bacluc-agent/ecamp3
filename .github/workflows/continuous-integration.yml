@@ -154,7 +154,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - run: npm ci --no-audit
+      - run: unset npm_config_store && npm ci --no-audit
         working-directory: frontend
 
       - run: |
@@ -183,7 +183,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - run: npm ci --no-audit
+      - run: unset npm_config_store && npm ci --no-audit
         working-directory: print
 
       - run: |
@@ -408,7 +408,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - run: npm ci --no-audit
+      - run: unset npm_config_store && npm ci --no-audit
         working-directory: frontend
 
       - run: npm run build
@@ -445,7 +445,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - run: npm ci --no-audit
+      - run: unset npm_config_store && npm ci --no-audit
         working-directory: print
 
       - run: npm run build
