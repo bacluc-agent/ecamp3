@@ -603,6 +603,8 @@ class CreateCategoryTest extends ECampApiTestCase {
             $camp1->getId().'#categories',
             $contentType->getId().'#categories',
         ], $cacheManager->getInvalidatedTags());
+        self::assertNotContains('/camps', $cacheManager->getInvalidatedTags());
+        self::assertNotContains('/camps?', $cacheManager->getInvalidatedTags());
         self::assertNotContains('/camps/'.$camp1->getId().'/categories', $cacheManager->getInvalidatedTags());
         self::assertNotContains('/camps/'.$camp1->getId().'/categories?', $cacheManager->getInvalidatedTags());
         self::assertNotContains('?'.$camp1->getId(), $cacheManager->getInvalidatedTags());
