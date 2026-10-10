@@ -21,32 +21,14 @@ check() {
   fi
 }
 
-# Run <cmd...> only when container <name> is up; otherwise print SKIP and
-# leave the status untouched (graceful skip, same docker inspect check as
-# pre-commit.sh).
-skip_if_down() {
-  local name="$1" container="$2"
-  shift 2
-  if [[ "$(docker inspect --format '{{.State.Running}}' "$container" 2> /dev/null)" == "true" ]]; then
-    check "$name" "$@"
-  else
-    printf 'SKIP: %s (container %s not running)\n' "$name" "$container"
-  fi
-}
-
 check 'prettier (root lint:check)' docker compose run --rm prettier npm run lint:check
-skip_if_down 'php-cs-fixer (api cs-fix)' ecamp3-api docker compose exec api composer cs-fix
-skip_if_down 'psalm (api)' ecamp3-api docker compose exec api composer psalm
-skip_if_down 'phpstan (api)' ecamp3-api docker compose exec api composer phpstan
-skip_if_down 'eslint+prettier (frontend lint)' ecamp3-frontend docker compose exec frontend npm run lint
-skip_if_down 'eslint+prettier (print lint)' ecamp3-print docker compose exec print npm run lint
-skip_if_down 'eslint+prettier+typecheck (e2e lint)' ecamp3-e2e docker compose exec e2e npm run lint
+check 'php-cs-fixer (api cs-fix)' docker compose exec api composer cs-fix
+check 'psalm (api)' docker compose exec api composer psalm
+check 'phpstan (api)' docker compose exec api composer phpstan
+check 'eslint+prettier (frontend lint)' docker compose exec frontend npm run lint
+check 'eslint+prettier (print lint)' docker compose exec print npm run lint
+check 'eslint+prettier+typecheck (e2e lint)' docker compose run --rm e2e npm run lint
 
-# Deviation from the reference script's `exit "$status"`: Claude Code Stop hooks
-# treat exit 1 as a NON-blocking error (Claude stops anyway) and only exit 2
-# blocks the stop and feeds stderr back to Claude as the re-prompt reason.
-# The opencode plugin treats any non-zero exit as "not finished", so exit 2
-# satisfies both consumers. See https://code.claude.com/docs/en/hooks.
 if (( status != 0 )); then
   exit 2
 fi
