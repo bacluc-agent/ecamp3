@@ -593,12 +593,21 @@ class CreateCategoryTest extends ECampApiTestCase {
         $contentType = static::getFixture('contentTypeSafetyConsiderations');
         self::assertEqualsCanonicalizing([
             '/categories',
-            '/camps/'.$camp1->getId().'/categories',
+            '/categories?',
             '/content_nodes',
+            '/content_nodes?',
             '/content_node/column_layouts',
+            '/content_node/column_layouts?',
+            '/content_types',
+            '/content_types?',
             $camp1->getId().'#categories',
             $contentType->getId().'#categories',
         ], $cacheManager->getInvalidatedTags());
+        self::assertNotContains('/camps', $cacheManager->getInvalidatedTags());
+        self::assertNotContains('/camps?', $cacheManager->getInvalidatedTags());
+        self::assertNotContains('/camps/'.$camp1->getId().'/categories', $cacheManager->getInvalidatedTags());
+        self::assertNotContains('/camps/'.$camp1->getId().'/categories?', $cacheManager->getInvalidatedTags());
+        self::assertNotContains('?'.$camp1->getId(), $cacheManager->getInvalidatedTags());
     }
 
     /**

@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test'
-import { bipiUser, bruceWayneUser, grgrPeriodId } from '@/utils/constants'
+import {
+  bipiUser,
+  bruceWayneUser,
+  grgrPeriodId,
+  skilagerPeriodId,
+} from '@/utils/constants'
 import {
   expectCacheHit,
   expectCacheMiss,
@@ -29,6 +34,7 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
 
   test('caches /periods/{periodId}/days separately for each login', async () => {
     const uri = `/api/periods/${grgrPeriodId}/days`
+    const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
@@ -41,21 +47,32 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
 
     // second request is a cache hit
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
 
     // request with a new user is a cache miss
     const bruceApi = await getAuthContext(bruceWayneUser)
     await expectCacheMiss(bruceApi, uri)
+    await expectCacheMiss(bruceApi, filteredUri)
   })
 
   test('invalidates /periods/{periodId}/days when changing the period dates', async () => {
     const uri = `/api/periods/${grgrPeriodId}/days`
+    const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}`
 
     const bipiApi = await getAuthContext(bipiUser)
+
+    await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
+      start: '2036-05-10',
+      end: '2036-05-14',
+      moveScheduleEntries: true,
+    })
 
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
-
+    await apiGet(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
     // move period start date
     await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
       start: '2036-05-09',
@@ -66,6 +83,8 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
 
     // move period start date
     await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
@@ -77,16 +96,38 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+
+    await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
+      start: '2036-05-10',
+      end: '2036-05-14',
+      moveScheduleEntries: true,
+    })
+    await waitForCacheMiss(bipiApi, uri)
+    await expectCacheMiss(bipiApi, filteredUri)
   })
 
   test('invalidates /periods/{periodId}/days when adding a day responsible', async () => {
     const uri = `/api/periods/${grgrPeriodId}/days`
+    const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}`
+    const excludedEntityUri = `${uri}?period=%2Fperiods%2F${skilagerPeriodId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    const excludedEntityResponse = await apiGet(bipiApi, excludedEntityUri)
+    expect(excludedEntityResponse.headers()['x-cache']).toBe('MISS')
+    const excludedDays: Array<{ _links: { self: { href: string } } }> =
+      (await excludedEntityResponse.json())._embedded?.items ?? []
+    expect(
+      excludedDays.some((day) => day._links.self.href.endsWith('/days/4b90ff5b42c0'))
+    ).toBe(false)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // add new day responsible
     const postRes = await apiPost(bipiApi, '/api/day_responsibles', {
@@ -99,6 +140,10 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // delete newly created day responsible
     await apiDelete(bipiApi, newDayResponsibleUri)
@@ -106,5 +151,9 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
   })
 })

@@ -25,6 +25,9 @@ use ApiPlatform\Metadata\ResourceClassResolverInterface;
 use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\Metadata\Util\ClassInfoTrait;
 use App\Entity\BaseEntity;
+use App\Entity\BelongsToCampInterface;
+use App\Entity\Camp;
+use App\Entity\Category;
 use App\Entity\HasId;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
@@ -43,6 +46,8 @@ final readonly class PurgeHttpCacheListener {
     use ClassInfoTrait;
 
     public const string IRI_RELATION_DELIMITER = '#';
+
+    public const string QUERY_TAG = '?';
 
     public function __construct(
         private IriConverterInterface $iriConverter,
@@ -81,20 +86,37 @@ final readonly class PurgeHttpCacheListener {
      */
     public function onFlush(): void {
         $uow = $this->em->getUnitOfWork();
+        $queryTags = [];
 
         foreach ($uow->getScheduledEntityInsertions() as $entity) {
+            $tag = $entity instanceof Category ? null : $this->getQueryTag($entity);
+            if ($tag) {
+                $queryTags[$tag] = true;
+            }
             $this->gatherResourceTags($entity);
             $this->gatherRelationTags($entity);
         }
 
         foreach ($uow->getScheduledEntityUpdates() as $entity) {
             $originalEntity = $this->getOriginalEntity($entity);
+            $tag = $entity instanceof Category ? null : $this->getQueryTag($entity);
+            if ($tag) {
+                $queryTags[$tag] = true;
+            }
+            $tag = $originalEntity instanceof Category ? null : $this->getQueryTag($originalEntity);
+            if ($tag) {
+                $queryTags[$tag] = true;
+            }
             $this->addTagForItem($entity);
             $this->gatherResourceTags($entity, $originalEntity);
         }
 
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
             $originalEntity = $this->getOriginalEntity($entity);
+            $tag = $originalEntity instanceof Category ? null : $this->getQueryTag($originalEntity);
+            if ($tag) {
+                $queryTags[$tag] = true;
+            }
             $this->addTagForItem($originalEntity);
             $this->gatherResourceTags($originalEntity);
             $this->gatherRelationTags($originalEntity);
@@ -108,6 +130,9 @@ final readonly class PurgeHttpCacheListener {
         }
         foreach ($uow->getScheduledCollectionDeletions() as $collection) {
             $this->addTagsForManyToManyRelations($collection, $collection->getDeleteDiff());
+        }
+        foreach (array_keys($queryTags) as $queryTag) {
+            $this->cacheManager->invalidateTags([$queryTag]);
         }
     }
 
@@ -182,7 +207,9 @@ final readonly class PurgeHttpCacheListener {
             $metadata = $resourceIterator->current();
 
             foreach ($metadata->getOperations() ?? [] as $operation) {
-                if ($operation instanceof GetCollection) {
+                if ($operation instanceof GetCollection
+                    && !($entity instanceof Category && Category::CAMP_SUBRESOURCE_URI_TEMPLATE === $operation->getUriTemplate())
+                ) {
                     $this->invalidateCollection($operation, $entity, $oldEntity);
                 }
             }
@@ -218,13 +245,17 @@ final readonly class PurgeHttpCacheListener {
                 // if such routes should be cached, custom logic is needed to purge the correct IRIs
             }
         }
-        if ($iri !== $oldIri) {
-            if ($iri) {
-                $this->cacheManager->invalidateTags([$iri]);
-            }
-            if ($oldIri) {
-                $this->cacheManager->invalidateTags([$oldIri]);
-            }
+        if ($iri) {
+            $this->cacheManager->invalidateTags([$iri]);
+        }
+        if ($oldIri && $oldIri !== $iri) {
+            $this->cacheManager->invalidateTags([$oldIri]);
+        }
+        if ($iri) {
+            $this->cacheManager->invalidateTags([$iri.self::QUERY_TAG]);
+        }
+        if ($oldIri && $oldIri !== $iri) {
+            $this->cacheManager->invalidateTags([$oldIri.self::QUERY_TAG]);
         }
     }
 
@@ -256,18 +287,22 @@ final readonly class PurgeHttpCacheListener {
 
             $this->addTagsFor(
                 $relatedObject,
-                $relatedProperty
+                $relatedProperty,
+                !($entity instanceof Category && $relatedObject instanceof Camp)
             );
         }
     }
 
-    private function addTagsFor(mixed $value, ?string $property = null): void {
+    private function addTagsFor(mixed $value, ?string $property = null, bool $purgeCollectionTags = false): void {
         if (!$value || \is_scalar($value)) {
             return;
         }
 
         if (!is_iterable($value)) {
             $this->addTagForItem($value, $property);
+            if ($purgeCollectionTags && is_object($value)) {
+                $this->gatherResourceTags($value);
+            }
 
             return;
         }
@@ -278,6 +313,9 @@ final readonly class PurgeHttpCacheListener {
 
         foreach ($value as $v) {
             $this->addTagForItem($v, $property);
+            if ($purgeCollectionTags && is_object($v)) {
+                $this->gatherResourceTags($v);
+            }
         }
     }
 
@@ -320,5 +358,11 @@ final readonly class PurgeHttpCacheListener {
         }
 
         return true;
+    }
+
+    private function getQueryTag(object $entity): ?string {
+        $camp = $entity instanceof BelongsToCampInterface ? $entity->getCamp() : null;
+
+        return $camp?->getId() ? self::QUERY_TAG.$camp->getId() : null;
     }
 }

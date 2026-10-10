@@ -21,13 +21,15 @@ use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\State\UriVariablesResolverTrait;
 use ApiPlatform\State\Util\OperationRequestInitiatorTrait;
 use ApiPlatform\State\Util\RequestAttributesExtractor;
+use App\Entity\Period;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 
 final class AddCollectionTagsListener {
     use OperationRequestInitiatorTrait;
     use UriVariablesResolverTrait;
 
-    public function __construct(private readonly IriConverterInterface $iriConverter, ResourceMetadataCollectionFactoryInterface $resourceMetadataCollectionFactory, private ResponseTagger $responseTagger) {
+    public function __construct(private readonly IriConverterInterface $iriConverter, ResourceMetadataCollectionFactoryInterface $resourceMetadataCollectionFactory, private ResponseTagger $responseTagger, private readonly EntityManagerInterface $em) {
         $this->resourceMetadataCollectionFactory = $resourceMetadataCollectionFactory;
     }
 
@@ -52,6 +54,25 @@ final class AddCollectionTagsListener {
             }
 
             $this->responseTagger->addTags([$iri]);
+            if (null !== $request->getQueryString()) {
+                preg_match('~/camps/([^/?&#]+)~', $request->getPathInfo(), $matches);
+                if (empty($matches[1])) {
+                    preg_match('~/periods/([^/?&#]+)~', $request->getPathInfo(), $periodMatches);
+                    $periodIri = $periodMatches[0] ?? $request->query->get('period');
+                    if (is_string($periodIri)) {
+                        $periodId = basename((string) parse_url($periodIri, PHP_URL_PATH));
+                        $matches[1] = $this->em->find(Period::class, $periodId)?->camp?->getId();
+                    }
+                }
+                if (empty($matches[1]) && is_string($campIri = $request->query->get('camp'))) {
+                    preg_match('~/camps/([^/?&#]+)~', $campIri, $matches);
+                }
+                $queryTags = [$iri.PurgeHttpCacheListener::QUERY_TAG];
+                if (!empty($matches[1])) {
+                    $queryTags[] = PurgeHttpCacheListener::QUERY_TAG.$matches[1];
+                }
+                $this->responseTagger->addTags($queryTags);
+            }
         }
     }
 }

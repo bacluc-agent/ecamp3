@@ -145,12 +145,19 @@ class DeleteCategoryTest extends ECampApiTestCase {
         self::assertEqualsCanonicalizing([
             $category->getId(),
             '/categories',
-            '/camps/'.$camp->getId().'/categories',
+            '/categories?',
             $camp->getId().'#categories',
             '/content_nodes',
+            '/content_nodes?',
             '/content_node/column_layouts',
+            '/content_node/column_layouts?',
             $rootContentNode->getId(),
             $rootContentNode->getId().'#rootDescendants',
         ], $cacheManager->getInvalidatedTags());
+        self::assertNotContains('/camps', $cacheManager->getInvalidatedTags());
+        self::assertNotContains('/camps?', $cacheManager->getInvalidatedTags());
+        self::assertNotContains('/camps/'.$camp->getId().'/categories', $cacheManager->getInvalidatedTags());
+        self::assertNotContains('/camps/'.$camp->getId().'/categories?', $cacheManager->getInvalidatedTags());
+        self::assertNotContains('?'.$camp->getId(), $cacheManager->getInvalidatedTags());
     }
 }
