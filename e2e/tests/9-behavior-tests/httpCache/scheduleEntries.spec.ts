@@ -111,6 +111,15 @@ test.describe(
       await expectCacheHit(castorApi, filteredUri)
       await waitForCacheMiss(bipiApi, excludedEntityUri)
       await expectCacheHit(bipiApi, excludedEntityUri)
+      const excludedEntriesAfterMutation: Array<{
+        _links: { self: { href: string } }
+      }> =
+        (await (await apiGet(bipiApi, excludedEntityUri)).json())._embedded?.items ?? []
+      expect(
+        excludedEntriesAfterMutation.some((entry) =>
+          entry._links.self.href.endsWith(`/schedule_entries/${scheduleEntryId}`)
+        )
+      ).toBe(false)
 
       await expectCacheMiss(bipiApi, uri)
     })

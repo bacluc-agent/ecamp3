@@ -84,6 +84,11 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
     await expectCacheHit(bipiApi, filteredUri)
     await waitForCacheMiss(bipiApi, excludedEntityUri)
     await expectCacheHit(bipiApi, excludedEntityUri)
+    const excludedItemsAfterMutation: Array<{ id: string }> =
+      (await (await apiGet(bipiApi, excludedEntityUri)).json())._embedded?.items ?? []
+    expect(excludedItemsAfterMutation.some((item) => item.id === 'ebbd0c61eb85')).toBe(
+      false
+    )
   })
 
   test.describe('invalidates /camp/{campId}/checklists for new checklist', () => {

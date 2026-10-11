@@ -165,6 +165,13 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     await expectCacheHit(bruceApi, filteredUri)
     await waitForCacheMiss(bruceApi, excludedEntityUri)
     await expectCacheHit(bruceApi, excludedEntityUri)
+    const excludedActivitiesAfterMutation: Array<{ _links: { self: { href: string } } }> =
+      (await (await apiGet(bruceApi, excludedEntityUri)).json())._embedded?.items ?? []
+    expect(
+      excludedActivitiesAfterMutation.some((activity) =>
+        activity._links.self.href.endsWith(`/activities/${activityId}`)
+      )
+    ).toBe(false)
 
     const bruceApi2 = await getAuthContext(bruceWayneUser)
     await expectCacheMiss(bruceApi2, uri)

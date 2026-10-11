@@ -144,6 +144,13 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     await expectCacheHit(bipiApi, filteredUri)
     await waitForCacheMiss(bipiApi, excludedEntityUri)
     await expectCacheHit(bipiApi, excludedEntityUri)
+    const excludedDaysAfterMutation: Array<{ _links: { self: { href: string } } }> =
+      (await (await apiGet(bipiApi, excludedEntityUri)).json())._embedded?.items ?? []
+    expect(
+      excludedDaysAfterMutation.some((day) =>
+        day._links.self.href.endsWith('/days/4b90ff5b42c0')
+      )
+    ).toBe(false)
 
     // delete newly created day responsible
     await apiDelete(bipiApi, newDayResponsibleUri)
@@ -155,5 +162,12 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     await expectCacheHit(bipiApi, filteredUri)
     await waitForCacheMiss(bipiApi, excludedEntityUri)
     await expectCacheHit(bipiApi, excludedEntityUri)
+    const excludedDaysAfterDelete: Array<{ _links: { self: { href: string } } }> =
+      (await (await apiGet(bipiApi, excludedEntityUri)).json())._embedded?.items ?? []
+    expect(
+      excludedDaysAfterDelete.some((day) =>
+        day._links.self.href.endsWith('/days/4b90ff5b42c0')
+      )
+    ).toBe(false)
   })
 })
