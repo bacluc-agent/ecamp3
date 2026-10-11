@@ -169,6 +169,9 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, uri)
     await waitForCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    const filteredCategories: Array<{ id: string }> =
+      (await (await apiGet(bipiApi, filteredUri)).json())._embedded?.items ?? []
+    expect(filteredCategories.some((category) => category.id === newCategoryId)).toBe(true)
     const excludedResponse = await apiGet(bipiApi, excludedUri)
     expect(excludedResponse.headers()['x-cache']).toBe('HIT')
     const excludedCategories: Array<{ id: string }> =
@@ -185,6 +188,11 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, uri)
     await waitForCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    const filteredCategoriesAfterDelete: Array<{ id: string }> =
+      (await (await apiGet(bipiApi, filteredUri)).json())._embedded?.items ?? []
+    expect(
+      filteredCategoriesAfterDelete.some((category) => category.id === newCategoryId)
+    ).toBe(false)
     const excludedAfterDelete = await apiGet(bipiApi, excludedUri)
     expect(excludedAfterDelete.headers()['x-cache']).toBe('HIT')
     const excludedCategoriesAfterDelete: Array<{ id: string }> =
