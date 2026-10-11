@@ -28,6 +28,7 @@ use App\Entity\BaseEntity;
 use App\Entity\BelongsToCampInterface;
 use App\Entity\Camp;
 use App\Entity\Category;
+use App\Entity\ContentNode;
 use App\Entity\HasId;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
@@ -87,12 +88,12 @@ final readonly class PurgeHttpCacheListener {
     public function onFlush(): void {
         $uow = $this->em->getUnitOfWork();
         $queryTags = [];
-        $deletingCategory = false;
+        $categoryContentNodeIds = [];
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
             if ($entity instanceof Category) {
-                $deletingCategory = true;
-
-                break;
+                foreach ($entity->getContentNodes() as $contentNode) {
+                    $categoryContentNodeIds[$contentNode->getId()] = true;
+                }
             }
         }
 
@@ -121,7 +122,9 @@ final readonly class PurgeHttpCacheListener {
 
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
             $originalEntity = $this->getOriginalEntity($entity);
-            $tag = $deletingCategory || $originalEntity instanceof Category ? null : $this->getQueryTag($originalEntity);
+            $tag = $originalEntity instanceof Category || ($entity instanceof ContentNode && isset($categoryContentNodeIds[$entity->getId()]))
+                ? null
+                : $this->getQueryTag($originalEntity);
             if ($tag) {
                 $queryTags[$tag] = true;
             }
@@ -216,7 +219,7 @@ final readonly class PurgeHttpCacheListener {
 
             foreach ($metadata->getOperations() ?? [] as $operation) {
                 if ($operation instanceof GetCollection
-                    && !($entity instanceof Category && Category::CAMP_SUBRESOURCE_URI_TEMPLATE === $operation->getUriTemplate())
+                    && !($oldEntity && $entity instanceof Category && Category::CAMP_SUBRESOURCE_URI_TEMPLATE === $operation->getUriTemplate())
                 ) {
                     $this->invalidateCollection($operation, $entity, $oldEntity);
                 }

@@ -130,7 +130,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
   test('invalidates /camps/{campId}/categories for new category', async () => {
     const uri = `/api/camps/${grgrCampId}/categories`
     const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
-    const excludedUri = `/api/camps/${grgrCampId}/categories?camp=%2Fcamps%2F${loremIpsumCampId}`
+    const excludedUri = `/api/camps/${loremIpsumCampId}/categories?camp=%2Fcamps%2F${loremIpsumCampId}`
     const bipiApi = await getAuthContext(bipiUser)
 
     // warm up cache
