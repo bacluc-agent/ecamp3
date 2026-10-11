@@ -130,7 +130,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
   test('invalidates /camps/{campId}/categories for new category', async () => {
     const uri = `/api/camps/${grgrCampId}/categories`
     const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
-    const excludedUri = `/api/categories?camp=%2Fcamps%2F${loremIpsumCampId}`
+    const excludedUri = `/api/camps/${grgrCampId}/categories?camp=%2Fcamps%2F${loremIpsumCampId}`
     const bipiApi = await getAuthContext(bipiUser)
 
     // warm up cache
@@ -152,7 +152,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     // add new category to camp
     const postRes = await apiPost(bipiApi, '/api/categories', {
       camp: `/api/camps/${grgrCampId}`,
-      short: 'http-cache-new-category',
+      short: 'http-cache-new',
       name: 'new Category',
       color: '#000000',
       numberingStyle: '1',
@@ -171,7 +171,9 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, filteredUri)
     const filteredCategories: Array<{ id: string }> =
       (await (await apiGet(bipiApi, filteredUri)).json())._embedded?.items ?? []
-    expect(filteredCategories.some((category) => category.id === newCategoryId)).toBe(true)
+    expect(filteredCategories.some((category) => category.id === newCategoryId)).toBe(
+      true
+    )
     const excludedResponse = await apiGet(bipiApi, excludedUri)
     expect(excludedResponse.headers()['x-cache']).toBe('HIT')
     const excludedCategories: Array<{ id: string }> =

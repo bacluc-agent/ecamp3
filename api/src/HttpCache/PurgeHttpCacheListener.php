@@ -87,6 +87,14 @@ final readonly class PurgeHttpCacheListener {
     public function onFlush(): void {
         $uow = $this->em->getUnitOfWork();
         $queryTags = [];
+        $deletingCategory = false;
+        foreach ($uow->getScheduledEntityDeletions() as $entity) {
+            if ($entity instanceof Category) {
+                $deletingCategory = true;
+
+                break;
+            }
+        }
 
         foreach ($uow->getScheduledEntityInsertions() as $entity) {
             $tag = $entity instanceof Category ? null : $this->getQueryTag($entity);
@@ -113,7 +121,7 @@ final readonly class PurgeHttpCacheListener {
 
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
             $originalEntity = $this->getOriginalEntity($entity);
-            $tag = $originalEntity instanceof Category ? null : $this->getQueryTag($originalEntity);
+            $tag = $deletingCategory || $originalEntity instanceof Category ? null : $this->getQueryTag($originalEntity);
             if ($tag) {
                 $queryTags[$tag] = true;
             }
