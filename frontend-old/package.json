@@ -149,5 +149,11 @@
       "eslint . --ext .vue,.js --fix --ignore-path .gitignore",
       "git add"
     ]
+  },
+  "allowScripts": {
+    "@sentry/cli": false,
+    "core-js": false,
+    "esbuild": false,
+    "vue-demi": false
   }
 }
