@@ -146,6 +146,7 @@ class DeleteCategoryTest extends ECampApiTestCase {
             $category->getId(),
             '/categories',
             '/categories?',
+            '?'.$camp->getId(),
             $camp->getId().'#categories',
             '/camps/'.$camp->getId().'/categories',
             '/camps/'.$camp->getId().'/categories?',
@@ -158,6 +159,5 @@ class DeleteCategoryTest extends ECampApiTestCase {
         ], $cacheManager->getInvalidatedTags());
         self::assertNotContains('/camps', $cacheManager->getInvalidatedTags());
         self::assertNotContains('/camps?', $cacheManager->getInvalidatedTags());
-        self::assertNotContains('?'.$camp->getId(), $cacheManager->getInvalidatedTags());
     }
 }

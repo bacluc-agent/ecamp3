@@ -98,7 +98,7 @@ final readonly class PurgeHttpCacheListener {
         }
 
         foreach ($uow->getScheduledEntityInsertions() as $entity) {
-            $tag = $entity instanceof Category ? null : $this->getQueryTag($entity);
+            $tag = $this->getQueryTag($entity);
             if ($tag) {
                 $queryTags[$tag] = true;
             }
@@ -108,11 +108,11 @@ final readonly class PurgeHttpCacheListener {
 
         foreach ($uow->getScheduledEntityUpdates() as $entity) {
             $originalEntity = $this->getOriginalEntity($entity);
-            $tag = $entity instanceof Category ? null : $this->getQueryTag($entity);
+            $tag = $this->getQueryTag($entity);
             if ($tag) {
                 $queryTags[$tag] = true;
             }
-            $tag = $originalEntity instanceof Category ? null : $this->getQueryTag($originalEntity);
+            $tag = $this->getQueryTag($originalEntity);
             if ($tag) {
                 $queryTags[$tag] = true;
             }
@@ -122,7 +122,7 @@ final readonly class PurgeHttpCacheListener {
 
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
             $originalEntity = $this->getOriginalEntity($entity);
-            $tag = $originalEntity instanceof Category || ($entity instanceof ContentNode && isset($categoryContentNodeIds[$entity->getId()]))
+            $tag = $entity instanceof ContentNode && isset($categoryContentNodeIds[$entity->getId()])
                 ? null
                 : $this->getQueryTag($originalEntity);
             if ($tag) {
