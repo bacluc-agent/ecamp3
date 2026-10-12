@@ -264,10 +264,10 @@ final readonly class PurgeHttpCacheListener {
         if ($oldIri && $oldIri !== $iri) {
             $this->cacheManager->invalidateTags([$oldIri]);
         }
-        if ($iri) {
+        if (!$entity instanceof Category && $iri) {
             $this->cacheManager->invalidateTags([$iri.self::QUERY_TAG]);
         }
-        if ($oldIri && $oldIri !== $iri) {
+        if (!$entity instanceof Category && $oldIri && $oldIri !== $iri) {
             $this->cacheManager->invalidateTags([$oldIri.self::QUERY_TAG]);
         }
     }

@@ -139,9 +139,12 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     const uri = `/api/camps/${grgrCampId}/categories`
     const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
     const excludedUri = `/api/camps/${loremIpsumCampId}/categories?camp=%2Fcamps%2F${loremIpsumCampId}`
+    const unrelatedQueryUri = `/api/camps/${grgrCampId}/activities?camp=%2Fcamps%2F${grgrCampId}`
     const bipiApi = await getAuthContext(bipiUser)
 
     // warm up cache
+    await apiGet(bipiApi, unrelatedQueryUri)
+    await expectCacheHit(bipiApi, unrelatedQueryUri)
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
     await apiGet(bipiApi, filteredUri)
@@ -177,6 +180,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, uri)
     await waitForCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, unrelatedQueryUri)
     const filteredCategories: Array<{ id: string }> =
       (await (await apiGet(bipiApi, filteredUri)).json())._embedded?.items ?? []
     expect(filteredCategories.some((category) => category.id === newCategoryId)).toBe(
@@ -198,6 +202,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, uri)
     await waitForCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, unrelatedQueryUri)
     const filteredCategoriesAfterDelete: Array<{ id: string }> =
       (await (await apiGet(bipiApi, filteredUri)).json())._embedded?.items ?? []
     expect(
