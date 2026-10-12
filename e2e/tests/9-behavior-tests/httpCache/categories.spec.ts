@@ -128,8 +128,9 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     expect(
       refreshedFilteredCategories.find((category) => category.id === 'c5e1bc565094')?.name
     ).toBe('new_name')
+    await waitForCacheMiss(bruceApi, excludedEntityUri)
+    await expectCacheHit(bruceApi, excludedEntityUri)
     const excludedEntityAfterMutation = await apiGet(bruceApi, excludedEntityUri)
-    expect(excludedEntityAfterMutation.headers()['x-cache']).toBe('HIT')
     const categoriesAfterMutation: Array<{ id: string }> =
       (await excludedEntityAfterMutation.json())._embedded?.items ?? []
     expect(
