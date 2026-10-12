@@ -50,6 +50,8 @@ final readonly class PurgeHttpCacheListener {
 
     public const string QUERY_TAG = '?';
 
+    public const string CATEGORY_QUERY_TAG = '#categories';
+
     public function __construct(
         private IriConverterInterface $iriConverter,
         private ResourceClassResolverInterface $resourceClassResolver,
@@ -374,6 +376,8 @@ final readonly class PurgeHttpCacheListener {
     private function getQueryTag(object $entity): ?string {
         $camp = $entity instanceof BelongsToCampInterface ? $entity->getCamp() : null;
 
-        return $camp?->getId() ? self::QUERY_TAG.$camp->getId() : null;
+        return $camp?->getId()
+            ? self::QUERY_TAG.$camp->getId().($entity instanceof Category ? self::CATEGORY_QUERY_TAG : '')
+            : null;
     }
 }

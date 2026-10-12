@@ -591,7 +591,7 @@ class UpdateCategoryTest extends ECampApiTestCase {
             $category->getId(),
             '/categories',
             '/categories?',
-            '?'.$category->getCamp()->getId(),
+            '?'.$category->getCamp()->getId().'#categories',
             $contentTypeColumnLayout->getId().'#categories',
             $contentTypeNotes->getId().'#categories',
             $contentTypeSafetyConsiderations->getId().'#categories', // SafetyConsiderations was previously in the list, so this is purged because it was removed

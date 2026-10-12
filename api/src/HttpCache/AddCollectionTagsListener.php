@@ -21,6 +21,7 @@ use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\State\UriVariablesResolverTrait;
 use ApiPlatform\State\Util\OperationRequestInitiatorTrait;
 use ApiPlatform\State\Util\RequestAttributesExtractor;
+use App\Entity\Category;
 use App\Entity\Period;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -69,7 +70,8 @@ final class AddCollectionTagsListener {
                 }
                 $queryTags = [$iri.PurgeHttpCacheListener::QUERY_TAG];
                 if (!empty($matches[1])) {
-                    $queryTags[] = PurgeHttpCacheListener::QUERY_TAG.$matches[1];
+                    $queryTags[] = PurgeHttpCacheListener::QUERY_TAG.$matches[1]
+                        .(Category::class === $attributes['resource_class'] ? PurgeHttpCacheListener::CATEGORY_QUERY_TAG : '');
                 }
                 $this->responseTagger->addTags($queryTags);
             }
