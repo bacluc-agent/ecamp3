@@ -66,6 +66,9 @@
     "vue": "3.5.43"
   },
   "overrides": {
-    "uri-js": "npm:uri-js-replace"
+    "uri-js": "npm:uri-js-replace",
+    "glob": "^13.0.6",
+    "@koa/router": "^15.7.0",
+    "vue-i18n": "11.4.13"
   }
 }
