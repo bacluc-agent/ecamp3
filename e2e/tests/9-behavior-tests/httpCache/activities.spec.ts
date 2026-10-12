@@ -172,6 +172,11 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
         activity._links.self.href.endsWith(`/activities/${activityId}`)
       )
     ).toBe(false)
+    const refreshedFilteredActivities: Array<{ title: string }> =
+      (await (await apiGet(bruceApi, filteredUri)).json())._embedded?.items ?? []
+    expect(
+      refreshedFilteredActivities.find((activity) => activity.title === 'Frühstück')
+    ).toBeDefined()
 
     const bruceApi2 = await getAuthContext(bruceWayneUser)
     await expectCacheMiss(bruceApi2, uri)
