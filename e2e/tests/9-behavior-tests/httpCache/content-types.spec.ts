@@ -5,7 +5,6 @@ import { bipiUser, castorUser, grgrCampId } from '@/utils/constants'
 import {
   expectCacheHit,
   expectCacheMiss,
-  waitForCacheMiss,
   apiGet,
   apiPost,
   apiDelete,
@@ -77,7 +76,7 @@ test.describe('cache test: /content-types', { tag: '@mature' }, () => {
     await expectCacheHit(bipiApi, queryUri)
   })
 
-  test('invalidates /content_types when a category with preferredContentTypes is created', async () => {
+  test('keeps /content_types cache valid when a category with preferredContentTypes is created', async () => {
     const uri = '/api/content_types'
     const queryUri = `${uri}?name=Checklist`
 
@@ -90,7 +89,8 @@ test.describe('cache test: /content-types', { tag: '@mature' }, () => {
     await expectCacheHit(bipiApi, queryUri)
 
     // content types are read-only via the API; creating a category with
-    // preferredContentTypes is the API-triggered mutation that purges /content_types?
+    // preferredContentTypes must only invalidate the <contentTypeId>#categories
+    // relation tag, not the global /content_types collections
     // (api/tests/Api/Categories/CreateCategoryTest.php testCreateCategoryPurgesCacheTags)
     const postRes = await apiPost(bipiApi, '/api/categories', {
       camp: `/api/camps/${grgrCampId}`,
@@ -103,20 +103,16 @@ test.describe('cache test: /content-types', { tag: '@mature' }, () => {
     expect(postRes.status()).toBe(201)
     const newCategoryUri = (await postRes.json())._links.self.href
 
-    // ensure cache was invalidated (mutated entity is not in the name filter)
-    await waitForCacheMiss(bipiApi, uri)
+    // category creation leaves the content-types collection caches warm
     await expectCacheHit(bipiApi, uri)
-    await waitForCacheMiss(bipiApi, queryUri)
     await expectCacheHit(bipiApi, queryUri)
 
     // delete newly created category
     const delRes = await apiDelete(bipiApi, newCategoryUri)
     expect(delRes.status()).toBe(204)
 
-    // ensure cache was invalidated
-    await waitForCacheMiss(bipiApi, uri)
+    // category deletion leaves the content-types collection caches warm
     await expectCacheHit(bipiApi, uri)
-    await waitForCacheMiss(bipiApi, queryUri)
     await expectCacheHit(bipiApi, queryUri)
   })
 })

@@ -29,6 +29,7 @@ use App\Entity\BelongsToCampInterface;
 use App\Entity\Camp;
 use App\Entity\Category;
 use App\Entity\ContentNode;
+use App\Entity\ContentType;
 use App\Entity\HasId;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
@@ -91,7 +92,8 @@ final readonly class PurgeHttpCacheListener {
         $uow = $this->em->getUnitOfWork();
         $queryTags = [];
         $categoryContentNodeIds = [];
-        foreach ($uow->getScheduledEntityDeletions() as $entity) {
+        $scheduledDeletions = $uow->getScheduledEntityDeletions();
+        foreach ($scheduledDeletions as $entity) {
             if ($entity instanceof Category) {
                 foreach ($entity->getContentNodes() as $contentNode) {
                     $categoryContentNodeIds[$contentNode->getId()] = true;
@@ -122,7 +124,7 @@ final readonly class PurgeHttpCacheListener {
             $this->gatherResourceTags($entity, $originalEntity);
         }
 
-        foreach ($uow->getScheduledEntityDeletions() as $entity) {
+        foreach ($scheduledDeletions as $entity) {
             $originalEntity = $this->getOriginalEntity($entity);
             $tag = $entity instanceof ContentNode && isset($categoryContentNodeIds[$entity->getId()])
                 ? null
@@ -264,10 +266,10 @@ final readonly class PurgeHttpCacheListener {
         if ($oldIri && $oldIri !== $iri) {
             $this->cacheManager->invalidateTags([$oldIri]);
         }
-        if (!$entity instanceof Category && $iri) {
+        if ($iri) {
             $this->cacheManager->invalidateTags([$iri.self::QUERY_TAG]);
         }
-        if (!$entity instanceof Category && $oldIri && $oldIri !== $iri) {
+        if ($oldIri && $oldIri !== $iri) {
             $this->cacheManager->invalidateTags([$oldIri.self::QUERY_TAG]);
         }
     }
@@ -301,7 +303,10 @@ final readonly class PurgeHttpCacheListener {
             $this->addTagsFor(
                 $relatedObject,
                 $relatedProperty,
-                !($entity instanceof Category && $relatedObject instanceof Camp)
+                !(
+                    $entity instanceof Category
+                    && ($relatedObject instanceof Camp || ContentType::class === $associationMapping['targetEntity'])
+                )
             );
         }
     }

@@ -596,6 +596,7 @@ class UpdateCategoryTest extends ECampApiTestCase {
             $contentTypeNotes->getId().'#categories',
             $contentTypeSafetyConsiderations->getId().'#categories', // SafetyConsiderations was previously in the list, so this is purged because it was removed
         ], $cacheManager->getInvalidatedTags());
+        self::assertNotContains('?'.$category->getCamp()->getId(), $cacheManager->getInvalidatedTags());
         self::assertNotContains('/camps/'.$category->getCamp()->getId().'/categories', $cacheManager->getInvalidatedTags());
         self::assertNotContains('/camps/'.$category->getCamp()->getId().'/categories?', $cacheManager->getInvalidatedTags());
     }
