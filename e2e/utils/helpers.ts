@@ -12,9 +12,11 @@ export const API_ROOT_URL_CACHED =
 // Inserts the `.jsonhal` format before the query string, so that a uri with
 // query params stays a valid HAL request (e.g. `/activities?x=1` ->
 // `/activities.jsonhal?x=1`).
-function cachedUrl(uri: string): string {
-  const [path, query] = uri.split('?')
-  return `${API_ROOT_URL_CACHED}${path}.jsonhal${query ? `?${query}` : ''}`
+export function cachedUrl(uri: string): string {
+  const queryStart = uri.indexOf('?')
+  const path = queryStart === -1 ? uri : uri.slice(0, queryStart)
+  const query = queryStart === -1 ? '' : uri.slice(queryStart)
+  return `${API_ROOT_URL_CACHED}${path}.jsonhal${query}`
 }
 
 export async function login(
