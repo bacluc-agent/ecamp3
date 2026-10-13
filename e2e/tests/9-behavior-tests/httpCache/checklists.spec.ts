@@ -49,6 +49,19 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
     await expectCacheMiss(castorApi, filteredUri)
   })
 
+  test('caches a queried checklist item', async () => {
+    const checklistId = 'ebbd0c61eb85'
+    const uri = `/api/checklists/${checklistId}?camp=%2Fcamps%2F${basiskursCampId}`
+    const bipiApi = await getAuthContext(bipiUser)
+
+    const response = await apiGet(bipiApi, uri)
+    expect(response.headers()['x-cache']).toBe('MISS')
+    expect((await response.json())._links.self.href).toMatch(
+      new RegExp(`/checklists/${checklistId}$`)
+    )
+    await expectCacheHit(bipiApi, uri)
+  })
+
   test('invalidates /camp/{campId}/checklists on checklist patch', async () => {
     const uri = `/api/camps/${basiskursCampId}/checklists`
     const filteredUri = `${uri}?isPrototype=true`

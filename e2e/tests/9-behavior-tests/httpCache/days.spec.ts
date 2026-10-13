@@ -56,6 +56,19 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     await expectCacheMiss(bruceApi, filteredUri)
   })
 
+  test('caches a queried day item', async () => {
+    const dayId = '4b90ff5b42c0'
+    const uri = `/api/days/${dayId}?period=%2Fperiods%2F${grgrPeriodId}`
+    const bipiApi = await getAuthContext(bipiUser)
+
+    const response = await apiGet(bipiApi, uri)
+    expect(response.headers()['x-cache']).toBe('MISS')
+    expect((await response.json())._links.self.href).toMatch(
+      new RegExp(`/days/${dayId}$`)
+    )
+    await expectCacheHit(bipiApi, uri)
+  })
+
   test('invalidates /periods/{periodId}/days when changing the period dates', async () => {
     const uri = `/api/periods/${grgrPeriodId}/days`
     const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}`
