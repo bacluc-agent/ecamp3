@@ -271,6 +271,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
   test('invalidates /camps/{campId}/activities when patching a progress label', async () => {
     const uri = `/api/camps/${grgrCampId}/activities`
     const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
+    const excludedEntityUri = `${uri}?camp=%2Fcamps%2F${skilagerCampId}`
     const progressLabelId = '82547049ea38'
 
     // bring data into defined state
@@ -284,6 +285,8 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, uri)
     await expectCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    await expectCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // touch progress label
     await apiPatch(bipiApi, `/api/activity_progress_labels/${progressLabelId}`, {
@@ -295,6 +298,8 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, uri)
     await waitForCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
   })
 
   test('invalidates /camps/{campId}/activities when adding an activity responsible', async () => {
@@ -336,6 +341,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
   test('invalidates /camps/{campId}/activities when changing the period dates (moveScheduleEntries: true)', async () => {
     const uri = `/api/camps/${grgrCampId}/activities`
     const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
+    const excludedEntityUri = `${uri}?camp=%2Fcamps%2F${skilagerCampId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
@@ -344,6 +350,8 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, uri)
     await expectCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    await expectCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // move period start date
     await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
@@ -357,6 +365,8 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, uri)
     await waitForCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // move period start date again
     await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
@@ -370,19 +380,24 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, uri)
     await waitForCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
   })
 
   test('invalidates /camps/{campId}/activities when changing the period dates (moveScheduleEntries: false)', async () => {
     const uri = `/api/camps/${grgrCampId}/activities`
     const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
+    const excludedEntityUri = `${uri}?camp=%2Fcamps%2F${skilagerCampId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
-    await apiGet(bipiApi, filteredUri)
+    await expectCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    await expectCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // move period start date
     await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
@@ -395,6 +410,8 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, uri)
     await waitForCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // move period start date again
     await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
@@ -407,5 +424,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, uri)
     await waitForCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
   })
 })

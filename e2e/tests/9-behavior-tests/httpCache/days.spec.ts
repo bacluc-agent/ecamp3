@@ -72,6 +72,7 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
   test('invalidates /periods/{periodId}/days when changing the period dates', async () => {
     const uri = `/api/periods/${grgrPeriodId}/days`
     const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}`
+    const excludedEntityUri = `${uri}?period=%2Fperiods%2F${skilagerPeriodId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
@@ -84,8 +85,10 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
-    await apiGet(bipiApi, filteredUri)
+    await expectCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    await expectCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
     // move period start date
     await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
       start: '2036-05-09',
@@ -98,6 +101,8 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     await expectCacheHit(bipiApi, uri)
     await waitForCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // move period start date
     await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
@@ -111,6 +116,8 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     await expectCacheHit(bipiApi, uri)
     await waitForCacheMiss(bipiApi, filteredUri)
     await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
       start: '2036-05-10',

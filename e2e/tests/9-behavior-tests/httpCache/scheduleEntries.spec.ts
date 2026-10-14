@@ -140,6 +140,7 @@ test.describe(
     test('invalidates /periods/{periodId}/schedule_entries for new scheduleEntry', async () => {
       const uri = `/api/periods/${grgrPeriodId}/schedule_entries`
       const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}`
+      const excludedEntityUri = `${uri}?period=%2Fperiods%2F${skilagerPeriodId}`
 
       const bipiApi = await getAuthContext(bipiUser)
 
@@ -148,6 +149,8 @@ test.describe(
       await expectCacheHit(bipiApi, uri)
       await expectCacheMiss(bipiApi, filteredUri)
       await expectCacheHit(bipiApi, filteredUri)
+      await expectCacheMiss(bipiApi, excludedEntityUri)
+      await expectCacheHit(bipiApi, excludedEntityUri)
 
       // add new scheduleEntry to period
       const postRes = await apiPost(bipiApi, '/api/schedule_entries', {
@@ -164,6 +167,8 @@ test.describe(
       await expectCacheHit(bipiApi, uri)
       await waitForCacheMiss(bipiApi, filteredUri)
       await expectCacheHit(bipiApi, filteredUri)
+      await waitForCacheMiss(bipiApi, excludedEntityUri)
+      await expectCacheHit(bipiApi, excludedEntityUri)
 
       // delete newly created scheduleEntry
       await apiDelete(bipiApi, newScheduleEntryUri)
@@ -173,6 +178,8 @@ test.describe(
       await expectCacheHit(bipiApi, uri)
       await waitForCacheMiss(bipiApi, filteredUri)
       await expectCacheHit(bipiApi, filteredUri)
+      await waitForCacheMiss(bipiApi, excludedEntityUri)
+      await expectCacheHit(bipiApi, excludedEntityUri)
     })
 
     test('invalidates /periods/{periodId}/schedule_entries when moving a schedule entry to another period', async () => {
@@ -180,6 +187,7 @@ test.describe(
       const uri2 = `/api/periods/${harrySecondPeriodId}/schedule_entries`
       const filteredUri1 = `${uri1}?period=%2Fperiods%2F${harryMainPeriodId}`
       const filteredUri2 = `${uri2}?period=%2Fperiods%2F${harrySecondPeriodId}`
+      const excludedEntityUri = `${uri1}?period=%2Fperiods%2F${skilagerPeriodId}`
       const scheduleEntryId = '9a4173c9bb73'
 
       const bipiApi = await getAuthContext(bipiUser)
@@ -193,6 +201,8 @@ test.describe(
       await expectCacheHit(bipiApi, filteredUri1)
       await expectCacheMiss(bipiApi, filteredUri2)
       await expectCacheHit(bipiApi, filteredUri2)
+      await expectCacheMiss(bipiApi, excludedEntityUri)
+      await expectCacheHit(bipiApi, excludedEntityUri)
 
       // move scheduleEntry to 2nd period
       await apiPatch(bipiApi, `/api/schedule_entries/${scheduleEntryId}`, {
@@ -210,6 +220,8 @@ test.describe(
       await expectCacheHit(bipiApi, filteredUri1)
       await waitForCacheMiss(bipiApi, filteredUri2)
       await expectCacheHit(bipiApi, filteredUri2)
+      await waitForCacheMiss(bipiApi, excludedEntityUri)
+      await expectCacheHit(bipiApi, excludedEntityUri)
 
       // move scheduleEntry back
       await apiPatch(bipiApi, `/api/schedule_entries/${scheduleEntryId}`, {
@@ -227,11 +239,14 @@ test.describe(
       await expectCacheHit(bipiApi, filteredUri1)
       await waitForCacheMiss(bipiApi, filteredUri2)
       await expectCacheHit(bipiApi, filteredUri2)
+      await waitForCacheMiss(bipiApi, excludedEntityUri)
+      await expectCacheHit(bipiApi, excludedEntityUri)
     })
 
     test('invalidates /periods/{periodId}/schedule_entries when changing the period dates', async () => {
       const uri = `/api/periods/${grgrPeriodId}/schedule_entries`
       const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}`
+      const excludedEntityUri = `${uri}?period=%2Fperiods%2F${skilagerPeriodId}`
 
       const bipiApi = await getAuthContext(bipiUser)
 
@@ -240,6 +255,8 @@ test.describe(
       await expectCacheHit(bipiApi, uri)
       await expectCacheMiss(bipiApi, filteredUri)
       await expectCacheHit(bipiApi, filteredUri)
+      await expectCacheMiss(bipiApi, excludedEntityUri)
+      await expectCacheHit(bipiApi, excludedEntityUri)
 
       // move period start date
       await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
@@ -253,6 +270,8 @@ test.describe(
       await expectCacheHit(bipiApi, uri)
       await waitForCacheMiss(bipiApi, filteredUri)
       await expectCacheHit(bipiApi, filteredUri)
+      await waitForCacheMiss(bipiApi, excludedEntityUri)
+      await expectCacheHit(bipiApi, excludedEntityUri)
 
       // move period start date
       await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
@@ -266,6 +285,8 @@ test.describe(
       await expectCacheHit(bipiApi, uri)
       await waitForCacheMiss(bipiApi, filteredUri)
       await expectCacheHit(bipiApi, filteredUri)
+      await waitForCacheMiss(bipiApi, excludedEntityUri)
+      await expectCacheHit(bipiApi, excludedEntityUri)
     })
   }
 )
