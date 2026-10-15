@@ -175,8 +175,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     const refreshedFilteredActivities: Array<{
       _links: { self: { href: string } }
       title: string
-    }> =
-      (await (await apiGet(bruceApi, filteredUri)).json())._embedded?.items ?? []
+    }> = (await (await apiGet(bruceApi, filteredUri)).json())._embedded?.items ?? []
     expect(
       refreshedFilteredActivities.find((activity) =>
         activity._links.self.href.endsWith(`/activities/${activityId}`)
