@@ -91,12 +91,15 @@ final readonly class PurgeHttpCacheListener {
     public function onFlush(): void {
         $uow = $this->em->getUnitOfWork();
         $queryTags = [];
-        $categoryContentNodeIds = [];
+        // Content nodes deleted as part of a category cascade must not emit the camp-wide
+        // ?{campId} query tag: the category deletion itself already purges the affected
+        // collection tags, and the cascade would otherwise evict the whole camp.
+        $deletedCategoryContentNodeIds = [];
         $scheduledDeletions = $uow->getScheduledEntityDeletions();
         foreach ($scheduledDeletions as $entity) {
             if ($entity instanceof Category) {
                 foreach ($entity->getContentNodes() as $contentNode) {
-                    $categoryContentNodeIds[$contentNode->getId()] = true;
+                    $deletedCategoryContentNodeIds[$contentNode->getId()] = true;
                 }
             }
         }
@@ -126,7 +129,7 @@ final readonly class PurgeHttpCacheListener {
 
         foreach ($scheduledDeletions as $entity) {
             $originalEntity = $this->getOriginalEntity($entity);
-            $tag = $entity instanceof ContentNode && isset($categoryContentNodeIds[$entity->getId()])
+            $tag = $entity instanceof ContentNode && isset($deletedCategoryContentNodeIds[$entity->getId()])
                 ? null
                 : $this->getQueryTag($originalEntity);
             if ($tag) {
@@ -243,27 +246,9 @@ final readonly class PurgeHttpCacheListener {
      * (e.g. for updating period on a ScheduleEntry and the IRI changes from /periods/1/schedule_entries to /periods/2/schedule_entries)
      */
     private function invalidateCollection(GetCollection $operation, object $entity, ?object $oldEntity = null): void {
-        $iri = '';
-        $oldIri = '';
+        $iri = $this->resolveCollectionIri($operation, $entity);
+        $oldIri = $oldEntity ? $this->resolveCollectionIri($operation, $oldEntity) : null;
 
-        if ($this->canGenerateIri($operation, $entity)) {
-            try {
-                $iri = $this->iriConverter->getIriFromResource($entity, UrlGeneratorInterface::ABS_PATH, $operation);
-            } catch (NoSuchPropertyException $e) { // @phpstan-ignore catch.neverThrown
-                // NoSuchPropertyException is thrown for cases where uri parameters cannot determined automatically
-                // (for example for the folowing route '/content_node/checklist_nodes/{checklistNodeId}/checklist_items{._format}')
-                // if such routes should be cached, custom logic is needed to purge the correct IRIs
-            }
-        }
-        if ($oldEntity && $this->canGenerateIri($operation, $oldEntity)) {
-            try {
-                $oldIri = $this->iriConverter->getIriFromResource($oldEntity, UrlGeneratorInterface::ABS_PATH, $operation);
-            } catch (NoSuchPropertyException $e) { // @phpstan-ignore catch.neverThrown
-                // NoSuchPropertyException is thrown for cases where uri parameters cannot determined automatically
-                // (for example for the folowing route '/content_node/checklist_nodes/{checklistNodeId}/checklist_items{._format}')
-                // if such routes should be cached, custom logic is needed to purge the correct IRIs
-            }
-        }
         // Purge the canonical collection IRI and its query-param variant `{iri}?` (added by
         // AddCollectionTagsListener for requests with a query string), so the unfiltered and
         // every filtered entry of the collection are evicted together. The canonical IRI is
@@ -280,6 +265,26 @@ final readonly class PurgeHttpCacheListener {
         }
         if ($oldIri && $oldIri !== $iri) {
             $this->cacheManager->invalidateTags([$oldIri.self::QUERY_TAG]);
+        }
+    }
+
+    /**
+     * Resolves the IRI of a collection operation for an entity, or null when it cannot be
+     * generated (missing uri variables, or a route whose parameters cannot be derived).
+     */
+    private function resolveCollectionIri(GetCollection $operation, object $entity): ?string {
+        if (!$this->canGenerateIri($operation, $entity)) {
+            return null;
+        }
+
+        try {
+            return $this->iriConverter->getIriFromResource($entity, UrlGeneratorInterface::ABS_PATH, $operation);
+        } catch (NoSuchPropertyException $e) { // @phpstan-ignore catch.neverThrown
+            // NoSuchPropertyException is thrown for cases where uri parameters cannot determined automatically
+            // (for example for the folowing route '/content_node/checklist_nodes/{checklistNodeId}/checklist_items{._format}')
+            // if such routes should be cached, custom logic is needed to purge the correct IRIs
+
+            return null;
         }
     }
 
