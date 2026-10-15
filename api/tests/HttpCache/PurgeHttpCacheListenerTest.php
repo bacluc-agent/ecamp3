@@ -534,11 +534,18 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $this->uowProphecy->method('getScheduledCollectionDeletions')->willReturn([]);
 
         // then
-        $purgedTags = [];
-        $this->cacheManagerProphecy->expects($this->atLeastOnce())
+        $this->cacheManagerProphecy->expects($this->exactly(4))
             ->method('invalidateTags')
-            ->willReturnCallback(function (array $tags) use (&$purgedTags) {
-                $purgedTags[] = $tags;
+            ->willReturnCallback(function (array $tags) {
+                static $i = 0;
+                $expected = [
+                    ['/dummies'],
+                    ['/dummies?'],
+                    ['/related_dummies/100/dummies'],
+                    ['/related_dummies/100/dummies?'],
+                ];
+                TestCase::assertEquals($expected[$i], $tags);
+                ++$i;
 
                 return $this->cacheManagerProphecy;
             })
@@ -557,8 +564,6 @@ class PurgeHttpCacheListenerTest extends TestCase {
         );
         $listener->onFlush();
         $listener->postFlush();
-        self::assertContains(['/dummies?'], $purgedTags);
-        self::assertContains(['/related_dummies/100/dummies'], $purgedTags);
     }
 
     #[AllowMockObjectsWithoutExpectations]
@@ -582,11 +587,19 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $em->method('getUnitOfWork')->willReturn($unitOfWork);
 
         // then
-        $purgedTags = [];
-        $this->cacheManagerProphecy->expects($this->atLeastOnce())
+        $this->cacheManagerProphecy->expects($this->exactly(5))
             ->method('invalidateTags')
-            ->willReturnCallback(function (array $tags) use (&$purgedTags) {
-                $purgedTags[] = $tags;
+            ->willReturnCallback(function (array $tags) {
+                static $i = 0;
+                $expected = [
+                    ['/dummies/1'],
+                    ['/dummies'],
+                    ['/dummies?'],
+                    ['/related_dummies/100/dummies'],
+                    ['/related_dummies/100/dummies?'],
+                ];
+                TestCase::assertEquals($expected[$i], $tags);
+                ++$i;
 
                 return $this->cacheManagerProphecy;
             })
@@ -603,8 +616,6 @@ class PurgeHttpCacheListenerTest extends TestCase {
         );
         $listener->onFlush();
         $listener->postFlush();
-        self::assertContains(['/dummies?'], $purgedTags);
-        self::assertContains(['/related_dummies/100/dummies'], $purgedTags);
     }
 
     #[AllowMockObjectsWithoutExpectations]
@@ -628,11 +639,21 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $this->uowProphecy->method('getEntityChangeSet')->willReturn(['relatedDummy' => [$relatedDummyOld, $relatedDummy]]);
 
         // then
-        $purgedTags = [];
-        $this->cacheManagerProphecy->expects($this->atLeastOnce())
+        $this->cacheManagerProphecy->expects($this->exactly(7))
             ->method('invalidateTags')
-            ->willReturnCallback(function (array $tags) use (&$purgedTags) {
-                $purgedTags[] = $tags;
+            ->willReturnCallback(function (array $tags) {
+                static $i = 0;
+                $expected = [
+                    ['/dummies/1'],
+                    ['/dummies'],
+                    ['/dummies?'],
+                    ['/related_dummies/100/dummies'],
+                    ['/related_dummies/99/dummies'],
+                    ['/related_dummies/100/dummies?'],
+                    ['/related_dummies/99/dummies?'],
+                ];
+                TestCase::assertEquals($expected[$i], $tags);
+                ++$i;
 
                 return $this->cacheManagerProphecy;
             })
@@ -649,9 +670,5 @@ class PurgeHttpCacheListenerTest extends TestCase {
         );
         $listener->onFlush();
         $listener->postFlush();
-        self::assertContains(['/dummies'], $purgedTags);
-        self::assertContains(['/dummies?'], $purgedTags);
-        self::assertContains(['/related_dummies/100/dummies'], $purgedTags);
-        self::assertContains(['/related_dummies/99/dummies'], $purgedTags);
     }
 }
