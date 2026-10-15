@@ -222,6 +222,10 @@ final readonly class PurgeHttpCacheListener {
             $metadata = $resourceIterator->current();
 
             foreach ($metadata->getOperations() ?? [] as $operation) {
+                // Category updates must not purge the camp subresource collection
+                // '/camps/{campId}/categories': the cached listing carries the id tag of every
+                // embedded category, so the item tag invalidated in onFlush() already evicts it.
+                // Creates and deletes still purge it, because the listing membership changes.
                 if ($operation instanceof GetCollection
                     && !($oldEntity && $entity instanceof Category && Category::CAMP_SUBRESOURCE_URI_TEMPLATE === $operation->getUriTemplate())
                 ) {
@@ -260,6 +264,11 @@ final readonly class PurgeHttpCacheListener {
                 // if such routes should be cached, custom logic is needed to purge the correct IRIs
             }
         }
+        // Purge the canonical collection IRI and its query-param variant `{iri}?` (added by
+        // AddCollectionTagsListener for requests with a query string), so the unfiltered and
+        // every filtered entry of the collection are evicted together. The canonical IRI is
+        // purged even when it did not change (e.g. a category PATCH), the old IRI only when it
+        // differs (e.g. moving a schedule entry to another period).
         if ($iri) {
             $this->cacheManager->invalidateTags([$iri]);
         }
