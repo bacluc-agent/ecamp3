@@ -11,6 +11,7 @@ import {
 import {
   expectCacheHit,
   expectCacheMiss,
+  expectCachePass,
   waitForCacheMiss,
   apiGet,
   apiPatch,
@@ -67,17 +68,16 @@ test.describe(
       await expectCacheMiss(bruceApi, filteredUri)
     })
 
-    test('caches a queried schedule_entry item', async () => {
+    test('does not cache a queried schedule_entry item', async () => {
       const scheduleEntryId = '12f34c89ce11'
       const uri = `/api/schedule_entries/${scheduleEntryId}?period=%2Fperiods%2F${grgrPeriodId}`
       const bipiApi = await getAuthContext(bipiUser)
 
       const response = await apiGet(bipiApi, uri)
-      expect(response.headers()['x-cache']).toBe('MISS')
       expect((await response.json())._links.self.href).toMatch(
         new RegExp(`/schedule_entries/${scheduleEntryId}$`)
       )
-      await expectCacheHit(bipiApi, uri)
+      await expectCachePass(bipiApi, uri)
     })
 
     test('invalidates /periods/{periodId}/schedule_entries for all users on scheduleEntry patch', async () => {
