@@ -104,43 +104,52 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
     )
   })
 
-  test.describe('invalidates /camp/{campId}/checklists for new checklist', () => {
-    test.describe.configure({ retries: 3 })
+  test('invalidates /camp/{campId}/checklists for new checklist', async () => {
+    const uri = `/api/camps/${basiskursCampId}/checklists`
+    const filteredUri = `${uri}?isPrototype=true`
+    const excludedEntityUri = `${uri}?isPrototype=true&camp=%2Fcamps%2F${basiskursCampId}`
 
-    test('try', async () => {
-      const uri = `/api/camps/${basiskursCampId}/checklists`
-      const filteredUri = `${uri}?isPrototype=true`
+    const bipiApi = await getAuthContext(bipiUser)
 
-      const bipiApi = await getAuthContext(bipiUser)
+    // warm up cache
+    await apiGet(bipiApi, uri)
+    await expectCacheHit(bipiApi, uri)
+    await apiGet(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await expectCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
-      // warm up cache
-      await apiGet(bipiApi, uri)
-      await expectCacheHit(bipiApi, uri)
-      await apiGet(bipiApi, filteredUri)
-      await expectCacheHit(bipiApi, filteredUri)
-
-      // add new checklist to camp
-      const postRes = await apiPost(bipiApi, '/api/checklists', {
-        camp: `/api/camps/${basiskursCampId}`,
-        name: 'new_checklist',
-      })
-      const body = await postRes.json()
-      const newChecklistUri = body._links.self.href
-
-      // ensure cache was invalidated
-      await waitForCacheMiss(bipiApi, uri)
-      await expectCacheHit(bipiApi, uri)
-      await waitForCacheMiss(bipiApi, filteredUri)
-      await expectCacheHit(bipiApi, filteredUri)
-
-      // delete newly created contentNode
-      await apiDelete(bipiApi, newChecklistUri)
-
-      // ensure cache was invalidated
-      await waitForCacheMiss(bipiApi, uri)
-      await expectCacheHit(bipiApi, uri)
-      await waitForCacheMiss(bipiApi, filteredUri)
-      await expectCacheHit(bipiApi, filteredUri)
+    // add new checklist to camp
+    const postRes = await apiPost(bipiApi, '/api/checklists', {
+      camp: `/api/camps/${basiskursCampId}`,
+      name: 'new_checklist',
     })
+    const body = await postRes.json()
+    const newChecklistUri = body._links.self.href
+    const newChecklistId = newChecklistUri.split('/').pop()
+
+    // ensure cache was invalidated
+    await waitForCacheMiss(bipiApi, uri)
+    await expectCacheHit(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
+    const excludedChecklistsAfterPost: Array<{ id: string }> =
+      (await (await apiGet(bipiApi, excludedEntityUri)).json())._embedded?.items ?? []
+    expect(excludedChecklistsAfterPost.some((item) => item.id === newChecklistId)).toBe(
+      false
+    )
+
+    // delete newly created checklist
+    await apiDelete(bipiApi, newChecklistUri)
+
+    // ensure cache was invalidated
+    await waitForCacheMiss(bipiApi, uri)
+    await expectCacheHit(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
   })
 })
