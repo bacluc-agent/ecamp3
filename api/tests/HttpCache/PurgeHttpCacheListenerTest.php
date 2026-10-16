@@ -270,6 +270,7 @@ class PurgeHttpCacheListenerTest extends TestCase {
         self::assertContains('/dummies', array_merge(...$cacheManagerInvalidateTagsCalls));
         self::assertContains('/dummies?', array_merge(...$cacheManagerInvalidateTagsCalls));
         self::assertNotContains(['?'], $cacheManagerInvalidateTagsCalls);
+        self::assertNotContains('?', array_merge(...$cacheManagerInvalidateTagsCalls));
     }
 
     #[AllowMockObjectsWithoutExpectations]
