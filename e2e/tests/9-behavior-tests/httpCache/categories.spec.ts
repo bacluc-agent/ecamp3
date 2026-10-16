@@ -146,6 +146,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     const excludedUri = `/api/camps/${loremIpsumCampId}/categories?camp=%2Fcamps%2F${loremIpsumCampId}`
     const unrelatedQueryUri = `/api/camps/${grgrCampId}/activities?camp=%2Fcamps%2F${grgrCampId}`
     const bipiApi = await getAuthContext(bipiUser)
+    const newCategoryShort = 'http-cache-new'
 
     // warm up cache
     await apiGet(bipiApi, unrelatedQueryUri)
@@ -159,16 +160,14 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     const excludedCategoriesBeforePost: Array<{ short: string }> =
       (await excludedBeforePost.json())._embedded?.items ?? []
     expect(
-      excludedCategoriesBeforePost.some(
-        (category) => category.short === 'http-cache-new-category'
-      )
+      excludedCategoriesBeforePost.some((category) => category.short === newCategoryShort)
     ).toBe(false)
     await expectCacheHit(bipiApi, excludedUri)
 
     // add new category to camp
     const postRes = await apiPost(bipiApi, '/api/categories', {
       camp: `/api/camps/${grgrCampId}`,
-      short: 'http-cache-new',
+      short: newCategoryShort,
       name: 'new Category',
       color: '#000000',
       numberingStyle: '1',
@@ -176,9 +175,6 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     const body = await postRes.json()
     const newContentNodeUri = body._links.self.href
     const newCategoryId = newContentNodeUri.split('/').pop()
-    expect(
-      excludedCategoriesBeforePost.some((category) => category.short === body.short)
-    ).toBe(false)
 
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)

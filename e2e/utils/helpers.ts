@@ -47,8 +47,13 @@ export async function loginAndSetCookie(
 
 const lastLoginTokenByUser = new Map<string, string>()
 
+// The server issues a JWT with 1-second iat/exp granularity, so a login in the
+// same second as the previous one reuses the token (and thus Varnish's cache
+// namespace). Retry a bounded number of times instead of looping forever.
+const maxLoginTokenAttempts = 10
+
 export async function getAuthContext(user: string): Promise<APIRequestContext> {
-  while (true) {
+  for (let attempt = 1; attempt <= maxLoginTokenAttempts; attempt++) {
     const defaultRequest = await request.newContext()
     await login(defaultRequest, user)
     const state = await defaultRequest.storageState()
@@ -65,6 +70,9 @@ export async function getAuthContext(user: string): Promise<APIRequestContext> {
     }
     await new Promise((resolve) => setTimeout(resolve, 1000))
   }
+  throw new Error(
+    `getAuthContext(${user}) could not obtain a fresh login token after ${maxLoginTokenAttempts} attempts`
+  )
 }
 
 export { getPdfProperties } from './getPdfProperties'
