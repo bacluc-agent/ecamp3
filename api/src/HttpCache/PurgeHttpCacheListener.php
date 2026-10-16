@@ -255,16 +255,10 @@ final readonly class PurgeHttpCacheListener {
         // purged even when it did not change (e.g. a category PATCH), the old IRI only when it
         // differs (e.g. moving a schedule entry to another period).
         if ($iri) {
-            $this->cacheManager->invalidateTags([$iri]);
+            $this->cacheManager->invalidateTags([$iri, $iri.self::QUERY_TAG]);
         }
         if ($oldIri && $oldIri !== $iri) {
-            $this->cacheManager->invalidateTags([$oldIri]);
-        }
-        if ($iri) {
-            $this->cacheManager->invalidateTags([$iri.self::QUERY_TAG]);
-        }
-        if ($oldIri && $oldIri !== $iri) {
-            $this->cacheManager->invalidateTags([$oldIri.self::QUERY_TAG]);
+            $this->cacheManager->invalidateTags([$oldIri, $oldIri.self::QUERY_TAG]);
         }
     }
 
