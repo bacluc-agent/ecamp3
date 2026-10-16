@@ -45,14 +45,26 @@ export async function loginAndSetCookie(
   ])
 }
 
+const lastLoginTokenByUser = new Map<string, string>()
+
 export async function getAuthContext(user: string): Promise<APIRequestContext> {
-  const defaultRequest = await request.newContext()
-  await login(defaultRequest, user)
-  const state = await defaultRequest.storageState()
-  await defaultRequest.dispose()
-  return await request.newContext({
-    storageState: state,
-  })
+  while (true) {
+    const defaultRequest = await request.newContext()
+    await login(defaultRequest, user)
+    const state = await defaultRequest.storageState()
+    await defaultRequest.dispose()
+    const loginToken = state.cookies
+      .filter((cookie) => cookie.name.endsWith('jwt_hp'))
+      .map((cookie) => cookie.value)
+      .join('')
+    if (loginToken === '' || lastLoginTokenByUser.get(user) !== loginToken) {
+      lastLoginTokenByUser.set(user, loginToken)
+      return await request.newContext({
+        storageState: state,
+      })
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+  }
 }
 
 export { getPdfProperties } from './getPdfProperties'
