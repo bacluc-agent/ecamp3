@@ -266,7 +266,11 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $listener->onFlush();
         $listener->postFlush();
 
-        assertThat($cacheManagerInvalidateTagsCalls, logicalAnd(containsEqual(['/dummies']), containsEqual(['/dummies/3']), containsEqual(['/dummies/4'])));
+        assertThat($cacheManagerInvalidateTagsCalls, logicalAnd(containsEqual(['/dummies', '/dummies?']), containsEqual(['/dummies/3']), containsEqual(['/dummies/4'])));
+        self::assertContains('/dummies', array_merge(...$cacheManagerInvalidateTagsCalls));
+        self::assertContains('/dummies?', array_merge(...$cacheManagerInvalidateTagsCalls));
+        self::assertNotContains(['?'], $cacheManagerInvalidateTagsCalls);
+        self::assertNotContains('?', array_merge(...$cacheManagerInvalidateTagsCalls));
     }
 
     #[AllowMockObjectsWithoutExpectations]
@@ -538,8 +542,8 @@ class PurgeHttpCacheListenerTest extends TestCase {
             ->willReturnCallback(function (array $tags) {
                 static $i = 0;
                 $expected = [
-                    ['/dummies'],
-                    ['/related_dummies/100/dummies'],
+                    ['/dummies', '/dummies?'],
+                    ['/related_dummies/100/dummies', '/related_dummies/100/dummies?'],
                 ];
                 TestCase::assertEquals($expected[$i], $tags);
                 ++$i;
@@ -590,8 +594,8 @@ class PurgeHttpCacheListenerTest extends TestCase {
                 static $i = 0;
                 $expected = [
                     ['/dummies/1'],
-                    ['/dummies'],
-                    ['/related_dummies/100/dummies'],
+                    ['/dummies', '/dummies?'],
+                    ['/related_dummies/100/dummies', '/related_dummies/100/dummies?'],
                 ];
                 TestCase::assertEquals($expected[$i], $tags);
                 ++$i;
@@ -634,14 +638,15 @@ class PurgeHttpCacheListenerTest extends TestCase {
         $this->uowProphecy->method('getEntityChangeSet')->willReturn(['relatedDummy' => [$relatedDummyOld, $relatedDummy]]);
 
         // then
-        $this->cacheManagerProphecy->expects($this->exactly(3))
+        $this->cacheManagerProphecy->expects($this->exactly(4))
             ->method('invalidateTags')
             ->willReturnCallback(function (array $tags) {
                 static $i = 0;
                 $expected = [
                     ['/dummies/1'],
-                    ['/related_dummies/100/dummies'],
-                    ['/related_dummies/99/dummies'],
+                    ['/dummies', '/dummies?'],
+                    ['/related_dummies/100/dummies', '/related_dummies/100/dummies?'],
+                    ['/related_dummies/99/dummies', '/related_dummies/99/dummies?'],
                 ];
                 TestCase::assertEquals($expected[$i], $tags);
                 ++$i;
