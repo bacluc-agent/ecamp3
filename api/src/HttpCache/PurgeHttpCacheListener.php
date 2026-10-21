@@ -308,6 +308,10 @@ final readonly class PurgeHttpCacheListener {
                 continue;
             }
 
+            // Category -> Camp/ContentType must not purge the related collection here:
+            // the camp-wide ?{campId}#categories tag from getQueryTag() already evicts every
+            // category listing, and purging '/camps?', '/content_types' would evict far more
+            // than the category change affects.
             $this->addTagsFor(
                 $relatedObject,
                 $relatedProperty,
@@ -389,6 +393,9 @@ final readonly class PurgeHttpCacheListener {
     private function getQueryTag(object $entity): ?string {
         $camp = $entity instanceof BelongsToCampInterface ? $entity->getCamp() : null;
 
+        // A category change also invalidates every camp collection filtered by category
+        // (?{campId}#categories), which AddCollectionTagsListener adds when /categories is
+        // requested with a category filter; other entities only need the camp-wide ?{campId}.
         return $camp?->getId()
             ? self::QUERY_TAG.$camp->getId().($entity instanceof Category ? self::CATEGORY_QUERY_TAG : '')
             : null;
