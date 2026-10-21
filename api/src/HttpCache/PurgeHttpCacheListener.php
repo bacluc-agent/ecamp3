@@ -393,9 +393,9 @@ final readonly class PurgeHttpCacheListener {
     private function getQueryTag(object $entity): ?string {
         $camp = $entity instanceof BelongsToCampInterface ? $entity->getCamp() : null;
 
-        // A category change also invalidates every camp collection filtered by category
-        // (?{campId}#categories), which AddCollectionTagsListener adds when /categories is
-        // requested with a category filter; other entities only need the camp-wide ?{campId}.
+        // A category change also invalidates the camp category listings: AddCollectionTagsListener
+        // adds ?{campId}#categories as soon as the camp is resolved on a queried /categories
+        // collection, so category changes must purge that tag too; other entities only need ?{campId}.
         return $camp?->getId()
             ? self::QUERY_TAG.$camp->getId().($entity instanceof Category ? self::CATEGORY_QUERY_TAG : '')
             : null;

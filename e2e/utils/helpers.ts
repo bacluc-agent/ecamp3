@@ -9,6 +9,8 @@ export const API_ROOT_URL = process.env.API_ROOT_URL || 'http://localhost:3000/a
 export const API_ROOT_URL_CACHED =
   process.env.API_ROOT_URL_CACHED || 'http://localhost:3004'
 
+// Every httpCache test must warm the URL (observe MISS then HIT) before mutating,
+// otherwise waitForCacheMiss can pass vacuously.
 // Inserts the `.jsonhal` format before the query string, so that a uri with
 // query params stays a valid HAL request (e.g. `/activities?x=1` ->
 // `/activities.jsonhal?x=1`).
