@@ -111,6 +111,8 @@ test.describe(
       const castorApi = await getAuthContext(castorUser)
       await apiGet(castorApi, uri)
       await expectCacheHit(castorApi, uri)
+      await apiGet(castorApi, filteredUri)
+      await expectCacheHit(castorApi, filteredUri)
 
       // touch scheduleEntry
       await apiPatch(castorApi, `/api/schedule_entries/${scheduleEntryId}`, {

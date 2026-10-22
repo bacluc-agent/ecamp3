@@ -107,6 +107,8 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     // warm up cache (felicity)
     await apiGet(felicityApi, uri)
     await expectCacheHit(felicityApi, uri)
+    await apiGet(felicityApi, filteredUri)
+    await expectCacheHit(felicityApi, filteredUri)
 
     // touch category (bruce)
     await apiPatch(bruceApi, '/api/categories/c5e1bc565094', {

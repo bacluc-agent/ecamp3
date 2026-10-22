@@ -182,8 +182,8 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
       )?.title
     ).toBe('Frühstück')
 
-    const bruceApi2 = await getAuthContext(bruceWayneUser)
-    await expectCacheMiss(bruceApi2, uri)
+    await waitForCacheMiss(felicityApi, uri)
+    await expectCacheHit(felicityApi, uri)
   })
 
   test('invalidates /camps/{campId}/activities for new activity', async () => {
