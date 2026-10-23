@@ -39,8 +39,10 @@ class ResponseTagger {
             return false;
         }
 
-        $requestUri = $request->getRequestUri();
+        // Match the same notion of path the FOS cache_control rules use: the query string must not
+        // participate, otherwise end-anchored alternatives (e.g. `index.jsonhal$`) never match a queried URL.
+        $pathInfo = $request->getPathInfo();
 
-        return (bool) preg_match('{'.$this->matchPath.'}', $requestUri);
+        return (bool) preg_match('{'.$this->matchPath.'}', $pathInfo);
     }
 }

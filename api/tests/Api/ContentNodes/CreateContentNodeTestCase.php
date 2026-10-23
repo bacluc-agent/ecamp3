@@ -308,6 +308,10 @@ abstract class CreateContentNodeTestCase extends ECampApiTestCase {
 
         $this->assertResponseStatusCodeSame(201);
         self::assertEqualsCanonicalizing([
+            '?'.static::getFixture('camp1')->getId(),
+            ...('/content_node/column_layouts' === $this->endpoint ? [] : ['/content_node/column_layouts', '/content_node/column_layouts?']),
+            '/content_nodes?',
+            $this->endpoint.'?',
             '/content_nodes',
             $this->endpoint,
             $this->defaultParent->getRoot()->getId().'#rootDescendants',
