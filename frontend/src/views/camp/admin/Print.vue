@@ -4,12 +4,6 @@ Basic layout for print preview
 
 <template>
   <content-card :title="$t('views.camp.admin.print.title')" toolbar>
-    <v-alert type="info" variant="tonal" class="ma-4">
-      {{ $t('views.camp.admin.print.layoutRemoved') }}
-      <a href="https://ecamp3.ch/contact" target="_blank" rel="noopener noreferrer">
-        {{ $t('views.camp.admin.print.contactSupport') }}
-      </a>
-    </v-alert>
     <template #title-actions>
       <v-btn variant="text" @click="$refs.printConfigurator?.resetConfig()">
         <v-icon v-if="$vuetify.display.smAndUp" start>mdi-file-restore-outline</v-icon>

@@ -84,6 +84,15 @@
       </template>
     </PagesOverview>
 
+    <v-card-text>
+      <v-alert type="info" variant="tonal" class="ma-4">
+        {{ $t('views.camp.admin.print.layoutRemoved') }}
+        <a href="https://ecamp3.ch/contact" target="_blank" rel="noopener noreferrer">
+          {{ $t('views.camp.admin.print.contactSupport') }}
+        </a>
+      </v-alert>
+    </v-card-text>
+
     <v-card-text class="e-button-container">
       <DownloadClientPdfButton :config="cnf" />
     </v-card-text>
