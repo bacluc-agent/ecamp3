@@ -1,12 +1,12 @@
 import { prepareInMainThread } from '@/pdf/prepareInMainThread.js'
 import { cloneDeep } from 'lodash-es'
-import { proxy } from 'comlink'
 import jsonStringifyReactiveValue from '@/components/print/jsonStringifyReactiveValue.js'
 import axios from 'axios'
 import { getEnv } from '@/environment.js'
 import * as Sentry from '@sentry/browser'
 
 const PRINT_URL = getEnv().PRINT_URL
+const CLIENT_PRINT_URL = getEnv().CLIENT_PRINT_URL || 'http://localhost:3010'
 
 export const generatePdf = async (data, onProgress) => {
   await prepareInMainThread(data.config)
@@ -36,13 +36,24 @@ export const generatePdf = async (data, onProgress) => {
 }
 
 async function dispatchRenderPdf(data, serializableData, onProgress) {
-  if (data.renderInWorker) {
-    // ComlinkWorker is provided by vite-plugin-comlink
-    // eslint-disable-next-line no-undef
-    const instance = new ComlinkWorker(new URL('./renderPdf.worker.js', import.meta.url))
-    return instance.renderPdfInWorker(serializableData, proxy(onProgress))
-  } else {
-    return (await import('./renderPdf.js')).renderPdf(serializableData, onProgress)
+  onProgress('setupTranslationsAndFonts')
+  try {
+    const { data: blob } = await axios.post(
+      `${CLIENT_PRINT_URL}/render`,
+      serializableData,
+      { responseType: 'blob' }
+    )
+    return { filename: data.config.documentName, blob, error: null }
+  } catch (error) {
+    let message = error.message
+    if (error.response?.data instanceof Blob) {
+      try {
+        message = JSON.parse(await error.response.data.text()).error || message
+      } catch {
+        message = error.message
+      }
+    }
+    return { filename: null, blob: null, error: message }
   }
 }
 

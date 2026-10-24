@@ -135,16 +135,19 @@ services:
     volumes:
       - ./.prettierrc:/.prettierrc
       - ./client-print:/app:delegated
+      - ./frontend:/frontend:delegated
+      - ./common:/common:delegated
       - ./.cache/npm:/home/node/.npm/_cacache:delegated
+    ports:
+      - '3010:3010'
+    depends_on:
+      - frontend
     environment:
       - PORT=3010
-      - API_BASE_URL=http://reverse-proxy:3000/api
-      - JWT=${JWT:-}
+      - CLIENT_PRINT_ALLOWED_ORIGIN=${CLIENT_PRINT_ALLOWED_ORIGIN:-http://localhost:3000}
       - NPM_CONFIG_UPDATE_NOTIFIER=false
       - NPM_CONFIG_CACHE=/home/node/.npm
       - CI=${CI:-}
-    env_file:
-      - ./client-print/client-print.env
     working_dir: /app
     command: ./docker-setup.sh
     stop_signal: SIGKILL
