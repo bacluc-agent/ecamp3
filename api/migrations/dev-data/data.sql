@@ -53,7 +53,7 @@ Port Asiaton, MN 44798-0182', '10529', 'New Kaylinfort', '2022-01-23 16:19:10', 
 	('25a82475e0b7', '5d28f99890bc', true, NULL, 'J+S Kurs', '', NULL, NULL, NULL, NULL, '2024-09-28 21:19:13', '2024-09-28 21:23:05', '3b41dca5c568', '3b41dca5c568', '', NULL, NULL, NULL, NULL, NULL, true, false, NULL, NULL, true, false, NULL, NULL),
 	('dec53345b953', 'e5027d852487', false, NULL, 'MiData Testlager', '', NULL, NULL, NULL, NULL, '2026-09-24 12:15:56', '2026-09-24 12:15:56', '9145944210a7', '9145944210a7', NULL, NULL, NULL, NULL, NULL, NULL, false, false, NULL, NULL, false, false, 'pbsmidata', '123456'),
 	('57b36f776137', 'e5027d852487', true, NULL, 'J+S Lager ab 2027', '', NULL, NULL, NULL, NULL, '2026-10-24 18:55:27', '2026-10-24 18:55:27', '3b41dca5c568', '3b41dca5c568', '', NULL, NULL, NULL, NULL, NULL, true, false, NULL, NULL, true, false, NULL, NULL),
-	('246368fc3a1a', '57b36f776137', false, NULL, 'GRGR nach 2027', '', NULL, NULL, NULL, NULL, '2026-10-24 19:41:39', '2026-10-24 19:41:39', '9145944210a7', '9145944210a7', '', NULL, NULL, NULL, NULL, NULL, false, false, NULL, NULL, false, false, NULL, NULL);
+	('246368fc3a1a', '57b36f776137', false, 'Pfila 2023', 'GRGR nach 2027', 'Grandiose RealityTV Show', 'Adrian Sonderegger', 'Bümplizstrasse 5', '3156', 'Bümpliz', '2026-10-24 19:41:39', '2026-10-24 19:41:39', '9145944210a7', '9145944210a7', 'Abteilung Gryfenberg', 'Pfingstlager', 'Andrea Schneider', NULL, NULL, NULL, false, false, NULL, NULL, false, false, NULL, NULL);
 
 
 
@@ -1724,7 +1724,7 @@ INSERT INTO public.activity (id, title, location, campid, categoryid, rootconten
 	('ac435460050c', 'Pfadiversprechen', '', '246368fc3a1a', 'e6b154e164f4', 'ca3368c6c350', '2023-08-08 08:21:34', '2023-08-08 08:49:03', '9369006e4bb4'),
 	('beb5d265e863', 'Atelier', '', '246368fc3a1a', 'e6b154e164f4', '55f652bff72a', '2023-08-08 08:22:11', '2023-08-08 08:55:36', '0fbe369cde5d'),
 	('df19c3862c64', 'Vorbereitung Bi-Pi Feuer', '', '246368fc3a1a', 'e6b154e164f4', '92f28394d045', '2023-08-08 08:22:29', '2023-08-08 09:05:22', '8439c2e58a64'),
-	('63181f64f81e', 'Essen', '', '246368fc3a1a', 'e6b154e164f4', 'b52ed1fd2c37', '2023-08-08 08:14:46', '2023-08-08 08:14:46', NULL),
+	('63181f64f81e', 'Essen', '', '246368fc3a1a', '3f98e42b6edc', 'b52ed1fd2c37', '2023-08-08 08:14:46', '2023-08-08 08:14:46', NULL),
 	('29064c7872fe', 'Essen', '', '246368fc3a1a', 'e6b154e164f4', '5661f92e0dfd', '2023-08-08 08:15:06', '2023-08-08 08:15:06', NULL),
 	('e7f26e110852', 'Essen', '', '246368fc3a1a', 'e6b154e164f4', '306dd9f1eed0', '2023-08-08 08:15:24', '2023-08-08 08:15:24', NULL),
 	('ea88081f4771', 'Essen', '', '246368fc3a1a', 'e6b154e164f4', '2361ad46c45c', '2023-08-08 08:15:37', '2023-08-08 08:15:37', NULL),
