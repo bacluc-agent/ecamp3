@@ -282,10 +282,10 @@
       },
       "printClient": {
         "downloadClientPdfButton": {
-          "label": "Telechargiar il PDF (layout #2)"
+          "label": "Telechargiar il PDF"
         },
         "downloadClientPdfListItem": {
-          "label": "Telechargiar il PDF (layout #2)"
+          "label": "Telechargiar il PDF"
         },
         "generatePdfMixin": {
           "error": "Insatge n'ha betg funcziunà. Emprova anc ina giada u rechargia la pagina."
@@ -307,11 +307,8 @@
         }
       },
       "printNuxt": {
-        "downloadNuxtPdfButton": {
-          "label": "Telechargiar il PDF (layout #1)"
-        },
         "downloadNuxtPdfListItem": {
-          "label": "Telechargiar il PDF (layout #1)"
+          "label": "Telechargiar il PDF"
         },
         "generatePdfMixin": {
           "error": "Insatge n'ha betg funcziunà. Emprova anc ina giada u rechargia la pagina.",
@@ -554,6 +551,8 @@
           "title": "Infus dal champ"
         },
         "print": {
+          "layoutRemoved": "Il vegl layout da stampa 1 n’è betg pli disponibel. Ti pos vinavant crear in PDF cun il layout da stampa disponibel. Dovras agid?",
+          "contactSupport": "Contacta noss support",
           "title": "Stampar il champ"
         },
         "sideBarAdmin": {
