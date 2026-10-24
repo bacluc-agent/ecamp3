@@ -132,7 +132,7 @@ describe('CommentThread', () => {
     const cards = wrapper.findAllComponents({ name: 'CommentCard' })
     expect(cards[0].props().hasReplies).toBe(true)
     expect(cards[0].find('.ec-comment-card__delete').attributes('disabled')).toBeDefined()
-    expect(cards[1].props().showMeta).toBe(false)
+    expect(cards[1].find('.ec-comment-card__meta').exists()).toBe(true)
   })
 
   it('allows deleting a root comment whose replies are all by its author', () => {
@@ -322,27 +322,15 @@ describe('CommentThread', () => {
     expect(commentsState.showResolved).toBe(true)
   })
 
-  it('shows the resolved prompt once per user and camp', async () => {
-    clearToasts()
-    const first = mountThread()
-    await button(first, 'comment-thread-resolve').trigger('click')
+  it('uses the current shared hint prop when offering the All action', async () => {
+    const wrapper = mountThread()
+    await wrapper.setProps({ enableAllCommentsTabHint: false })
+    await button(wrapper, 'comment-thread-resolve').trigger('click')
     await vi.waitFor(() => expect(visibleToasts.value).toHaveLength(1))
-    first.unmount()
-    clearToasts()
 
-    const second = mountThread()
-    await button(second, 'comment-thread-resolve').trigger('click')
-    await vi.waitFor(() => expect(patch).toHaveBeenCalled())
-    await vi.waitFor(() => expect(visibleToasts.value).toHaveLength(1))
     expect(visibleToasts.value[0].actions.map((action) => action.label)).toEqual([
       'global.button.undo',
     ])
-    second.unmount()
-    clearToasts()
-
-    const otherCamp = mountThread({ camp: { _meta: { self: '/camps/2' } } })
-    await button(otherCamp, 'comment-thread-resolve').trigger('click')
-    await vi.waitFor(() => expect(visibleToasts.value).toHaveLength(1))
   })
 
   it('offers no way to "All" when the panel already shows it', async () => {

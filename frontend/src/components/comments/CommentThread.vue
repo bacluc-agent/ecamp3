@@ -99,7 +99,6 @@ import { serverErrorToString } from '@/helpers/serverError.js'
 import { useToast } from '@/components/toast/useToast.js'
 import { commentsState } from '@/components/comments/commentsState.js'
 import { errorToMultiLineToast } from '@/components/toast/toasts.js'
-import { mapGetters } from 'vuex'
 
 export default {
   name: 'CommentThread',
@@ -163,9 +162,6 @@ export default {
       }
     },
     offerUndo() {
-      if (!this.enableAllCommentsTabHint) {
-        return
-      }
       const { api, root, toast } = this
       const actions = [
         {
@@ -176,7 +172,7 @@ export default {
               .catch((e) => toast.error(errorToMultiLineToast(e))),
         },
       ]
-      if (!commentsState.showResolved) {
+      if (this.enableAllCommentsTabHint && !commentsState.showResolved) {
         actions.push({
           label: this.$t('components.comments.commentThread.showAll'),
           onClick: () => (commentsState.showResolved = true),
