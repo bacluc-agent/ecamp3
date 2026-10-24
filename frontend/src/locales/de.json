@@ -850,6 +850,8 @@
           "title": "Lagerinfos"
         },
         "print": {
+          "layoutRemoved": "Das alte Drucklayout 1 ist nicht mehr verfügbar. Du kannst weiterhin mit dem verfügbaren Drucklayout ein PDF erstellen. Brauchst du Hilfe?",
+          "contactSupport": "Kontaktiere unseren Support",
           "title": "Lager drucken"
         },
         "sideBarAdmin": {

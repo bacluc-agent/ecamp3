@@ -554,6 +554,8 @@
           "title": "Infus dal champ"
         },
         "print": {
+          "layoutRemoved": "Il vegl layout da stampa 1 n’è betg pli disponibel. Ti pos vinavant crear in PDF cun il layout da stampa disponibel. Dovras agid?",
+          "contactSupport": "Contacta noss support",
           "title": "Stampar il champ"
         },
         "sideBarAdmin": {

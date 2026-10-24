@@ -689,6 +689,8 @@
           "title": "Info sul campo"
         },
         "print": {
+          "layoutRemoved": "Il vecchio layout di stampa 1 non è più disponibile. Puoi comunque creare un PDF con il layout disponibile. Hai bisogno di aiuto?",
+          "contactSupport": "Contatta il supporto",
           "title": "Stampa il campo"
         },
         "sideBarAdmin": {

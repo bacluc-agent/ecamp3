@@ -85,7 +85,6 @@
     </PagesOverview>
 
     <v-card-text class="e-button-container">
-      <DownloadNuxtPdfButton :config="cnf" />
       <DownloadClientPdfButton :config="cnf" />
     </v-card-text>
 
@@ -130,7 +129,6 @@ import ActivityListConfig from './config/ActivityListConfig.vue'
 import TocConfig from './config/TocConfig.vue'
 import PagesOverview from './configurator/PagesOverview.vue'
 import PagesConfig from './configurator/PagesConfig.vue'
-import DownloadNuxtPdfButton from '@/components/print/print-nuxt/DownloadNuxtPdfButton.vue'
 import DownloadClientPdfButton from '@/components/print/print-client/DownloadClientPdfButton.vue'
 import { getEnv } from '@/environment.js'
 import { cloneDeep } from 'lodash-es'
@@ -145,7 +143,6 @@ export default {
   name: 'PrintConfigurator',
   components: {
     DownloadClientPdfButton,
-    DownloadNuxtPdfButton,
     PagesConfig,
     PagesOverview,
     PrintPreviewClient,

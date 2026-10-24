@@ -850,6 +850,8 @@
           "title": "Camp infos"
         },
         "print": {
+          "layoutRemoved": "We’ve removed the old Print Layout 1. You can still create a PDF with the available print layout. Need help?",
+          "contactSupport": "Contact our support team",
           "title": "Print camp"
         },
         "sideBarAdmin": {

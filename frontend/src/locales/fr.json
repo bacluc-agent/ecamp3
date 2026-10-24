@@ -816,6 +816,8 @@
           "title": "Infos sur le camp"
         },
         "print": {
+          "layoutRemoved": "L’ancienne mise en page d’impression 1 n’est plus disponible. Vous pouvez toujours créer un PDF avec la mise en page disponible. Besoin d’aide ?",
+          "contactSupport": "Contacter notre assistance",
           "title": "Imprimer le camp"
         },
         "sideBarAdmin": {
