@@ -500,10 +500,10 @@
       },
       "printClient": {
         "downloadClientPdfButton": {
-          "label": "Download PDF (layout #2)"
+          "label": "Download PDF"
         },
         "downloadClientPdfListItem": {
-          "label": "Download PDF (layout #2)"
+          "label": "Download PDF"
         },
         "generatePdfMixin": {
           "error": "Something did not work. Please try again, or try reloading the page.",
@@ -546,11 +546,8 @@
         }
       },
       "printNuxt": {
-        "downloadNuxtPdfButton": {
-          "label": "Download PDF (layout #1)"
-        },
         "downloadNuxtPdfListItem": {
-          "label": "Download PDF (layout #1)"
+          "label": "Download PDF"
         },
         "generatePdfMixin": {
           "error": "Something did not work. Please try again, or try reloading the page.",

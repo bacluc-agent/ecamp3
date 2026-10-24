@@ -282,10 +282,10 @@
       },
       "printClient": {
         "downloadClientPdfButton": {
-          "label": "Telechargiar il PDF (layout #2)"
+          "label": "Telechargiar il PDF"
         },
         "downloadClientPdfListItem": {
-          "label": "Telechargiar il PDF (layout #2)"
+          "label": "Telechargiar il PDF"
         },
         "generatePdfMixin": {
           "error": "Insatge n'ha betg funcziunà. Emprova anc ina giada u rechargia la pagina."
@@ -307,11 +307,8 @@
         }
       },
       "printNuxt": {
-        "downloadNuxtPdfButton": {
-          "label": "Telechargiar il PDF (layout #1)"
-        },
         "downloadNuxtPdfListItem": {
-          "label": "Telechargiar il PDF (layout #1)"
+          "label": "Telechargiar il PDF"
         },
         "generatePdfMixin": {
           "error": "Insatge n'ha betg funcziunà. Emprova anc ina giada u rechargia la pagina.",

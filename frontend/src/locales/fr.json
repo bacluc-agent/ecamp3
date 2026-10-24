@@ -472,10 +472,10 @@
       },
       "printClient": {
         "downloadClientPdfButton": {
-          "label": "Télécharger le PDF (mise en page #2)"
+          "label": "Télécharger le PDF"
         },
         "downloadClientPdfListItem": {
-          "label": "Télécharger le PDF (mise en page #2)"
+          "label": "Télécharger le PDF"
         },
         "generatePdfMixin": {
           "error": "Une erreur est survenue. Essaie à nouveau, ou recharge la page.",
@@ -512,11 +512,8 @@
         "pageNumbers": "Numéros de page"
       },
       "printNuxt": {
-        "downloadNuxtPdfButton": {
-          "label": "Télécharger le PDF (mise en page #1)"
-        },
         "downloadNuxtPdfListItem": {
-          "label": "Télécharger le PDF (mise en page #1)"
+          "label": "Télécharger le PDF"
         },
         "generatePdfMixin": {
           "error": "Une erreur est survenue. Essaie à nouveau, ou recharge la page.",
