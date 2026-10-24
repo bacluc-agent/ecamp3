@@ -1,0 +1,18 @@
+{
+  "name": "@ecamp3/client-print",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node index.js",
+    "start": "node index.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "esbuild": "0.28.2",
+    "express": "4.22.3",
+    "vite": "8.3.4"
+  },
+  "allowScripts": {
+    "esbuild": true
+  }
+}

@@ -30,8 +30,6 @@ import { generatePdfMixin } from './generatePdfMixin.js'
 import { componentI18n } from '@/plugins/index.js'
 import { useToast } from '@/components/toast/useToast.js'
 
-const RENDER_IN_WORKER = true
-
 export default {
   name: 'PrintPreviewClient',
   mixins: [generatePdfMixin],
@@ -96,7 +94,6 @@ export default {
           config: { ...this.config, apiGet: this.api.get.bind(this) },
           storeData: this.$store.state,
           translationData: componentI18n.messages.value,
-          renderInWorker: RENDER_IN_WORKER,
         },
         this.onProgress.bind(this)
       )
