@@ -135,3 +135,7 @@ Find the skill here: [skills](.agents/skills).
 - Ensure tests are green
 - Ensure code is formatted
 - Ensure code is linted
+
+```/completion-check-command
+./.agents/scripts/completion-check
+```

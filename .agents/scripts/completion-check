@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/../.."
+
+# docker compose interpolates USER_ID into `user:` for the services; without
+# it the containers run as uid 1000 and npm ci fails with EACCES here (uid 1001).
+export USER_ID="${USER_ID:-$(id -u)}"
+
+status=0
+
+check() {
+  local name="$1"
+  shift
+  printf '==> %s\n' "$name"
+  if "$@"; then
+    printf 'PASS: %s\n' "$name"
+  else
+    printf 'FAIL: %s\n' "$name" >&2
+    status=1
+  fi
+}
+
+check 'prettier (root lint:check)' docker compose run --rm prettier npm run lint:check
+check 'php-cs-fixer (api cs-fix)' docker compose exec api composer cs-fix
+check 'psalm (api)' docker compose exec api composer psalm
+check 'phpstan (api)' docker compose exec api composer phpstan
+check 'eslint+prettier (frontend lint)' docker compose exec frontend npm run lint
+check 'eslint+prettier (print lint)' docker compose exec print npm run lint
+check 'eslint+prettier+typecheck (e2e lint)' docker compose run --rm e2e npm run lint
+
+if (( status != 0 )); then
+  exit 2
+fi
+exit 0
