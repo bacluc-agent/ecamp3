@@ -3,7 +3,7 @@ import { transformViolations } from '@/helpers/serverError'
 import { cloneDeep } from 'lodash-es'
 import { fallbackLocales } from '@/plugins/i18n'
 
-const fallbackLocale = fallbackLocales.default
+const fallbackLocale = fallbackLocales.default[0]
 
 describe('transformViolations', () => {
   describe('without i18n', () => {
