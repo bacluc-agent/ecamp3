@@ -511,10 +511,10 @@
       },
       "printClient": {
         "downloadClientPdfButton": {
-          "label": "Télécharger le PDF (mise en page #2)"
+          "label": "Télécharger le PDF"
         },
         "downloadClientPdfListItem": {
-          "label": "Télécharger le PDF (mise en page #2)"
+          "label": "Télécharger le PDF"
         },
         "generatePdfMixin": {
           "error": "Une erreur est survenue. Essaie à nouveau, ou recharge la page.",
@@ -551,11 +551,8 @@
         "pageNumbers": "Numéros de page"
       },
       "printNuxt": {
-        "downloadNuxtPdfButton": {
-          "label": "Télécharger le PDF (mise en page #1)"
-        },
         "downloadNuxtPdfListItem": {
-          "label": "Télécharger le PDF (mise en page #1)"
+          "label": "Télécharger le PDF"
         },
         "generatePdfMixin": {
           "error": "Une erreur est survenue. Essaie à nouveau, ou recharge la page.",
@@ -855,6 +852,8 @@
           "title": "Infos sur le camp"
         },
         "print": {
+          "layoutRemoved": "L’ancienne mise en page d’impression 1 n’est plus disponible. Vous pouvez toujours créer un PDF avec la mise en page disponible. Besoin d’aide ?",
+          "contactSupport": "Contacter notre assistance",
           "title": "Imprimer le camp"
         },
         "sideBarAdmin": {

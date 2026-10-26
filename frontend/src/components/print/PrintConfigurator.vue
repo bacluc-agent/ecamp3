@@ -84,8 +84,16 @@
       </template>
     </PagesOverview>
 
+    <v-card-text>
+      <v-alert type="info" variant="tonal" class="ma-4">
+        {{ $t('views.camp.admin.print.layoutRemoved') }}
+        <a href="https://ecamp3.ch/contact" target="_blank" rel="noopener noreferrer">
+          {{ $t('views.camp.admin.print.contactSupport') }}
+        </a>
+      </v-alert>
+    </v-card-text>
+
     <v-card-text class="e-button-container">
-      <DownloadNuxtPdfButton :config="cnf" />
       <DownloadClientPdfButton :config="cnf" />
     </v-card-text>
 
@@ -130,7 +138,6 @@ import ActivityListConfig from './config/ActivityListConfig.vue'
 import TocConfig from './config/TocConfig.vue'
 import PagesOverview from './configurator/PagesOverview.vue'
 import PagesConfig from './configurator/PagesConfig.vue'
-import DownloadNuxtPdfButton from '@/components/print/print-nuxt/DownloadNuxtPdfButton.vue'
 import DownloadClientPdfButton from '@/components/print/print-client/DownloadClientPdfButton.vue'
 import { getEnv } from '@/environment.js'
 import { cloneDeep } from 'lodash-es'
@@ -145,7 +152,6 @@ export default {
   name: 'PrintConfigurator',
   components: {
     DownloadClientPdfButton,
-    DownloadNuxtPdfButton,
     PagesConfig,
     PagesOverview,
     PrintPreviewClient,

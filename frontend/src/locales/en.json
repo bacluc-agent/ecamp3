@@ -527,10 +527,10 @@
       },
       "printClient": {
         "downloadClientPdfButton": {
-          "label": "Download PDF (layout #2)"
+          "label": "Download PDF"
         },
         "downloadClientPdfListItem": {
-          "label": "Download PDF (layout #2)"
+          "label": "Download PDF"
         },
         "generatePdfMixin": {
           "error": "Something did not work. Please try again, or try reloading the page.",
@@ -573,11 +573,8 @@
         }
       },
       "printNuxt": {
-        "downloadNuxtPdfButton": {
-          "label": "Download PDF (layout #1)"
-        },
         "downloadNuxtPdfListItem": {
-          "label": "Download PDF (layout #1)"
+          "label": "Download PDF"
         },
         "generatePdfMixin": {
           "error": "Something did not work. Please try again, or try reloading the page.",
@@ -878,6 +875,8 @@
           "title": "Camp infos"
         },
         "print": {
+          "layoutRemoved": "We’ve removed the old Print Layout 1. You can still create a PDF with the available print layout. Need help?",
+          "contactSupport": "Contact our support team",
           "title": "Print camp"
         },
         "sideBarAdmin": {

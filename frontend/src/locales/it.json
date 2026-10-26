@@ -397,10 +397,10 @@
       },
       "printClient": {
         "downloadClientPdfButton": {
-          "label": "Scarica il PDF (layout #2)"
+          "label": "Scarica il PDF"
         },
         "downloadClientPdfListItem": {
-          "label": "Scarica il PDF (layout #2)"
+          "label": "Scarica il PDF"
         },
         "generatePdfMixin": {
           "error": "Qualcosa non ha funzionato. Riprova o ricarica la pagina."
@@ -423,11 +423,8 @@
         }
       },
       "printNuxt": {
-        "downloadNuxtPdfButton": {
-          "label": "Scarica il PDF (layout #1)"
-        },
         "downloadNuxtPdfListItem": {
-          "label": "Scarica il PDF (layout #1)"
+          "label": "Scarica il PDF"
         },
         "generatePdfMixin": {
           "error": "Qualcosa non ha funzionato. Riprova o ricarica la pagina.",
@@ -692,6 +689,8 @@
           "title": "Info sul campo"
         },
         "print": {
+          "layoutRemoved": "Il vecchio layout di stampa 1 non è più disponibile. Puoi comunque creare un PDF con il layout disponibile. Hai bisogno di aiuto?",
+          "contactSupport": "Contatta il supporto",
           "title": "Stampa il campo"
         },
         "sideBarAdmin": {
