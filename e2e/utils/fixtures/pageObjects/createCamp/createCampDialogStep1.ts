@@ -18,7 +18,9 @@ export class CreateCampDialogStep1 {
 
   @boxedStep
   async loaded() {
-    await expect(this._titleInput).toBeVisible()
+    // Same 30s budget as the stale-deployment specs: after a failed route chunk
+    // the app reloads the page before the dialog is rendered.
+    await expect(this._titleInput).toBeVisible({ timeout: 30000 })
     await expect(this._startInput).toBeVisible()
     await expect(this._endInput).toBeVisible()
     return this
