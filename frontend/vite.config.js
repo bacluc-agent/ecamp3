@@ -45,6 +45,10 @@ const plugins = [
   }),
 ]
 const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN
+const sentryReleaseName = process.env.SENTRY_RELEASE_NAME || 'development'
+const define = {
+  'import.meta.env.VITE_SENTRY_RELEASE': JSON.stringify(sentryReleaseName),
+}
 if (sentryAuthToken) {
   plugins.push(
     sentryVitePlugin({
@@ -56,7 +60,7 @@ if (sentryAuthToken) {
         assets: ['./dist/**/*'],
       },
       release: {
-        name: process.env.SENTRY_RELEASE_NAME || 'development',
+        name: sentryReleaseName,
       },
     })
   )
@@ -70,6 +74,7 @@ export default defineConfig(({ mode }) => ({
       ignored: ['**/data/**', '**/dist/**'],
     },
   },
+  define,
   plugins,
   worker: {
     plugins: () => [comlink(), vueStyleReactPdfPlugin, vuePlugin(), vuePdfStylePlugin],
