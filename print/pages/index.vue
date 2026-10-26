@@ -1,8 +1,14 @@
 <template>
   <div>
     <div>
-      <generic-error-message v-if="error" :error="error" />
-      <div v-for="(content, idx) in config.contents" v-else :key="idx">
+      <!-- Empathetic hint: non-technical users — Print Layout 1 removed -->
+      <div class="print-layout-1-hint" style="padding:1rem;border:2px dashed #c0392b;border-radius:8px;margin-bottom:1rem;color:#c0392b;font-family:sans-serif;">
+        <strong>We removed Print Layout 1.</strong>
+        <p style="margin:0.25rem 0 0;">If you need help choosing a print layout, please <a href="https://ecamp3.ch/en/contact" target="_blank" style="color:#2980b9;text-decoration:underline;">contact support</a>.</p>
+      </div>
+      <div>
+        <generic-error-message v-if="error" :error="error" />
+        <div v-for="(content, idx) in config.contents" v-else :key="idx">
         <component
           :is="'Config' + content.type"
           :options="content.options"
@@ -11,6 +17,8 @@
           :page-size="pageSize"
           :index="idx"
         />
+      </div>
+      </div>
       </div>
     </div>
   </div>
