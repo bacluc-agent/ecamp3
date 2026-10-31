@@ -62,6 +62,7 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
 
   test('caches /camps/{campId}/activities separately for each login', async () => {
     const uri = `/api/camps/${skilagerCampId}/activities`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${skilagerCampId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
@@ -74,14 +75,55 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
 
     // second request is a cache hit
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+
+    // request with a new user is a cache miss
+    const bruceApi = await getAuthContext(bruceWayneUser)
+    await expectCacheMiss(bruceApi, uri)
+    await expectCacheMiss(bruceApi, filteredUri)
+  })
+
+  test('caches /camps/{campId}/activities?camp={campId} separately for each login', async () => {
+    const uri = `/api/camps/${skilagerCampId}/activities?camp=%2Fcamps%2F${skilagerCampId}&source=tag-test`
+
+    const bipiApi = await getAuthContext(bipiUser)
+
+    // first request is a cache miss
+    const request = await apiGet(bipiApi, uri)
+    const headers = request.headers()
+    const xkeyTags = headers['xkey'].split(' ')
+    expect(xkeyTags).toContain(`/api/camps/${skilagerCampId}/activities`)
+    expect(xkeyTags).toContain(`/api/camps/${skilagerCampId}/activities?`)
+    expect(xkeyTags).not.toContain(uri)
+    expect(xkeyTags).toContain(`?${skilagerCampId}`)
+    expect(headers['x-cache']).toBe('MISS')
+
+    // second request is a cache hit
+    await expectCacheHit(bipiApi, uri)
 
     // request with a new user is a cache miss
     const bruceApi = await getAuthContext(bruceWayneUser)
     await expectCacheMiss(bruceApi, uri)
   })
 
+  test('caches the same query params in a different order as a separate entry', async () => {
+    const uri = `/api/camps/${loremIpsumCampId}/activities?camp=%2Fcamps%2F${loremIpsumCampId}&foo=bar`
+    const reversedUri = `/api/camps/${loremIpsumCampId}/activities?foo=bar&camp=%2Fcamps%2F${loremIpsumCampId}`
+
+    const bruceApi = await getAuthContext(bruceWayneUser)
+
+    await expectCacheMiss(bruceApi, uri)
+    await expectCacheHit(bruceApi, uri)
+
+    await expectCacheMiss(bruceApi, reversedUri)
+    await expectCacheHit(bruceApi, reversedUri)
+  })
+
   test('invalidates /camps/{campId}/activities for all users on activity patch', async () => {
     const uri = `/api/camps/${loremIpsumCampId}/activities`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${loremIpsumCampId}`
+    const excludedEntityUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
     const activityId = '3d1e5c91ceb2'
 
     // bring data into defined state
@@ -93,6 +135,19 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // warm up cache
     await apiGet(bruceApi, uri)
     await expectCacheHit(bruceApi, uri)
+    await expectCacheMiss(bruceApi, filteredUri)
+    await expectCacheHit(bruceApi, filteredUri)
+    const excludedEntityResponse = await apiGet(bruceApi, excludedEntityUri)
+    expect(excludedEntityResponse.status()).toBe(200)
+    expect(excludedEntityResponse.headers()['x-cache']).toBe('MISS')
+    const excludedActivities: Array<{ _links: { self: { href: string } } }> =
+      (await excludedEntityResponse.json())._embedded?.items ?? []
+    expect(
+      excludedActivities.some((activity) =>
+        activity._links.self.href.endsWith(`/activities/${activityId}`)
+      )
+    ).toBe(false)
+    await expectCacheHit(bruceApi, excludedEntityUri)
 
     const felicityApi = await getAuthContext(felicitySmoakUser)
     await expectCacheMiss(felicityApi, uri)
@@ -106,19 +161,45 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // ensure cache was invalidated
     await waitForCacheMiss(bruceApi, uri)
     await expectCacheHit(bruceApi, uri)
+    await waitForCacheMiss(bruceApi, filteredUri)
+    await expectCacheHit(bruceApi, filteredUri)
+    await waitForCacheMiss(bruceApi, excludedEntityUri)
+    await expectCacheHit(bruceApi, excludedEntityUri)
+    const excludedActivitiesAfterMutation: Array<{ _links: { self: { href: string } } }> =
+      (await (await apiGet(bruceApi, excludedEntityUri)).json())._embedded?.items ?? []
+    expect(
+      excludedActivitiesAfterMutation.some((activity) =>
+        activity._links.self.href.endsWith(`/activities/${activityId}`)
+      )
+    ).toBe(false)
+    const refreshedFilteredActivities: Array<{
+      _links: { self: { href: string } }
+      title: string
+    }> = (await (await apiGet(bruceApi, filteredUri)).json())._embedded?.items ?? []
+    expect(
+      refreshedFilteredActivities.find((activity) =>
+        activity._links.self.href.endsWith(`/activities/${activityId}`)
+      )?.title
+    ).toBe('Frühstück')
 
-    const bruceApi2 = await getAuthContext(bruceWayneUser)
-    await expectCacheMiss(bruceApi2, uri)
+    await waitForCacheMiss(felicityApi, uri)
+    await expectCacheHit(felicityApi, uri)
   })
 
   test('invalidates /camps/{campId}/activities for new activity', async () => {
     const uri = `/api/camps/${grgrCampId}/activities`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
+    const excludedEntityUri = `${uri}?camp=%2Fcamps%2F${skilagerCampId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await apiGet(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await expectCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // add new activity to camp
     const postRes = await apiPost(bipiApi, '/api/activities', {
@@ -134,27 +215,49 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     })
     const body = await postRes.json()
     const newActivityUri = body._links.self.href
+    const newActivityId = newActivityUri.split('/').pop()
 
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
+    const excludedActivitiesAfterPost: Array<{ _links: { self: { href: string } } }> =
+      (await (await apiGet(bipiApi, excludedEntityUri)).json())._embedded?.items ?? []
+    expect(
+      excludedActivitiesAfterPost.some((activity) =>
+        activity._links.self.href.endsWith(`/activities/${newActivityId}`)
+      )
+    ).toBe(false)
 
-    // delete newly created contentNode
+    // delete newly created activity
     await apiDelete(bipiApi, newActivityUri)
 
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
   })
 
   test('invalidates /camps/{campId}/activities when adding a scheduleEntry', async () => {
     const uri = `/api/camps/${grgrCampId}/activities`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
+    const excludedEntityUri = `${uri}?camp=%2Fcamps%2F${skilagerCampId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await expectCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // add new scheduleEntry
     const postRes = await apiPost(bipiApi, '/api/schedule_entries', {
@@ -169,6 +272,10 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // delete newly created scheduleEntry
     await apiDelete(bipiApi, newScheduleEntryUri)
@@ -176,10 +283,16 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
   })
 
   test('invalidates /camps/{campId}/activities when patching a progress label', async () => {
     const uri = `/api/camps/${grgrCampId}/activities`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
+    const excludedEntityUri = `${uri}?camp=%2Fcamps%2F${skilagerCampId}`
     const progressLabelId = '82547049ea38'
 
     // bring data into defined state
@@ -191,6 +304,10 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await expectCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // touch progress label
     await apiPatch(bipiApi, `/api/activity_progress_labels/${progressLabelId}`, {
@@ -200,16 +317,26 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
   })
 
   test('invalidates /camps/{campId}/activities when adding an activity responsible', async () => {
     const uri = `/api/camps/${grgrCampId}/activities`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
+    const excludedEntityUri = `${uri}?camp=%2Fcamps%2F${skilagerCampId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await expectCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // add new activity responsible
     const postRes = await apiPost(bipiApi, '/api/activity_responsibles', {
@@ -222,6 +349,10 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // delete newly created activity responsible
     await apiDelete(bipiApi, newActivityResponsibleUri)
@@ -229,16 +360,26 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
   })
 
   test('invalidates /camps/{campId}/activities when changing the period dates (moveScheduleEntries: true)', async () => {
     const uri = `/api/camps/${grgrCampId}/activities`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
+    const excludedEntityUri = `${uri}?camp=%2Fcamps%2F${skilagerCampId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await expectCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // move period start date
     await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
@@ -250,6 +391,10 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // move period start date again
     await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
@@ -261,16 +406,26 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
   })
 
   test('invalidates /camps/{campId}/activities when changing the period dates (moveScheduleEntries: false)', async () => {
     const uri = `/api/camps/${grgrCampId}/activities`
+    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
+    const excludedEntityUri = `${uri}?camp=%2Fcamps%2F${skilagerCampId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await expectCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // move period start date
     await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
@@ -281,6 +436,10 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // move period start date again
     await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
@@ -291,5 +450,9 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
   })
 })

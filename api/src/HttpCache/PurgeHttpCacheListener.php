@@ -25,6 +25,11 @@ use ApiPlatform\Metadata\ResourceClassResolverInterface;
 use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\Metadata\Util\ClassInfoTrait;
 use App\Entity\BaseEntity;
+use App\Entity\BelongsToCampInterface;
+use App\Entity\Camp;
+use App\Entity\Category;
+use App\Entity\ContentNode;
+use App\Entity\ContentType;
 use App\Entity\HasId;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
@@ -43,6 +48,10 @@ final readonly class PurgeHttpCacheListener {
     use ClassInfoTrait;
 
     public const string IRI_RELATION_DELIMITER = '#';
+
+    public const string QUERY_TAG = '?';
+
+    public const string CATEGORY_QUERY_TAG = '#categories';
 
     public function __construct(
         private IriConverterInterface $iriConverter,
@@ -81,20 +90,51 @@ final readonly class PurgeHttpCacheListener {
      */
     public function onFlush(): void {
         $uow = $this->em->getUnitOfWork();
+        $queryTags = [];
+        // Content nodes deleted as part of a category cascade must not emit the camp-wide
+        // ?{campId} query tag: the category deletion itself already purges the affected
+        // collection tags, and the cascade would otherwise evict the whole camp.
+        $deletedCategoryContentNodeIds = [];
+        $scheduledDeletions = $uow->getScheduledEntityDeletions();
+        foreach ($scheduledDeletions as $entity) {
+            if ($entity instanceof Category) {
+                foreach ($entity->getContentNodes() as $contentNode) {
+                    $deletedCategoryContentNodeIds[$contentNode->getId()] = true;
+                }
+            }
+        }
 
         foreach ($uow->getScheduledEntityInsertions() as $entity) {
+            $tag = $this->getQueryTag($entity);
+            if ($tag) {
+                $queryTags[$tag] = true;
+            }
             $this->gatherResourceTags($entity);
             $this->gatherRelationTags($entity);
         }
 
         foreach ($uow->getScheduledEntityUpdates() as $entity) {
             $originalEntity = $this->getOriginalEntity($entity);
+            $tag = $this->getQueryTag($entity);
+            if ($tag) {
+                $queryTags[$tag] = true;
+            }
+            $tag = $this->getQueryTag($originalEntity);
+            if ($tag) {
+                $queryTags[$tag] = true;
+            }
             $this->addTagForItem($entity);
             $this->gatherResourceTags($entity, $originalEntity);
         }
 
-        foreach ($uow->getScheduledEntityDeletions() as $entity) {
+        foreach ($scheduledDeletions as $entity) {
             $originalEntity = $this->getOriginalEntity($entity);
+            $tag = $entity instanceof ContentNode && isset($deletedCategoryContentNodeIds[$entity->getId()])
+                ? null
+                : $this->getQueryTag($originalEntity);
+            if ($tag) {
+                $queryTags[$tag] = true;
+            }
             $this->addTagForItem($originalEntity);
             $this->gatherResourceTags($originalEntity);
             $this->gatherRelationTags($originalEntity);
@@ -108,6 +148,9 @@ final readonly class PurgeHttpCacheListener {
         }
         foreach ($uow->getScheduledCollectionDeletions() as $collection) {
             $this->addTagsForManyToManyRelations($collection, $collection->getDeleteDiff());
+        }
+        foreach (array_keys($queryTags) as $queryTag) {
+            $this->cacheManager->invalidateTags([$queryTag]);
         }
     }
 
@@ -182,7 +225,13 @@ final readonly class PurgeHttpCacheListener {
             $metadata = $resourceIterator->current();
 
             foreach ($metadata->getOperations() ?? [] as $operation) {
-                if ($operation instanceof GetCollection) {
+                // Category updates must not purge the camp subresource collection
+                // '/camps/{campId}/categories': the cached listing carries the id tag of every
+                // embedded category, so the item tag invalidated in onFlush() already evicts it.
+                // Creates and deletes still purge it, because the listing membership changes.
+                if ($operation instanceof GetCollection
+                    && !($oldEntity && $entity instanceof Category && Category::CAMP_SUBRESOURCE_URI_TEMPLATE === $operation->getUriTemplate())
+                ) {
                     $this->invalidateCollection($operation, $entity, $oldEntity);
                 }
             }
@@ -197,34 +246,39 @@ final readonly class PurgeHttpCacheListener {
      * (e.g. for updating period on a ScheduleEntry and the IRI changes from /periods/1/schedule_entries to /periods/2/schedule_entries)
      */
     private function invalidateCollection(GetCollection $operation, object $entity, ?object $oldEntity = null): void {
-        $iri = '';
-        $oldIri = '';
+        $iri = $this->resolveCollectionIri($operation, $entity);
+        $oldIri = $oldEntity ? $this->resolveCollectionIri($operation, $oldEntity) : null;
 
-        if ($this->canGenerateIri($operation, $entity)) {
-            try {
-                $iri = $this->iriConverter->getIriFromResource($entity, UrlGeneratorInterface::ABS_PATH, $operation);
-            } catch (NoSuchPropertyException $e) { // @phpstan-ignore catch.neverThrown
-                // NoSuchPropertyException is thrown for cases where uri parameters cannot determined automatically
-                // (for example for the folowing route '/content_node/checklist_nodes/{checklistNodeId}/checklist_items{._format}')
-                // if such routes should be cached, custom logic is needed to purge the correct IRIs
-            }
+        // Purge the canonical collection IRI and its query-param variant `{iri}?` (added by
+        // AddCollectionTagsListener for requests with a query string), so the unfiltered and
+        // every filtered entry of the collection are evicted together. The canonical IRI is
+        // purged even when it did not change (e.g. a category PATCH), the old IRI only when it
+        // differs (e.g. moving a schedule entry to another period).
+        if ($iri) {
+            $this->cacheManager->invalidateTags([$iri, $iri.self::QUERY_TAG]);
         }
-        if ($oldEntity && $this->canGenerateIri($operation, $oldEntity)) {
-            try {
-                $oldIri = $this->iriConverter->getIriFromResource($oldEntity, UrlGeneratorInterface::ABS_PATH, $operation);
-            } catch (NoSuchPropertyException $e) { // @phpstan-ignore catch.neverThrown
-                // NoSuchPropertyException is thrown for cases where uri parameters cannot determined automatically
-                // (for example for the folowing route '/content_node/checklist_nodes/{checklistNodeId}/checklist_items{._format}')
-                // if such routes should be cached, custom logic is needed to purge the correct IRIs
-            }
+        if ($oldIri && $oldIri !== $iri) {
+            $this->cacheManager->invalidateTags([$oldIri, $oldIri.self::QUERY_TAG]);
         }
-        if ($iri !== $oldIri) {
-            if ($iri) {
-                $this->cacheManager->invalidateTags([$iri]);
-            }
-            if ($oldIri) {
-                $this->cacheManager->invalidateTags([$oldIri]);
-            }
+    }
+
+    /**
+     * Resolves the IRI of a collection operation for an entity, or null when it cannot be
+     * generated (missing uri variables, or a route whose parameters cannot be derived).
+     */
+    private function resolveCollectionIri(GetCollection $operation, object $entity): ?string {
+        if (!$this->canGenerateIri($operation, $entity)) {
+            return null;
+        }
+
+        try {
+            return $this->iriConverter->getIriFromResource($entity, UrlGeneratorInterface::ABS_PATH, $operation);
+        } catch (NoSuchPropertyException $e) { // @phpstan-ignore catch.neverThrown
+            // NoSuchPropertyException is thrown for cases where uri parameters cannot determined automatically
+            // (for example for the folowing route '/content_node/checklist_nodes/{checklistNodeId}/checklist_items{._format}')
+            // if such routes should be cached, custom logic is needed to purge the correct IRIs
+
+            return null;
         }
     }
 
@@ -254,20 +308,31 @@ final readonly class PurgeHttpCacheListener {
                 continue;
             }
 
+            // Category -> Camp/ContentType must not purge the related collection here:
+            // the camp-wide ?{campId}#categories tag from getQueryTag() already evicts every
+            // category listing, and purging '/camps?', '/content_types' would evict far more
+            // than the category change affects.
             $this->addTagsFor(
                 $relatedObject,
-                $relatedProperty
+                $relatedProperty,
+                !(
+                    $entity instanceof Category
+                    && ($relatedObject instanceof Camp || ContentType::class === $associationMapping['targetEntity'])
+                )
             );
         }
     }
 
-    private function addTagsFor(mixed $value, ?string $property = null): void {
+    private function addTagsFor(mixed $value, ?string $property = null, bool $purgeCollectionTags = false): void {
         if (!$value || \is_scalar($value)) {
             return;
         }
 
         if (!is_iterable($value)) {
             $this->addTagForItem($value, $property);
+            if ($purgeCollectionTags && is_object($value)) {
+                $this->gatherResourceTags($value);
+            }
 
             return;
         }
@@ -278,6 +343,9 @@ final readonly class PurgeHttpCacheListener {
 
         foreach ($value as $v) {
             $this->addTagForItem($v, $property);
+            if ($purgeCollectionTags && is_object($v)) {
+                $this->gatherResourceTags($v);
+            }
         }
     }
 
@@ -320,5 +388,16 @@ final readonly class PurgeHttpCacheListener {
         }
 
         return true;
+    }
+
+    private function getQueryTag(object $entity): ?string {
+        $camp = $entity instanceof BelongsToCampInterface ? $entity->getCamp() : null;
+
+        // A category change also invalidates the camp category listings: AddCollectionTagsListener
+        // adds ?{campId}#categories as soon as the camp is resolved on a queried /categories
+        // collection, so category changes must purge that tag too; other entities only need ?{campId}.
+        return $camp?->getId()
+            ? self::QUERY_TAG.$camp->getId().($entity instanceof Category ? self::CATEGORY_QUERY_TAG : '')
+            : null;
     }
 }
