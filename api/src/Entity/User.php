@@ -85,7 +85,7 @@ class User extends BaseEntity implements UserInterface, PasswordAuthenticatedUse
      */
     #[ApiProperty(readable: false, writable: false)]
     #[ORM\OneToMany(targetEntity: Camp::class, mappedBy: 'owner')]
-    #[ORM\OrderBy(['createTime' => 'ASC'])]
+    #[ORM\OrderBy(['createTime' => \SortDirection::Ascending])]
     public Collection $ownedCamps;
 
     /**
@@ -93,7 +93,7 @@ class User extends BaseEntity implements UserInterface, PasswordAuthenticatedUse
      */
     #[ApiProperty(readable: false, writable: false)]
     #[ORM\OneToMany(targetEntity: CampCollaboration::class, mappedBy: 'user', orphanRemoval: true)]
-    #[ORM\OrderBy(['createTime' => 'ASC'])]
+    #[ORM\OrderBy(['createTime' => \SortDirection::Ascending])]
     public Collection $collaborations;
 
     /**
@@ -184,20 +184,11 @@ class User extends BaseEntity implements UserInterface, PasswordAuthenticatedUse
     #[ORM\JoinColumn(unique: true, nullable: false, onDelete: 'restrict')]
     public Profile $profile;
 
-    /**
-     * All comments of the user.
-     */
-    #[ApiProperty(readable: false, writable: false)]
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'author')]
-    #[ORM\OrderBy(['createTime' => 'ASC'])]
-    public Collection $comments;
-
     public function __construct() {
         parent::__construct();
         $this->ownedCamps = new ArrayCollection();
         $this->collaborations = new ArrayCollection();
         $this->userCamps = new ArrayCollection();
-        $this->comments = new ArrayCollection();
     }
 
     public function __serialize(): array {

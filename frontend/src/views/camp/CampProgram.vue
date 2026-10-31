@@ -71,6 +71,23 @@ Show all activity schedule entries of a single period.
               <v-badge inline color="primary" :content="filteredPropertiesCount" />
             </template>
           </v-list-item>
+          <v-list-item
+            v-if="hasPhysicalActivityDuration"
+            :title="$t('entity.scheduleEntry.fields.ysPhysicalActivityDuration')"
+            prepend-icon="mdi-run"
+            :active="showPhysicalActivityDuration"
+            @click="showPhysicalActivityDuration = !showPhysicalActivityDuration"
+          >
+            <template #append>
+              <v-icon>
+                {{
+                  showPhysicalActivityDuration
+                    ? 'mdi-checkbox-marked'
+                    : 'mdi-checkbox-blank-outline'
+                }}
+              </v-icon>
+            </template>
+          </v-list-item>
           <v-divider />
           <DownloadNuxtPdf :config="printConfig" />
           <DownloadClientPdf :config="printConfig" />
@@ -107,6 +124,7 @@ Show all activity schedule entries of a single period.
           :start="period.start"
           :end="period.end"
           :editable="editMode"
+          :show-physical-activity-duration="showPhysicalActivityDuration"
           :is-filter-set="isFilterSet"
           @new-entry="slotProps.on.newEntry"
           @unlock-reminder="showUnlockReminder"
@@ -177,6 +195,7 @@ export default {
       reminderInst: null,
       reminderText: null,
       openFilter: false,
+      showPhysicalActivityDuration: false,
       loading: true,
       loadingEndpoints: {
         categories: true,
@@ -202,6 +221,13 @@ export default {
     camp() {
       return this.period.camp()
     },
+    hasPhysicalActivityDuration() {
+      return this.period
+        .scheduleEntries()
+        .items.some(
+          (scheduleEntry) => scheduleEntry.ysPhysicalActivityDurationMinutes !== null
+        )
+    },
     printConfig() {
       return {
         camp: this.camp._meta.self,
@@ -214,6 +240,7 @@ export default {
             options: {
               periods: [this.period._meta.self],
               orientation: 'L',
+              showYSPhysicalActivityDuration: this.showPhysicalActivityDuration,
             },
           },
         ],

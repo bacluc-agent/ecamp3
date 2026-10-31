@@ -36,192 +36,206 @@ const collectionXKeys =
   /* collection URI (for detecting addition of new categories) */
   '/api/camps/3c79b99ab424/categories'
 
-test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () => {
+test.describe('cache test: /camps/{campId}/categories', () => {
   test.describe.configure({ mode: 'serial' })
 
-  test('caches /camps/{campId}/categories separately for each login', async () => {
-    const uri = `/api/camps/${grgrCampId}/categories`
-    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
+  test(
+    'caches /camps/{campId}/categories separately for each login',
+    { tag: '@mature' },
+    async () => {
+      const uri = `/api/camps/${grgrCampId}/categories`
+      const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
 
-    const bipiApi = await getAuthContext(bipiUser)
+      const bipiApi = await getAuthContext(bipiUser)
 
-    // first request is a cache miss
-    const res1 = await apiGet(bipiApi, uri)
-    const headers = res1.headers()
-    expect(headers['xkey']).toBe(collectionXKeys)
-    expect(headers['x-cache']).toBe('MISS')
-    expect(await res1.json()).toEqual(collectionResponse)
+      // first request is a cache miss
+      const res1 = await apiGet(bipiApi, uri)
+      const headers = res1.headers()
+      expect(headers['xkey']).toBe(collectionXKeys)
+      expect(headers['x-cache']).toBe('MISS')
+      expect(await res1.json()).toEqual(collectionResponse)
 
-    // second request is a cache hit
-    await expectCacheHit(bipiApi, uri)
-    await expectCacheMiss(bipiApi, filteredUri)
-    await expectCacheHit(bipiApi, filteredUri)
+      // second request is a cache hit
+      await expectCacheHit(bipiApi, uri)
+      await expectCacheMiss(bipiApi, filteredUri)
+      await expectCacheHit(bipiApi, filteredUri)
 
-    // request with a new user is a cache miss
-    const castorApi = await getAuthContext(castorUser)
-    await expectCacheMiss(castorApi, uri)
-    await expectCacheMiss(castorApi, filteredUri)
-  })
+      // request with a new user is a cache miss
+      const castorApi = await getAuthContext(castorUser)
+      await expectCacheMiss(castorApi, uri)
+      await expectCacheMiss(castorApi, filteredUri)
+    }
+  )
 
-  test('invalidates /camps/{campId}/categories for all users on category patch', async () => {
-    const uri = `/api/camps/${loremIpsumCampId}/categories`
-    const otherCampUri = `/api/camps/${grgrCampId}/categories`
-    const otherCampFilteredUri = `${otherCampUri}?camp=%2Fcamps%2F${grgrCampId}`
-    const unrelatedQueryUri = `/api/camps/${loremIpsumCampId}/activities?camp=%2Fcamps%2F${loremIpsumCampId}`
-    const filteredUri = `${uri}?camp=%2Fcamps%2F${loremIpsumCampId}`
-    const excludedEntityUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
+  test(
+    'invalidates /camps/{campId}/categories for all users on category patch',
+    { tag: '@mature' },
+    async () => {
+      const uri = `/api/camps/${loremIpsumCampId}/categories`
+      const otherCampUri = `/api/camps/${grgrCampId}/categories`
+      const otherCampFilteredUri = `${otherCampUri}?camp=%2Fcamps%2F${grgrCampId}`
+      const unrelatedQueryUri = `/api/camps/${loremIpsumCampId}/activities?camp=%2Fcamps%2F${loremIpsumCampId}`
+      const filteredUri = `${uri}?camp=%2Fcamps%2F${loremIpsumCampId}`
+      const excludedEntityUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
 
-    // bring data into defined state
-    const bruceApi = await getAuthContext(bruceWayneUser)
-    const felicityApi = await getAuthContext(felicitySmoakUser)
-    await apiPatch(bruceApi, '/api/categories/c5e1bc565094', {
-      name: 'old_name',
-    })
+      // bring data into defined state
+      const bruceApi = await getAuthContext(bruceWayneUser)
+      const felicityApi = await getAuthContext(felicitySmoakUser)
+      await apiPatch(bruceApi, '/api/categories/c5e1bc565094', {
+        name: 'old_name',
+      })
 
-    // warm up cache (bruce)
-    await apiGet(bruceApi, uri)
-    await expectCacheHit(bruceApi, uri)
-    await apiGet(bruceApi, otherCampUri)
-    await expectCacheHit(bruceApi, otherCampUri)
-    await apiGet(bruceApi, otherCampFilteredUri)
-    await expectCacheHit(bruceApi, otherCampFilteredUri)
-    await apiGet(bruceApi, unrelatedQueryUri)
-    await expectCacheHit(bruceApi, unrelatedQueryUri)
-    const filteredResponse = await apiGet(bruceApi, filteredUri)
-    expect(filteredResponse.headers()['x-cache']).toBe('MISS')
-    await expectCacheHit(bruceApi, filteredUri)
-    const filteredCategories: Array<{ id: string; name: string }> =
-      (await filteredResponse.json())._embedded?.items ?? []
-    expect(filteredCategories.some((category) => category.id === 'c5e1bc565094')).toBe(
-      true
-    )
-    const excludedEntityResponse = await apiGet(bruceApi, excludedEntityUri)
-    expect(excludedEntityResponse.headers()['x-cache']).toBe('MISS')
-    const excludedCategories: Array<{ id: string }> =
-      (await excludedEntityResponse.json())._embedded?.items ?? []
-    expect(excludedCategories.some((category) => category.id === 'c5e1bc565094')).toBe(
-      false
-    )
-    await expectCacheHit(bruceApi, excludedEntityUri)
+      // warm up cache (bruce)
+      await apiGet(bruceApi, uri)
+      await expectCacheHit(bruceApi, uri)
+      await apiGet(bruceApi, otherCampUri)
+      await expectCacheHit(bruceApi, otherCampUri)
+      await apiGet(bruceApi, otherCampFilteredUri)
+      await expectCacheHit(bruceApi, otherCampFilteredUri)
+      await apiGet(bruceApi, unrelatedQueryUri)
+      await expectCacheHit(bruceApi, unrelatedQueryUri)
+      const filteredResponse = await apiGet(bruceApi, filteredUri)
+      expect(filteredResponse.headers()['x-cache']).toBe('MISS')
+      await expectCacheHit(bruceApi, filteredUri)
+      const filteredCategories: Array<{ id: string; name: string }> =
+        (await filteredResponse.json())._embedded?.items ?? []
+      expect(filteredCategories.some((category) => category.id === 'c5e1bc565094')).toBe(
+        true
+      )
+      const excludedEntityResponse = await apiGet(bruceApi, excludedEntityUri)
+      expect(excludedEntityResponse.headers()['x-cache']).toBe('MISS')
+      const excludedCategories: Array<{ id: string }> =
+        (await excludedEntityResponse.json())._embedded?.items ?? []
+      expect(excludedCategories.some((category) => category.id === 'c5e1bc565094')).toBe(
+        false
+      )
+      await expectCacheHit(bruceApi, excludedEntityUri)
 
-    // warm up cache (felicity)
-    await apiGet(felicityApi, uri)
-    await expectCacheHit(felicityApi, uri)
-    await apiGet(felicityApi, filteredUri)
-    await expectCacheHit(felicityApi, filteredUri)
+      // warm up cache (felicity)
+      await apiGet(felicityApi, uri)
+      await expectCacheHit(felicityApi, uri)
+      await apiGet(felicityApi, filteredUri)
+      await expectCacheHit(felicityApi, filteredUri)
 
-    // touch category (bruce)
-    await apiPatch(bruceApi, '/api/categories/c5e1bc565094', {
-      name: 'new_name',
-    })
+      // touch category (bruce)
+      await apiPatch(bruceApi, '/api/categories/c5e1bc565094', {
+        name: 'new_name',
+      })
 
-    // ensure cache was invalidated
-    await waitForCacheMiss(felicityApi, uri)
-    await expectCacheHit(felicityApi, uri)
-    await expectCacheHit(bruceApi, otherCampUri)
-    await expectCacheHit(bruceApi, otherCampFilteredUri)
-    await expectCacheHit(bruceApi, unrelatedQueryUri)
-    await waitForCacheMiss(felicityApi, filteredUri)
-    await expectCacheHit(felicityApi, filteredUri)
-    const refreshedFilteredResponse = await apiGet(felicityApi, filteredUri)
-    expect(refreshedFilteredResponse.headers()['x-cache']).toBe('HIT')
-    const refreshedFilteredCategories: Array<{ id: string; name: string }> =
-      (await refreshedFilteredResponse.json())._embedded?.items ?? []
-    expect(
-      refreshedFilteredCategories.find((category) => category.id === 'c5e1bc565094')?.name
-    ).toBe('new_name')
-    await waitForCacheMiss(bruceApi, excludedEntityUri)
-    await expectCacheHit(bruceApi, excludedEntityUri)
-    const excludedEntityAfterMutation = await apiGet(bruceApi, excludedEntityUri)
-    const categoriesAfterMutation: Array<{ id: string }> =
-      (await excludedEntityAfterMutation.json())._embedded?.items ?? []
-    expect(
-      categoriesAfterMutation.some((category) => category.id === 'c5e1bc565094')
-    ).toBe(false)
+      // ensure cache was invalidated
+      await waitForCacheMiss(felicityApi, uri)
+      await expectCacheHit(felicityApi, uri)
+      await expectCacheHit(bruceApi, otherCampUri)
+      await expectCacheHit(bruceApi, otherCampFilteredUri)
+      await expectCacheHit(bruceApi, unrelatedQueryUri)
+      await waitForCacheMiss(felicityApi, filteredUri)
+      await expectCacheHit(felicityApi, filteredUri)
+      const refreshedFilteredResponse = await apiGet(felicityApi, filteredUri)
+      expect(refreshedFilteredResponse.headers()['x-cache']).toBe('HIT')
+      const refreshedFilteredCategories: Array<{ id: string; name: string }> =
+        (await refreshedFilteredResponse.json())._embedded?.items ?? []
+      expect(
+        refreshedFilteredCategories.find((category) => category.id === 'c5e1bc565094')
+          ?.name
+      ).toBe('new_name')
+      await waitForCacheMiss(bruceApi, excludedEntityUri)
+      await expectCacheHit(bruceApi, excludedEntityUri)
+      const excludedEntityAfterMutation = await apiGet(bruceApi, excludedEntityUri)
+      const categoriesAfterMutation: Array<{ id: string }> =
+        (await excludedEntityAfterMutation.json())._embedded?.items ?? []
+      expect(
+        categoriesAfterMutation.some((category) => category.id === 'c5e1bc565094')
+      ).toBe(false)
 
-    await expectCacheMiss(bruceApi, uri)
-  })
+      await expectCacheMiss(bruceApi, uri)
+    }
+  )
 
-  test('invalidates /camps/{campId}/categories for new category', async () => {
-    const uri = `/api/camps/${grgrCampId}/categories`
-    const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
-    const excludedUri = `/api/camps/${loremIpsumCampId}/categories?camp=%2Fcamps%2F${loremIpsumCampId}`
-    const unrelatedQueryUri = `/api/camps/${grgrCampId}/activities?camp=%2Fcamps%2F${grgrCampId}`
-    const bipiApi = await getAuthContext(bipiUser)
-    const newCategoryShort = 'http-cache-new'
+  test(
+    'invalidates /camps/{campId}/categories for new category',
+    { tag: '@mature' },
+    async () => {
+      const uri = `/api/camps/${grgrCampId}/categories`
+      const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
+      const excludedUri = `/api/camps/${loremIpsumCampId}/categories?camp=%2Fcamps%2F${loremIpsumCampId}`
+      const unrelatedQueryUri = `/api/camps/${grgrCampId}/activities?camp=%2Fcamps%2F${grgrCampId}`
+      const bipiApi = await getAuthContext(bipiUser)
+      const newCategoryShort = 'http-cache-new'
 
-    // warm up cache
-    await apiGet(bipiApi, unrelatedQueryUri)
-    await expectCacheHit(bipiApi, unrelatedQueryUri)
-    await apiGet(bipiApi, uri)
-    await expectCacheHit(bipiApi, uri)
-    await apiGet(bipiApi, filteredUri)
-    await expectCacheHit(bipiApi, filteredUri)
-    const excludedBeforePost = await apiGet(bipiApi, excludedUri)
-    expect(excludedBeforePost.headers()['x-cache']).toBe('MISS')
-    const excludedCategoriesBeforePost: Array<{ short: string }> =
-      (await excludedBeforePost.json())._embedded?.items ?? []
-    expect(
-      excludedCategoriesBeforePost.some((category) => category.short === newCategoryShort)
-    ).toBe(false)
-    await expectCacheHit(bipiApi, excludedUri)
+      // warm up cache
+      await apiGet(bipiApi, unrelatedQueryUri)
+      await expectCacheHit(bipiApi, unrelatedQueryUri)
+      await apiGet(bipiApi, uri)
+      await expectCacheHit(bipiApi, uri)
+      await apiGet(bipiApi, filteredUri)
+      await expectCacheHit(bipiApi, filteredUri)
+      const excludedBeforePost = await apiGet(bipiApi, excludedUri)
+      expect(excludedBeforePost.headers()['x-cache']).toBe('MISS')
+      const excludedCategoriesBeforePost: Array<{ short: string }> =
+        (await excludedBeforePost.json())._embedded?.items ?? []
+      expect(
+        excludedCategoriesBeforePost.some(
+          (category) => category.short === newCategoryShort
+        )
+      ).toBe(false)
+      await expectCacheHit(bipiApi, excludedUri)
 
-    // add new category to camp
-    const postRes = await apiPost(bipiApi, '/api/categories', {
-      camp: `/api/camps/${grgrCampId}`,
-      short: newCategoryShort,
-      name: 'new Category',
-      color: '#000000',
-      numberingStyle: '1',
-    })
-    const body = await postRes.json()
-    const newContentNodeUri = body._links.self.href
-    const newCategoryId = newContentNodeUri.split('/').pop()
+      // add new category to camp
+      const postRes = await apiPost(bipiApi, '/api/categories', {
+        camp: `/api/camps/${grgrCampId}`,
+        short: newCategoryShort,
+        name: 'new Category',
+        color: '#000000',
+        numberingStyle: '1',
+      })
+      const body = await postRes.json()
+      const newContentNodeUri = body._links.self.href
+      const newCategoryId = newContentNodeUri.split('/').pop()
 
-    // ensure cache was invalidated
-    await waitForCacheMiss(bipiApi, uri)
-    await expectCacheHit(bipiApi, uri)
-    await waitForCacheMiss(bipiApi, filteredUri)
-    await expectCacheHit(bipiApi, filteredUri)
-    await expectCacheHit(bipiApi, unrelatedQueryUri)
-    const filteredCategories: Array<{ id: string }> =
-      (await (await apiGet(bipiApi, filteredUri)).json())._embedded?.items ?? []
-    expect(filteredCategories.some((category) => category.id === newCategoryId)).toBe(
-      true
-    )
-    const excludedResponse = await apiGet(bipiApi, excludedUri)
-    expect(excludedResponse.headers()['x-cache']).toBe('HIT')
-    const excludedCategories: Array<{ id: string }> =
-      (await excludedResponse.json())._embedded?.items ?? []
-    expect(excludedCategories.some((category) => category.id === newCategoryId)).toBe(
-      false
-    )
+      // ensure cache was invalidated
+      await waitForCacheMiss(bipiApi, uri)
+      await expectCacheHit(bipiApi, uri)
+      await waitForCacheMiss(bipiApi, filteredUri)
+      await expectCacheHit(bipiApi, filteredUri)
+      await expectCacheHit(bipiApi, unrelatedQueryUri)
+      const filteredCategories: Array<{ id: string }> =
+        (await (await apiGet(bipiApi, filteredUri)).json())._embedded?.items ?? []
+      expect(filteredCategories.some((category) => category.id === newCategoryId)).toBe(
+        true
+      )
+      const excludedResponse = await apiGet(bipiApi, excludedUri)
+      expect(excludedResponse.headers()['x-cache']).toBe('HIT')
+      const excludedCategories: Array<{ id: string }> =
+        (await excludedResponse.json())._embedded?.items ?? []
+      expect(excludedCategories.some((category) => category.id === newCategoryId)).toBe(
+        false
+      )
 
-    // delete newly created contentNode
-    await apiDelete(bipiApi, newContentNodeUri)
+      // delete newly created contentNode
+      await apiDelete(bipiApi, newContentNodeUri)
 
-    // ensure cache was invalidated
-    await waitForCacheMiss(bipiApi, uri)
-    await expectCacheHit(bipiApi, uri)
-    await waitForCacheMiss(bipiApi, filteredUri)
-    await expectCacheHit(bipiApi, filteredUri)
-    await expectCacheHit(bipiApi, unrelatedQueryUri)
-    const filteredCategoriesAfterDelete: Array<{ id: string }> =
-      (await (await apiGet(bipiApi, filteredUri)).json())._embedded?.items ?? []
-    expect(
-      filteredCategoriesAfterDelete.some((category) => category.id === newCategoryId)
-    ).toBe(false)
-    const excludedAfterDelete = await apiGet(bipiApi, excludedUri)
-    expect(excludedAfterDelete.headers()['x-cache']).toBe('HIT')
-    const excludedCategoriesAfterDelete: Array<{ id: string }> =
-      (await excludedAfterDelete.json())._embedded?.items ?? []
-    expect(
-      excludedCategoriesAfterDelete.some((category) => category.id === newCategoryId)
-    ).toBe(false)
-  })
+      // ensure cache was invalidated
+      await waitForCacheMiss(bipiApi, uri)
+      await expectCacheHit(bipiApi, uri)
+      await waitForCacheMiss(bipiApi, filteredUri)
+      await expectCacheHit(bipiApi, filteredUri)
+      await expectCacheHit(bipiApi, unrelatedQueryUri)
+      const filteredCategoriesAfterDelete: Array<{ id: string }> =
+        (await (await apiGet(bipiApi, filteredUri)).json())._embedded?.items ?? []
+      expect(
+        filteredCategoriesAfterDelete.some((category) => category.id === newCategoryId)
+      ).toBe(false)
+      const excludedAfterDelete = await apiGet(bipiApi, excludedUri)
+      expect(excludedAfterDelete.headers()['x-cache']).toBe('HIT')
+      const excludedCategoriesAfterDelete: Array<{ id: string }> =
+        (await excludedAfterDelete.json())._embedded?.items ?? []
+      expect(
+        excludedCategoriesAfterDelete.some((category) => category.id === newCategoryId)
+      ).toBe(false)
+    }
+  )
 
-  // eslint-disable-next-line playwright/no-skipped-test
-  test.skip('invalidates cached data when user leaves a camp', async ({ browser }) => {
+  test('invalidates cached data when user leaves a camp', async ({ browser }) => {
     const castorContext = await browser.newContext()
     const bipiContext = await browser.newContext()
     const castorPage = await castorContext.newPage()
@@ -239,7 +253,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
 
     // deactivate Castor
     await bipiPage.goto(`/camps/${grgrCampId}/GRGR/admin/collaborators`)
-    await bipiPage.locator('.v-list-item__title', { hasText: 'Castor' }).click()
+    await bipiPage.locator('.v-list-item-title', { hasText: 'Castor' }).click()
     await bipiPage.getByRole('button', { name: 'Deaktivieren' }).first().click()
     await Promise.all([
       bipiPage.waitForResponse(
@@ -258,10 +272,11 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     expect(notFoundRes.status()).toBe(404)
 
     // delete old emails
-    await apiDelete(bipiApi, '/mail/email/all')
+    const deleteMailsRes = await bipiApi.delete('/mail/api/email/all')
+    expect(deleteMailsRes.status()).toBe(200)
 
     // invite Castor
-    await bipiPage.locator('.v-list-item__title', { hasText: 'Castor' }).click()
+    await bipiPage.locator('.v-list-item-title', { hasText: 'Castor' }).click()
     await Promise.all([
       bipiPage.waitForResponse(
         (res) =>
@@ -272,9 +287,24 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     ])
 
     // accept invitation as Castor
-    const emailRes = await castorApi.get('/mail/email')
-    const emails = await emailRes.json()
-    const emailHtmlContent = emails[0].html
+    let emailHtmlContent = ''
+    await expect
+      .poll(
+        async () => {
+          const emailRes = await castorApi.get('/mail/api/email')
+          const emails = (await emailRes.json()) as Array<{
+            to: Array<{ address: string }>
+            html: string
+          }>
+          const castorEmails = emails.filter((email) =>
+            email.to.some((recipient) => recipient.address === castorUser)
+          )
+          emailHtmlContent = castorEmails.at(-1)?.html ?? ''
+          return emailHtmlContent
+        },
+        { timeout: 10000 }
+      )
+      .toBeTruthy()
     await castorPage.setContent(emailHtmlContent)
     const [newPage] = await Promise.all([
       castorContext.waitForEvent('page'),
@@ -293,7 +323,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
     await expect(newPage.locator('body')).toContainText('GRGR')
   })
 
-  test.describe('invalidates /camps/{campId}/categories', () => {
+  test.describe('invalidates /camps/{campId}/categories', { tag: '@mature' }, () => {
     // @ts-expect-error we can type this later
     let categoryBefore
     let bipiApi: APIRequestContext
@@ -327,7 +357,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
       expect(res.status()).toBe(200)
     })
 
-    test('when preferredContentTypes are removed', async () => {
+    test('when preferredContentTypes are removed', { tag: '@mature' }, async () => {
       const uri = `/api/camps/${grgrCampId}/categories`
       const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
 
@@ -349,7 +379,7 @@ test.describe('cache test: /camps/{campId}/categories', { tag: '@mature' }, () =
       await expectCacheHit(bipiApi, filteredUri)
     })
 
-    test('when preferredContentType is added', async () => {
+    test('when preferredContentType is added', { tag: '@mature' }, async () => {
       const uri = `/api/camps/${grgrCampId}/categories`
       const filteredUri = `${uri}?camp=%2Fcamps%2F${grgrCampId}`
 

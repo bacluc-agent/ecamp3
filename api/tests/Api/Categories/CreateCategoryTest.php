@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use App\Entity\Category;
 use App\Entity\ContentNode;
+use App\Entity\ContentType;
 use App\Tests\Api\ECampApiTestCase;
 use App\Tests\Constraints\CompatibleHalResponse;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -135,7 +136,7 @@ class CreateCategoryTest extends ECampApiTestCase {
 
         $this->assertResponseStatusCodeSame(201);
         $newestColumnLayout = $this->getEntityManager()->getRepository(ContentNode::class)
-            ->findBy(['contentType' => static::$fixtures['contentTypeColumnLayout'], 'instanceName' => null], ['createTime' => 'DESC'], 1)[0]
+            ->findBy(['contentType' => static::$fixtures['contentTypeColumnLayout'], 'instanceName' => null], ['createTime' => \SortDirection::Descending], 1)[0]
         ;
         $this->assertJsonContains(['_links' => [
             'rootContentNode' => ['href' => $this->getIriFor($newestColumnLayout)],
@@ -383,9 +384,9 @@ class CreateCategoryTest extends ECampApiTestCase {
             ]
         );
 
-        $this->assertResponseStatusCodeSame(400);
+        $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains([
-            'detail' => 'The type of the "color" attribute must be "string", "NULL" given.',
+            'detail' => 'color: This value should not be blank.',
         ]);
     }
 
@@ -502,7 +503,9 @@ class CreateCategoryTest extends ECampApiTestCase {
     }
 
     public function testCreateCategoryFromCopySourceWithinSameCamp() {
-        static::createClientWithCredentials()->request(
+        $client = static::createClientWithCredentials();
+        $client->disableReboot();
+        $createResponse = $client->request(
             'POST',
             '/categories',
             ['json' => $this->getExampleWritePayload(
@@ -515,6 +518,19 @@ class CreateCategoryTest extends ECampApiTestCase {
 
         // Category created
         $this->assertResponseStatusCodeSame(201);
+        $createArray = $createResponse->toArray();
+
+        /** @var Category $sourceCategory */
+        $sourceCategory = self::getFixture('category1');
+
+        /** @var Category $createdCategory */
+        $createdCategory = $this->getEntityManager()->find(Category::class, $createArray['id']);
+
+        $this->assertGreaterThan(0, $createdCategory->preferredContentTypes->count());
+        $this->assertEqualsCanonicalizing(
+            $sourceCategory->preferredContentTypes->map(fn (ContentType $contentType) => $contentType->getId())->toArray(),
+            $createdCategory->preferredContentTypes->map(fn (ContentType $contentType) => $contentType->getId())->toArray()
+        );
     }
 
     public function testCreateCategoryFromCopySourceAcrossCamp() {
@@ -550,7 +566,9 @@ class CreateCategoryTest extends ECampApiTestCase {
     }
 
     public function testCreateCategoryFromCopySourceActivityWithinSameCamp() {
-        static::createClientWithCredentials()->request(
+        $client = static::createClientWithCredentials();
+        $client->disableReboot();
+        $createResponse = $client->request(
             'POST',
             '/categories',
             ['json' => $this->getExampleWritePayload(
@@ -563,6 +581,19 @@ class CreateCategoryTest extends ECampApiTestCase {
 
         // Category created
         $this->assertResponseStatusCodeSame(201);
+        $createArray = $createResponse->toArray();
+
+        /** @var Category $sourceCategory */
+        $sourceCategory = self::getFixture('activity1')->category;
+
+        /** @var Category $createdCategory */
+        $createdCategory = $this->getEntityManager()->find(Category::class, $createArray['id']);
+
+        $this->assertGreaterThan(0, $createdCategory->preferredContentTypes->count());
+        $this->assertEqualsCanonicalizing(
+            $sourceCategory->preferredContentTypes->map(fn (ContentType $contentType) => $contentType->getId())->toArray(),
+            $createdCategory->preferredContentTypes->map(fn (ContentType $contentType) => $contentType->getId())->toArray()
+        );
     }
 
     public function testCreateCategoryFromCopySourceActivityAcrossCamp() {

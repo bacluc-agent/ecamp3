@@ -1,9 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { setupVuetify } from '/tests/setupVuetify.js'
+import dayjs from '@/common/helpers/dayjs.js'
 import CommentsList from '@/components/comments/CommentsList.vue'
+import { reactive } from 'vue'
 
 setupVuetify()
+
+const DATE_FORMAT = 'YYYY-MM-DD HH:mm'
 enableAutoUnmount(afterEach)
 
 afterEach(() => {
@@ -20,25 +24,49 @@ const activity = activityFixture('/activities/1')
 
 function comment(
   id,
-  { authorSelf = '/users/me', on = activity, orphanDescription = null } = {}
+  {
+    authorSelf = '/users/me',
+    on = activity,
+    orphanDescription = null,
+    parent = null,
+    resolvedAt = null,
+    resolvedBy,
+  } = {}
 ) {
   return {
     _meta: { self: `/comments/${id}` },
     textHtml: `<p>comment ${id}</p>`,
     createTime: `2026-08-0${id}T12:00:00+00:00`,
     orphanDescription,
-    author: () => ({ _meta: { self: authorSelf }, displayName: `author ${authorSelf}` }),
+    resolvedAt,
+    author: () => ({
+      _meta: { self: `/camp_collaborations${authorSelf}` },
+      status: 'established',
+      user: () => ({ _meta: { self: authorSelf }, displayName: `author ${authorSelf}` }),
+    }),
+    camp: () => ({ _meta: { self: '/camps/1' } }),
     ...(on ? { activity: () => on } : {}),
+    ...(parent ? { parent: () => parent } : {}),
+    ...(resolvedBy ? { resolvedBy: () => resolvedBy } : {}),
   }
 }
 
-function mountList({ loading = false, comments = [], showContext = false } = {}) {
+function mountList({
+  loading = false,
+  comments = [],
+  showContext = false,
+  emptyText = null,
+  statusFilter = 'open',
+} = {}) {
   return mount(CommentsList, {
-    props: { comments, loading, showContext },
+    props: { comments, loading, showContext, emptyText, statusFilter },
     global: {
       mocks: {
-        $t: (key, named) => [key, ...Object.values(named ?? {})].join(' '),
-        $date: (value) => ({ format: () => value }),
+        $t: (key, named) =>
+          key.startsWith('global.datetime.')
+            ? DATE_FORMAT
+            : [key, ...Object.values(named ?? {})].join(' '),
+        $date: dayjs,
         $store: { getters: { getLoggedInUser: currentUser } },
       },
       stubs: {
@@ -59,6 +87,15 @@ function renderedComments(wrapper) {
     .map((card) => card.props().comment._meta.self)
 }
 
+function renderedThreads(wrapper) {
+  return wrapper
+    .findAllComponents({ name: 'CommentThread' })
+    .map((thread) => [
+      thread.props().root._meta.self,
+      ...thread.props().replies.map((reply) => reply._meta.self),
+    ])
+}
+
 function labelledActivities(wrapper) {
   return wrapper
     .findAllComponents({ name: 'ScheduleEntryLinks' })
@@ -73,8 +110,8 @@ describe('CommentsList', () => {
     expect(renderedComments(wrapper)).toEqual([])
   })
 
-  it('shows an empty state when there are no comments', () => {
-    const wrapper = mountList()
+  it('shows the empty text it is given when there are no comments', () => {
+    const wrapper = mountList({ emptyText: 'components.comments.commentsList.empty' })
 
     expect(wrapper.text()).toContain('components.comments.commentsList.empty')
   })
@@ -87,6 +124,81 @@ describe('CommentsList', () => {
       '/comments/1',
       '/comments/3',
     ])
+  })
+
+  it('groups replies under the root comment of their thread', () => {
+    const root = comment(1)
+    const other = comment(2)
+    const wrapper = mountList({
+      comments: [root, other, comment(3, { parent: root }), comment(4, { parent: root })],
+    })
+
+    expect(renderedThreads(wrapper)).toEqual([
+      ['/comments/1', '/comments/3', '/comments/4'],
+      ['/comments/2'],
+    ])
+  })
+
+  it('lists resolved threads in chronological order among the open ones', () => {
+    const resolved = comment(2, { resolvedAt: '2026-08-05T12:00:00+00:00' })
+    const wrapper = mountList({
+      comments: [comment(1), resolved, comment(3), comment(4, { parent: resolved })],
+      statusFilter: 'all',
+    })
+
+    expect(renderedThreads(wrapper)).toEqual([
+      ['/comments/1'],
+      ['/comments/2', '/comments/4'],
+      ['/comments/3'],
+    ])
+  })
+
+  it('keeps a newly resolved comment and its replies until the countdown releases it', async () => {
+    const root = reactive(comment(1))
+    const wrapper = mountList({ comments: [root, comment(2, { parent: root })] })
+    const thread = wrapper.findComponent({ name: 'CommentThread' })
+    thread.vm.$emit('retain', true)
+    root.resolvedAt = '2026-08-05T12:00:00+00:00'
+    await wrapper.vm.$nextTick()
+
+    expect(renderedComments(wrapper)).toEqual(['/comments/1', '/comments/2'])
+
+    thread.vm.$emit('retain', false)
+    await wrapper.vm.$nextTick()
+
+    expect(renderedComments(wrapper)).toEqual([])
+  })
+
+  it.each(['resolved', 'all'])(
+    'forgets retained comments when switching to %s and back to Open',
+    async (statusFilter) => {
+      const root = reactive(comment(1))
+      const wrapper = mountList({ comments: [root, comment(2, { parent: root })] })
+      wrapper.findComponent({ name: 'CommentThread' }).vm.$emit('retain', true)
+      root.resolvedAt = '2026-08-05T12:00:00+00:00'
+      await wrapper.vm.$nextTick()
+      expect(renderedComments(wrapper)).toEqual(['/comments/1', '/comments/2'])
+
+      await wrapper.setProps({ statusFilter })
+      expect(renderedComments(wrapper)).toEqual(['/comments/1', '/comments/2'])
+
+      await wrapper.setProps({ statusFilter: 'open' })
+      expect(renderedComments(wrapper)).toEqual([])
+    }
+  )
+
+  it('shows no empty text of its own when it is given none', () => {
+    const wrapper = mountList()
+
+    expect(wrapper.find('p').exists()).toBe(false)
+  })
+
+  it('passes on that a reply was posted', () => {
+    const wrapper = mountList({ comments: [comment(1)] })
+
+    wrapper.findComponent({ name: 'CommentThread' }).vm.$emit('replied')
+
+    expect(wrapper.emitted('replied')).toHaveLength(1)
   })
 
   it('names the activity of each comment when showing context', () => {

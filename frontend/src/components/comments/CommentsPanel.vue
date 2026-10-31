@@ -29,13 +29,41 @@
           @click="commentsState.open = false"
         />
       </v-toolbar>
+      <v-chip-group
+        v-model="commentsState.statusFilter"
+        mandatory
+        class="px-3 pt-0 pb-2"
+        data-testid="comments-resolved-toggle"
+      >
+        <v-chip
+          v-for="status in ['open', 'resolved', 'all']"
+          :key="status"
+          :value="status"
+          label
+          color="primary"
+          base-color="surface"
+          :border="commentsState.statusFilter === status ? null : 'sm'"
+          :variant="commentsState.statusFilter === status ? 'outlined' : 'flat'"
+        >
+          {{ $t(`components.comments.commentsPanel.${status}`) }}
+          <CountBadge
+            v-if="status !== 'all' && statusCounts[status] > 0"
+            :count="statusCounts[status]"
+            :data-testid="`comments-${status}-count`"
+          />
+        </v-chip>
+      </v-chip-group>
       <v-divider />
       <CommentsList
         v-if="commentsState.open"
         ref="list"
+        :status-filter="commentsState.statusFilter"
         :comments="visibleComments"
+        :camp="camp"
         :loading="comments._meta.loading"
         :show-context="showContext"
+        :empty-text="emptyText"
+        @replied="reload"
       >
         <template #after>
           <p
@@ -46,7 +74,9 @@
             <v-icon icon="mdi-alert-circle-outline" size="20" class="ml-n6" />
             {{
               $t(
-                'components.comments.commentsPanel.activityCommentsElsewhere',
+                commentsState.statusFilter === 'resolved'
+                  ? 'components.comments.commentsPanel.resolvedActivityCommentsElsewhere'
+                  : 'components.comments.commentsPanel.activityCommentsElsewhere',
                 { count: hiddenCommentCount },
                 hiddenCommentCount
               )
@@ -56,9 +86,10 @@
       </CommentsList>
       <v-divider />
       <CommentComposer
-        v-if="commentsState.open"
+        v-if="commentsState.open && commentsState.statusFilter !== 'resolved'"
         :camp="camp"
         :activity="activity"
+        class="pa-3"
         @created="reloadAndScrollToBottom"
       />
     </v-sheet>
@@ -69,19 +100,21 @@
 import CommentComposer from '@/components/comments/CommentComposer.vue'
 import CommentsList from '@/components/comments/CommentsList.vue'
 import CategoryChip from '@/components/generic/CategoryChip.vue'
+import CountBadge from '@/components/dashboard/CountBadge.vue'
 import { VDialog, VNavigationDrawer } from 'vuetify/components'
 import {
   clearActivityFilter,
   commentsState,
   resetCommentsState,
 } from '@/components/comments/commentsState.js'
-import { scopedComments } from '@/components/comments/scopedComments.js'
+import { scopedComments, isResolved } from '@/components/comments/commentHelpers.js'
 import { campRoleMixin } from '@/mixins/campRoleMixin.js'
 import { activityFromRoute, campFromRoute } from '@/router.js'
 
 export default {
   name: 'CommentsPanel',
   components: {
+    CountBadge,
     CategoryChip,
     CommentComposer,
     CommentsList,
@@ -105,14 +138,42 @@ export default {
     mobile() {
       return this.$vuetify.display.smAndDown
     },
+    statusCounts() {
+      const comments = this.visibleComments
+      const resolved = comments.filter(isResolved).length
+      return { open: comments.length - resolved, resolved }
+    },
     visibleComments() {
-      return scopedComments(this.comments, this.activity, this.mobile)
+      return scopedComments(this.comments, this.activity, this.mobile, 'all')
+    },
+    emptyText() {
+      if (
+        commentsState.statusFilter === 'all' ||
+        this.statusCounts[commentsState.statusFilter]
+      )
+        return null
+      if (commentsState.statusFilter === 'open') {
+        return this.$t(
+          this.statusCounts.resolved > 0
+            ? 'components.comments.commentsList.noOpenCommentsWithResolved'
+            : 'components.comments.commentsList.noOpenComments'
+        )
+      }
+      return this.$t(
+        this.statusCounts.open
+          ? 'components.comments.commentsList.noResolvedComments'
+          : 'components.comments.commentsList.empty'
+      )
     },
     showContext() {
       return !this.activity && this.mobile
     },
     hiddenCommentCount() {
-      return this.comments.items.length - this.visibleComments.length
+      return this.comments.items.filter(
+        (comment) =>
+          typeof comment.activity === 'function' &&
+          isResolved(comment) === (commentsState.statusFilter === 'resolved')
+      ).length
     },
     category() {
       return typeof this.activity?.category === 'function'
@@ -153,6 +214,9 @@ export default {
     },
   },
   methods: {
+    reload() {
+      return this.comments.$reload()
+    },
     async reloadAndScrollToBottom() {
       await this.comments.$reload()
       await this.$nextTick()

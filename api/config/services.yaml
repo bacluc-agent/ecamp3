@@ -72,6 +72,11 @@ services:
     App\Serializer\Normalizer\CollectionItemsNormalizer:
         decorates: 'api_platform.hal.normalizer.collection'
 
+    App\State\DenormalizationViolationFactory:
+        decorates: 'api_platform.state.denormalization_violation_factory'
+        arguments:
+            - '@.inner'
+
     App\State\ValidationErrorProvider:
         decorates: 'api_platform.validator.state.error_provider'
         arguments:
@@ -155,6 +160,7 @@ services:
     App\Service\Hitobito\ClientProvider:
         arguments:
             $pbsmidataBaseUrl: '%env(HITOBITO_PBSMIDATA_API_BASE_URL)%'
+            $useMockClient: false
 
     App\Security\ReCaptcha\ReCaptchaWrapper:
         public: true # necessary to be able to mock ReCaptcha in the container in Api tests

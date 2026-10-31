@@ -204,6 +204,23 @@ class CreateScheduleEntryTest extends ECampApiTestCase {
         ]);
     }
 
+    public function testCreateScheduleEntryValidatesNonStringStart() {
+        static::createClientWithCredentials()->request('POST', '/schedule_entries', ['json' => $this->getExampleWritePayload([
+            'start' => 12345,
+        ])]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertJsonContains([
+            'detail' => 'start: The data is either not an string, an empty string, or null; you should pass a string that can be parsed with the passed format or a valid DateTime string.',
+            'violations' => [
+                [
+                    'propertyPath' => 'start',
+                    'message' => 'The data is either not an string, an empty string, or null; you should pass a string that can be parsed with the passed format or a valid DateTime string.',
+                ],
+            ],
+        ]);
+    }
+
     public function testCreateScheduleEntryUsesDefaultForMissingEnd() {
         static::createClientWithCredentials()->request('POST', '/schedule_entries', ['json' => $this->getExampleWritePayload([], ['end'])]);
 
@@ -245,6 +262,42 @@ class CreateScheduleEntryTest extends ECampApiTestCase {
         $this->assertResponseStatusCodeSame(201);
         $this->assertJsonContains([
             'width' => 1,
+        ]);
+    }
+
+    public function testCreateScheduleEntryUsesNullForMissingYsPhysicalActivityDurationMinutes() {
+        static::createClientWithCredentials()->request('POST', '/schedule_entries', ['json' => $this->getExampleWritePayload([], ['ysPhysicalActivityDurationMinutes'])]);
+
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertJsonContains([
+            'ysPhysicalActivityDurationMinutes' => null,
+        ]);
+    }
+
+    public function testCreateScheduleEntryAcceptsYsPhysicalActivityDurationMinutes() {
+        static::createClientWithCredentials()->request('POST', '/schedule_entries', ['json' => $this->getExampleWritePayload([
+            'ysPhysicalActivityDurationMinutes' => 120,
+        ])]);
+
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertJsonContains([
+            'ysPhysicalActivityDurationMinutes' => 120,
+        ]);
+    }
+
+    public function testCreateScheduleEntryValidatesInvalidYsPhysicalActivityDurationMinutes() {
+        static::createClientWithCredentials()->request('POST', '/schedule_entries', ['json' => $this->getExampleWritePayload([
+            'ysPhysicalActivityDurationMinutes' => 150,
+        ])]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertJsonContains([
+            'violations' => [
+                [
+                    'propertyPath' => 'ysPhysicalActivityDurationMinutes',
+                    'message' => 'The value you selected is not a valid choice.',
+                ],
+            ],
         ]);
     }
 

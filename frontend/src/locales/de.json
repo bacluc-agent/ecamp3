@@ -21,6 +21,9 @@
             "deleteWarning": "Möchtest du diesen Abschnitt wirklich löschen?",
             "title": "Wirklich löschen?"
           }
+        },
+        "ysActivityCharacteristics": {
+          "placeholder": "Erscheinungsformen auswählen"
         }
       },
       "dialog": {
@@ -353,18 +356,40 @@
     "comments": {
       "commentCard": {
         "campComment": "Ganzes Lager",
+        "deleteDisabledReplies": "Kommentare mit Antworten von anderen Personen können nicht gelöscht werden.",
         "deleteWarning": "Möchtest du deinen Kommentar wirklich löschen?",
-        "deleted": "(gelöscht)"
+        "deleteWithRepliesWarning": "Möchtest du deinen Kommentar zusammen mit deinen Antworten darauf wirklich löschen?",
+        "deleted": "(gelöscht)",
+        "deletedAuthor": "Gelöschte Person"
       },
       "commentComposer": {
-        "placeholder": "Kommentar schreiben"
+        "placeholder": "Kommentar schreiben",
+        "replyPlaceholder": "Antwort schreiben"
+      },
+      "commentThread": {
+        "reopen": "Wieder öffnen",
+        "reply": "Antworten",
+        "resolve": "Erledigt",
+        "resolved": "Erledigt",
+        "resolvedBy": "Erledigt von {user}"
+      },
+      "commentTime": {
+        "today": "Heute, {time}",
+        "yesterday": "Gestern, {time}"
       },
       "commentsList": {
-        "empty": "Noch keine Kommentare."
+        "empty": "Noch keine Kommentare.",
+        "noResolvedComments": "Keine erledigten Kommentare.",
+        "noOpenComments": "Keine offenen Kommentare.",
+        "noOpenCommentsWithResolved": "Keine offenen Kommentare. Siehe Erledigt"
       },
       "commentsPanel": {
-        "activityCommentsElsewhere": "Ein weiterer Kommentar befindet sich bei einer einzelnen Aktivität. | {count} weitere Kommentare befinden sich bei einzelnen Aktivitäten.",
+        "activityCommentsElsewhere": "Ein weiterer offener Kommentar befindet sich bei einer Aktivität. | {count} weitere offene Kommentare befinden sich bei einzelnen Aktivitäten.",
+        "all": "Alle",
         "commentsOnThisActivity": "Kommentare zu dieser Aktivität",
+        "open": "Offen",
+        "resolved": "Erledigt",
+        "resolvedActivityCommentsElsewhere": "Ein weiterer erledigter Kommentar befindet sich bei einer Aktivität. | {count} weitere erledigte Kommentare befinden sich bei einzelnen Aktivitäten.",
         "title": "Kommentare"
       },
       "commentsToggleButton": {
@@ -429,6 +454,10 @@
       "materialCreateItem": {
         "campSettingsButton": "Einstellungen",
         "noMaterialListAvailable": "Für dieses Lager sind noch keine Materiallisten erfasst. Du kannst diese unter 'Admin' erfassen."
+      },
+      "materialListSelect": {
+        "createNew": "Neu erstellen",
+        "noListsFound": "Keine Liste gefunden"
       },
       "materialLists": {
         "materialsCount": "Keine Einträge | 1 Eintrag | {count} Einträge",
@@ -697,6 +726,7 @@
       "showPassword": "Passwort anzeigen",
       "submit": "Abschicken",
       "tryagain": "Erneut versuchen",
+      "undo": "Rückgängig",
       "unlock": "Entsperren",
       "update": "Aktualisieren"
     },
@@ -1024,7 +1054,6 @@
     },
     "profile": {
       "profile": "Profil",
-      "changePassword": "Ändern",
       "password": "Passwort"
     }
   }

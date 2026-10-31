@@ -21,6 +21,9 @@
             "deleteWarning": "Do you really want to remove this section?",
             "title": "Really delete?"
           }
+        },
+        "ysActivityCharacteristics": {
+          "placeholder": "Select activity characteristics"
         }
       },
       "dialog": {
@@ -353,18 +356,40 @@
     "comments": {
       "commentCard": {
         "campComment": "Whole camp",
+        "deleteDisabledReplies": "Comments with replies by other people cannot be deleted.",
         "deleteWarning": "Do you really want to delete your comment?",
-        "deleted": "(deleted)"
+        "deleteWithRepliesWarning": "Do you really want to delete your comment together with your replies to it?",
+        "deleted": "(deleted)",
+        "deletedAuthor": "Deleted person"
       },
       "commentComposer": {
-        "placeholder": "Write a comment"
+        "placeholder": "Write a comment",
+        "replyPlaceholder": "Write a reply"
+      },
+      "commentThread": {
+        "reopen": "Reopen",
+        "reply": "Reply",
+        "resolve": "Resolve",
+        "resolved": "Resolved",
+        "resolvedBy": "Resolved by {user}"
+      },
+      "commentTime": {
+        "today": "Today, {time}",
+        "yesterday": "Yesterday, {time}"
       },
       "commentsList": {
-        "empty": "No comments yet."
+        "empty": "No comments yet.",
+        "noResolvedComments": "No resolved comments.",
+        "noOpenComments": "No open comments.",
+        "noOpenCommentsWithResolved": "No open comments. See Resolved."
       },
       "commentsPanel": {
-        "activityCommentsElsewhere": "One more comment is on an individual activity. | {count} more comments are on individual activities.",
+        "activityCommentsElsewhere": "One more open comment is on an activity. | {count} more open comments are on individual activities.",
+        "all": "All",
         "commentsOnThisActivity": "Comments on this activity",
+        "open": "Open",
+        "resolved": "Resolved",
+        "resolvedActivityCommentsElsewhere": "One more resolved comment is on an activity. | {count} more resolved comments are on individual activities.",
         "title": "Comments"
       },
       "commentsToggleButton": {
@@ -429,6 +454,10 @@
       "materialCreateItem": {
         "campSettingsButton": "Settings",
         "noMaterialListAvailable": "There are no material lists for this camp yet. You can create them in 'Admin'."
+      },
+      "materialListSelect": {
+        "createNew": "Create new",
+        "noListsFound": "No list found"
       },
       "materialLists": {
         "materialsCount": "No entries | 1 entry | {count} entries",
@@ -697,6 +726,7 @@
       "showPassword": "Show password",
       "submit": "Submit",
       "tryagain": "Try again",
+      "undo": "Undo",
       "unlock": "Unlock",
       "update": "Update"
     },
@@ -1024,7 +1054,6 @@
     },
     "profile": {
       "profile": "Profile",
-      "changePassword": "Change",
       "password": "Password"
     }
   }

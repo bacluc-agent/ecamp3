@@ -6,10 +6,18 @@
         class="picasso-schedule-entry-title"
         :style="{ fontSize: fontSize, color: textColor }"
       >
-        {{ category }} {{ scheduleEntry.number }} {{ title }}
+        {{ category }} {{ scheduleEntry.number }} {{ title
+        }}{{ ysPhysicalActivityDurationAfterTitle }}
       </Text>
     </Link>
     <View class="picasso-schedule-entry-spacer" />
+    <View
+      v-if="showYSPhysicalActivityDuration && ysPhysicalActivityDuration && twoLinesFit"
+      class="picasso-schedule-entry-ys-physical-activity-duration-container"
+      :style="{ fontSize: fontSize, color: textColor }"
+    >
+      <Text>{{ ysPhysicalActivityDuration }}</Text>
+    </View>
     <View
       class="picasso-schedule-entry-responsibles-container"
       :style="{ fontSize: fontSize, color: textColor }"
@@ -28,6 +36,9 @@
 import PdfComponent from '@/pdf/PdfComponent.js'
 import Responsibles from '../Responsibles.vue'
 import { contrastColor } from '../../../common/helpers/colors.js'
+import { ysPhysicalActivityDurationFormatted } from '../../../common/helpers/ysPhysicalActivityDuration.js'
+
+const MAX_FONT_SIZE = 8
 
 export default {
   name: 'PicassoScheduleEntry',
@@ -37,6 +48,7 @@ export default {
     scheduleEntry: { type: Object, required: true },
     percentageHeight: { type: Number, default: 10 },
     config: { type: Object, required: true },
+    showYSPhysicalActivityDuration: { type: Boolean, default: false },
   },
   computed: {
     color() {
@@ -51,6 +63,22 @@ export default {
     title() {
       return this.scheduleEntry.activity().title
     },
+    ysPhysicalActivityDuration() {
+      return ysPhysicalActivityDurationFormatted(
+        this.scheduleEntry.ysPhysicalActivityDurationMinutes,
+        this.$tc.bind(this)
+      )
+    },
+    ysPhysicalActivityDurationAfterTitle() {
+      if (
+        !this.showYSPhysicalActivityDuration ||
+        !this.ysPhysicalActivityDuration ||
+        this.twoLinesFit
+      ) {
+        return ''
+      }
+      return ` (${this.ysPhysicalActivityDuration})`
+    },
     linkTarget() {
       return `#scheduleEntry_${this.scheduleEntry.id}`
     },
@@ -64,8 +92,14 @@ export default {
           return 3
       }
     },
+    textHeight() {
+      return this.fontSizeScalingFactor * this.percentageHeight
+    },
     fontSize() {
-      return Math.min(8, this.fontSizeScalingFactor * this.percentageHeight) + 'pt'
+      return Math.min(MAX_FONT_SIZE, this.textHeight) + 'pt'
+    },
+    twoLinesFit() {
+      return this.textHeight >= 2 * MAX_FONT_SIZE
     },
   },
 }
@@ -90,6 +124,15 @@ export default {
   height: 16pt;
   line-height: 1;
   flex-grow: 1;
+}
+.picasso-schedule-entry-ys-physical-activity-duration-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  justify-content: flex-end;
+  padding: 0 4pt 2pt;
 }
 .picasso-schedule-entry-responsibles-container {
   position: absolute;
