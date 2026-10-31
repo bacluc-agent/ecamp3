@@ -27,6 +27,9 @@ check 'psalm (api)' docker compose exec api composer psalm
 check 'phpstan (api)' docker compose exec api composer phpstan
 check 'eslint+prettier (frontend lint:check)' docker compose exec frontend npm run lint:check
 check 'eslint+prettier (print lint:check)' docker compose exec print npm run lint:check
-check 'eslint+prettier+typecheck (e2e lint:check)' docker compose run --rm e2e npm run lint:check
+check 'eslint+prettier (e2e lint:check)' docker compose run --rm e2e npm run lint:check
 
-exit "$status"
+if (( status != 0 )); then
+  exit 2
+fi
+exit 0
