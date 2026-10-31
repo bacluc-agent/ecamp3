@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/../.."
+
+# docker compose falls back to uid 1000, which cannot write the npm cache and mounted checkout when the hook runs as another uid.
+export USER_ID="${USER_ID:-$(id -u)}"
+
+status=0
+
+check() {
+  local name="$1"
+  shift
+  printf '==> %s\n' "$name"
+  if "$@"; then
+    printf 'PASS: %s\n' "$name"
+  else
+    printf 'FAIL: %s\n' "$name" >&2
+    status=1
+  fi
+}
+
+# pre-commit.sh is not reused: it runs detached, skips folders absent from `git diff --name-only` and never reports an exit status.
+check 'prettier (root lint:check)' docker compose run --rm prettier npm run lint:check
+check 'php-cs-fixer (api cs-check)' docker compose exec api composer cs-check
+check 'psalm (api)' docker compose exec api composer psalm
+check 'phpstan (api)' docker compose exec api composer phpstan
+check 'eslint+prettier (frontend lint:check)' docker compose exec frontend npm run lint:check
+check 'eslint+prettier (print lint:check)' docker compose exec print npm run lint:check
+check 'eslint+prettier+typecheck (e2e lint:check)' docker compose run --rm e2e npm run lint:check
+
+exit "$status"
