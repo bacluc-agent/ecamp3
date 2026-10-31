@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test'
 import { getPdfProperties } from '@/utils/getPdfProperties'
 import { loginAndSetCookie } from '@/utils/helpers'
+import { grgrCampId } from '@/utils/constants'
+import { CampClientPrintPage } from '@/utils/fixtures/pageObjects/camp/admin/campClientPrintPage'
 
 import { readFileSync } from 'fs'
 
@@ -48,5 +50,21 @@ test.describe('Print test', { tag: '@mature' }, () => {
 
     expect(download.suggestedFilename()).toBe('Pfila-2023-Hauptlager.pdf')
     expect(pdfProps.numPages).toBe(1)
+  })
+
+  test('downloads PDF via page objects', async ({ page }) => {
+    await page.goto('/')
+    await expect(page).toHaveURL((url) => url.pathname === '/camps')
+
+    const clientPrint = await new CampClientPrintPage(page, grgrCampId).goto()
+
+    const download = await clientPrint.downloadClientPdf()
+
+    const path = await download.path()
+    const buffer = readFileSync(path)
+    const pdfProps = await getPdfProperties(buffer)
+
+    expect(download.suggestedFilename()).toBe('Pfila-2023.pdf')
+    expect(pdfProps.numPages).toBe(20)
   })
 })
