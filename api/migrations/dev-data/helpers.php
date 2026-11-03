@@ -26,10 +26,80 @@ function createTruncateDatabaseCommand(): string {
 
 function getStatementsForMigrationFile(): array {
     $dump_file = __DIR__.'/data.sql';
-    $sql = file_get_contents($dump_file);
+    $file = fopen($dump_file, 'rb');
+    if (false === $file) {
+        throw new \RuntimeException('Unable to open dev data dump');
+    }
 
-    $parser = new Parser($sql);
-    $parsed_statements = array_map(fn (InsertStatement $statement) => $statement->build(), $parser->statements);
+    try {
+        return getInsertStatementsFromStream($file);
+    } finally {
+        fclose($file);
+    }
+}
 
-    return str_replace('`', '"', $parsed_statements);
+function getInsertStatementsFromStream($file): array {
+    $parsed_statements = [];
+    foreach (getSqlStatements($file) as $sql) {
+        $parser = new Parser($sql);
+        foreach ($parser->statements as $statement) {
+            if ($statement instanceof InsertStatement) {
+                $parsed_statements[] = str_replace('`', '"', $statement->build());
+            }
+        }
+    }
+
+    return $parsed_statements;
+}
+
+function getSqlStatements($file): \Generator {
+    $statement = '';
+    $quote = null;
+    $escaped = false;
+    $line_comment = false;
+    $block_comment = false;
+    $previous = '';
+
+    while (($character = fgetc($file)) !== false) {
+        $statement .= $character;
+
+        if ($line_comment) {
+            if ("\n" === $character) {
+                $line_comment = false;
+            }
+        } elseif ($block_comment) {
+            if ('*' === $previous && '/' === $character) {
+                $block_comment = false;
+            }
+        } elseif (null !== $quote) {
+            if ($escaped) {
+                $escaped = false;
+            } elseif ('\\' === $character) {
+                $escaped = true;
+            } elseif ($character === $quote) {
+                $quote = null;
+            }
+        } elseif ("'" === $character || '"' === $character || '`' === $character) {
+            $quote = $character;
+        } elseif ('/' === $previous && '*' === $character) {
+            $block_comment = true;
+        } elseif ('-' === $previous && '-' === $character) {
+            $next = fgetc($file);
+            if (false !== $next) {
+                fseek($file, -1, SEEK_CUR);
+            }
+            $line_comment = false === $next || ord($next) <= 32;
+        } elseif ('#' === $character) {
+            $line_comment = true;
+        } elseif (';' === $character) {
+            yield $statement;
+            $statement = '';
+        }
+
+        $previous = $character;
+    }
+
+    if ('' !== trim($statement)) {
+        yield $statement;
+    }
 }
