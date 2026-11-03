@@ -218,6 +218,12 @@ test.describe('cache test: /camps/{campId}/categories', () => {
     ])
     await newPage.goto('/camps')
     await expect(newPage.locator('body')).toContainText('GRGR')
+    const resumedCastorApi = await getAuthContext(castorUser)
+    const resumedRes = await apiGet(resumedCastorApi, uri)
+    expect(resumedRes.status()).toBe(200)
+    expect(resumedRes.headers()['x-cache']).toBe('MISS')
+    await expectCacheHit(resumedCastorApi, uri)
+    await resumedCastorApi.dispose()
   })
 
   test.describe('invalidates /camps/{campId}/categories', { tag: '@mature' }, () => {
