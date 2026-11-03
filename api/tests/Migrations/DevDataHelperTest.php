@@ -38,11 +38,18 @@ SQL;
     }
 
     public function testLineCommentOnNonSeekableStreamEndsBeforeNextStatement(): void {
+        $sql = "--\nINSERT INTO `after_comment` (`value`) VALUES ('included');";
         [$reader, $writer] = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
-        fwrite($writer, "-- comment\nINSERT INTO `after_comment` (`value`) VALUES ('included');");
+        fwrite($writer, $sql);
         fclose($writer);
 
         self::assertFalse(stream_get_meta_data($reader)['seekable']);
+        self::assertSame([$sql], iterator_to_array(\DataMigrations\getSqlStatements($reader), false));
+        fclose($reader);
+
+        [$reader, $writer] = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
+        fwrite($writer, $sql);
+        fclose($writer);
         self::assertSame(
             ['INSERT INTO "after_comment"("value") VALUES (\'included\')'],
             \DataMigrations\getInsertStatementsFromStream($reader),
