@@ -59,8 +59,19 @@ function getSqlStatements($file): \Generator {
     $line_comment = false;
     $block_comment = false;
     $previous = '';
+    $next_character = null;
 
-    while (($character = fgetc($file)) !== false) {
+    while (true) {
+        if (null !== $next_character) {
+            $character = $next_character;
+            $next_character = null;
+        } else {
+            $character = fgetc($file);
+        }
+        if (false === $character) {
+            break;
+        }
+
         $statement .= $character;
 
         if ($line_comment) {
@@ -84,11 +95,8 @@ function getSqlStatements($file): \Generator {
         } elseif ('/' === $previous && '*' === $character) {
             $block_comment = true;
         } elseif ('-' === $previous && '-' === $character) {
-            $next = fgetc($file);
-            if (false !== $next) {
-                fseek($file, -1, SEEK_CUR);
-            }
-            $line_comment = false === $next || ord($next) <= 32;
+            $next_character = fgetc($file);
+            $line_comment = false === $next_character || ord($next_character) <= 32;
         } elseif ('#' === $character) {
             $line_comment = true;
         } elseif (';' === $character) {

@@ -37,6 +37,19 @@ SQL;
         fclose($file);
     }
 
+    public function testLineCommentOnNonSeekableStreamEndsBeforeNextStatement(): void {
+        [$reader, $writer] = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
+        fwrite($writer, "-- comment\nINSERT INTO `after_comment` (`value`) VALUES ('included');");
+        fclose($writer);
+
+        self::assertFalse(stream_get_meta_data($reader)['seekable']);
+        self::assertSame(
+            ['INSERT INTO "after_comment"("value") VALUES (\'included\')'],
+            \DataMigrations\getInsertStatementsFromStream($reader),
+        );
+        fclose($reader);
+    }
+
     public function testCurrentDumpMatchesSinglePassParserOutput(): void {
         $sql = file_get_contents(__DIR__.'/../../migrations/dev-data/data.sql');
         $file = fopen(__DIR__.'/../../migrations/dev-data/data.sql', 'rb');
