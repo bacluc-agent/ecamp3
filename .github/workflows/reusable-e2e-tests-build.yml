@@ -13,22 +13,61 @@ jobs:
 
       - name: Set up Docker Buildx
         id: buildx
+        continue-on-error: true
+        uses: docker/setup-buildx-action@v4
+
+      - if: steps.buildx.outcome == 'failure'
+        run: sleep 15
+
+      - name: Set up Docker Buildx, attempt 2
+        id: buildx2
+        if: steps.buildx.outcome == 'failure'
+        continue-on-error: true
+        uses: docker/setup-buildx-action@v4
+
+      - if: steps.buildx.outcome == 'failure' && steps.buildx2.outcome == 'failure'
+        run: sleep 15
+
+      - name: Set up Docker Buildx, attempt 3
+        id: buildx3
+        if: steps.buildx.outcome == 'failure' && steps.buildx2.outcome == 'failure'
         uses: docker/setup-buildx-action@v4
 
       # build API (using cache; provide image to docker compose)
       - name: Build docker image (API/PHP)
+        id: build
+        continue-on-error: true
         uses: docker/build-push-action@v7
-        with:
+        with: &api-build
           file: api/Dockerfile
           context: './api'
           push: false
           load: true
           target: frankenphp_prod
-          builder: ${{ steps.buildx.outputs.name }}
+          builder: ${{ steps.buildx3.outputs.name || steps.buildx2.outputs.name || steps.buildx.outputs.name }}
           tags: docker.io/ecamp/ecamp3-api:latest
           cache-from: type=gha,scope=api
           cache-to: type=gha,scope=api,mode=max
           outputs: type=docker,dest=/tmp/ecamp3-dev-api.tar
+
+      - if: steps.build.outcome == 'failure'
+        run: sleep 15
+
+      - name: Build docker image (API/PHP), attempt 2
+        id: build2
+        if: steps.build.outcome == 'failure'
+        continue-on-error: true
+        uses: docker/build-push-action@v7
+        with: *api-build
+
+      - if: steps.build.outcome == 'failure' && steps.build2.outcome == 'failure'
+        run: sleep 15
+
+      - name: Build docker image (API/PHP), attempt 3
+        id: build3
+        if: steps.build.outcome == 'failure' && steps.build2.outcome == 'failure'
+        uses: docker/build-push-action@v7
+        with: *api-build
 
       - uses: actions/upload-artifact@v7
         with:

@@ -32,10 +32,6 @@ jobs:
 
       - run: cp .env.ci .env
 
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v4
-
       - name: Restore tmp folder
         uses: actions/download-artifact@v8
         with:
@@ -51,7 +47,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: .cache
-          key: docker-compose-${{ hashFiles('frontend/package-lock.json', 'print/package-lock.json', 'api/composer.lock') }}-${{ matrix.browser }}
+          key: docker-compose-${{ hashFiles('frontend/package-lock.json', 'print/package-lock.json', 'api/composer.lock', 'e2e/package-lock.json') }}-${{ matrix.browser }}
           restore-keys: |
             docker-compose-
 
@@ -65,17 +61,22 @@ jobs:
           setfacl -dR -m u:www-data:rX -m u:"$(whoami)":rwX config/jwt
         working-directory: api
 
-      - run: docker compose up --wait -d database
+      - run: bash .github/scripts/retry.sh 3 15 docker compose up --wait -d database
 
-      - run: docker compose -f docker-compose.yml run --rm api migrate-database
+      - run: bash .github/scripts/retry.sh 3 15 docker compose -f docker-compose.yml run --rm api migrate-database
 
       # start necessary containers
-      - run: docker compose -f docker-compose.yml up -d api frontend print browserless database docker-host http-cache http-cache-logs mail pg-admin reverse-proxy
+      - run: bash .github/scripts/retry.sh 3 15 docker compose -f docker-compose.yml up -d api frontend print browserless database docker-host http-cache http-cache-logs mail pg-admin reverse-proxy
 
       # pull playwright while container are starting up
-      - run: docker compose pull e2e
+      - run: bash .github/scripts/retry.sh 3 15 docker compose pull e2e
 
-      - run: docker compose run --entrypoint="npm ci" --rm e2e
+      - run: >
+          bash .github/scripts/retry.sh 3 15 docker compose run
+          -e NPM_CONFIG_FETCH_RETRIES=5
+          -e NPM_CONFIG_FETCH_RETRY_MAXTIMEOUT=60000
+          -e NPM_CONFIG_FETCH_RETRY_MINTIMEOUT=10000
+          --entrypoint="npm ci" --rm e2e
 
       - run: sh -x wait-for-container-startup.sh
 
@@ -124,7 +125,11 @@ jobs:
 
       - name: Install dependencies
         working-directory: e2e
-        run: npm ci
+        env:
+          NPM_CONFIG_FETCH_RETRIES: 5
+          NPM_CONFIG_FETCH_RETRY_MAXTIMEOUT: 60000
+          NPM_CONFIG_FETCH_RETRY_MINTIMEOUT: 10000
+        run: bash ../.github/scripts/retry.sh 3 15 npm ci
 
       - name: Download blob reports from GitHub Actions Artifacts
         uses: actions/download-artifact@v8
