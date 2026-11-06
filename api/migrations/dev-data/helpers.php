@@ -38,15 +38,48 @@ function getStatementsForMigrationFile(): array {
 function getInsertStatementsFromStream($file): array {
     $statements = [];
     foreach (getSqlStatements($file) as $sql) {
-        if (!preg_match('/^\s*(?:(?:--[^\r\n]*(?:\r?\n|$)|#[^\r\n]*(?:\r?\n|$)|\/\*.*?\*\/\s*)*)INSERT\b/is', $sql)) {
+        if (!preg_match('/\A(?:\s|--[^\r\n]*(?:\r\n|\r|\n)|#[^\r\n]*(?:\r\n|\r|\n)|\/\*.*?\*\/)*INSERT\b/is', $sql)) {
             continue;
         }
 
-        $sql = preg_replace('/^\s*(?:(?:--[^\r\n]*(?:\r?\n|$)|#[^\r\n]*(?:\r?\n|$)|\/\*.*?\*\/\s*)*)/is', '', $sql);
-        $statements[] = rtrim(str_replace('`', '"', trim($sql)), "; \t\n\r\0\x0B");
+        $sql = preg_replace('/\A(?:\s|--[^\r\n]*(?:\r\n|\r|\n)|#[^\r\n]*(?:\r\n|\r|\n)|\/\*.*?\*\/)*/is', '', $sql);
+        $statements[] = rtrim(convertBacktickIdentifiers(trim($sql)), "; \t\n\r\0\x0B");
     }
 
     return $statements;
+}
+
+function convertBacktickIdentifiers(string $sql): string {
+    $quote = null;
+    $escaped = false;
+    $converted = '';
+
+    for ($index = 0, $length = strlen($sql); $index < $length; ++$index) {
+        $character = $sql[$index];
+        if (null !== $quote) {
+            if ($escaped) {
+                $escaped = false;
+            } elseif ('\\' === $character) {
+                $escaped = true;
+            } elseif ($character === $quote) {
+                $converted .= '`' === $quote ? '"' : $character;
+                $quote = null;
+
+                continue;
+            }
+            $converted .= $character;
+        } elseif ('`' === $character) {
+            $quote = '`';
+            $converted .= '"';
+        } else {
+            if ("'" === $character || '"' === $character) {
+                $quote = $character;
+            }
+            $converted .= $character;
+        }
+    }
+
+    return $converted;
 }
 
 function getSqlStatements($file): \Generator {

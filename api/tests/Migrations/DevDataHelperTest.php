@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Migrations;
 
+use PhpMyAdmin\SqlParser\Parser;
+use PhpMyAdmin\SqlParser\Statements\InsertStatement;
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__.'/../../migrations/dev-data/helpers.php';
@@ -12,12 +14,12 @@ require_once __DIR__.'/../../migrations/dev-data/helpers.php';
  * @internal
  */
 final class DevDataHelperTest extends TestCase {
-    public function testStreamedStatementsRetainInsertOrderAndQuotedSemicolons(): void {
+    public function testStreamedStatementsSelectAndPreserveInsertSql(): void {
         $sql = <<<'SQL'
 -- header;
 CREATE TABLE `ignored` (`id` int);
 INSERT INTO `first` (`text`) VALUES ('one; two'), ('it\'s; multiline
-value'), ('double ''; still quoted');
+value'), ('double ''; still quoted'), ('backtick `text`');
 /* ignored; semicolon */
 INSERT INTO `second` (`text`) VALUES ("quoted; text"), ('escaped\'; still value');
 SQL;
@@ -26,18 +28,30 @@ SQL;
         rewind($file);
 
         self::assertSame([
-            'INSERT INTO "first" ("text") VALUES (\'one; two\'), (\'it\\\'s; multiline'."\n".'value\'), (\'double \'\'; still quoted\')',
-            'INSERT INTO "second" ("text") VALUES ("quoted; text"), (\'escaped\\\'; still value\')',
+            <<<'SQL'
+INSERT INTO "first" ("text") VALUES ('one; two'), ('it\'s; multiline
+value'), ('double ''; still quoted'), ('backtick `text`')
+SQL,
+            <<<'SQL'
+INSERT INTO "second" ("text") VALUES ("quoted; text"), ('escaped\'; still value')
+SQL,
         ], \DataMigrations\getInsertStatementsFromStream($file));
         fclose($file);
     }
 
-    public function testPublicHelperReturnsOnlyNormalizedInsertStatementsInOrder(): void {
-        $statements = \DataMigrations\getStatementsForMigrationFile();
+    public function testPublicHelperSelectsEveryInsertFromCurrentDumpInOrder(): void {
+        $sql = file_get_contents(__DIR__.'/../../migrations/dev-data/data.sql');
+        $expected_count = 0;
+        foreach ((new Parser($sql))->statements as $statement) {
+            if ($statement instanceof InsertStatement) {
+                ++$expected_count;
+            }
+        }
 
-        self::assertCount(20, $statements);
+        $statements = \DataMigrations\getStatementsForMigrationFile();
+        self::assertCount($expected_count, $statements);
         foreach ($statements as $statement) {
-            self::assertMatchesRegularExpression('/^INSERT\b/i', $statement);
+            self::assertMatchesRegularExpression('/^INSERT\s+INTO\s+/i', $statement);
             self::assertStringNotContainsString('`', $statement);
             self::assertFalse(str_ends_with($statement, ';'));
         }
@@ -63,9 +77,19 @@ SQL;
         fclose($reader);
     }
 
-    public function testCurrentDumpStatementCountMatchesPublicHelper(): void {
+    public function testCurrentDumpInsertSelectionMatchesParserCount(): void {
+        $sql = file_get_contents(__DIR__.'/../../migrations/dev-data/data.sql');
         $file = fopen(__DIR__.'/../../migrations/dev-data/data.sql', 'rb');
-        self::assertSame(20, count(\DataMigrations\getInsertStatementsFromStream($file)));
+        $expected_count = 0;
+        foreach ((new Parser($sql))->statements as $statement) {
+            if ($statement instanceof InsertStatement) {
+                ++$expected_count;
+            }
+        }
+
+        $statements = \DataMigrations\getInsertStatementsFromStream($file);
+        self::assertCount($expected_count, $statements);
+        self::assertStringStartsWith('INSERT INTO ', $statements[0]);
         fclose($file);
     }
 
