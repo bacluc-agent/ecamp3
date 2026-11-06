@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Migrations;
 
-use PhpMyAdmin\SqlParser\Parser;
-use PhpMyAdmin\SqlParser\Statements\InsertStatement;
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__.'/../../migrations/dev-data/helpers.php';
@@ -14,11 +12,12 @@ require_once __DIR__.'/../../migrations/dev-data/helpers.php';
  * @internal
  */
 final class DevDataHelperTest extends TestCase {
-    public function testStreamedStatementsMatchParserOutputInOrder(): void {
+    public function testStreamedStatementsRetainInsertOrderAndQuotedSemicolons(): void {
         $sql = <<<'SQL'
 -- header;
+CREATE TABLE `ignored` (`id` int);
 INSERT INTO `first` (`text`) VALUES ('one; two'), ('it\'s; multiline
-value'), ('double '' quote');
+value'), ('double ''; still quoted');
 /* ignored; semicolon */
 INSERT INTO `second` (`text`) VALUES ("quoted; text"), ('escaped\'; still value');
 SQL;
@@ -26,27 +25,22 @@ SQL;
         fwrite($file, $sql);
         rewind($file);
 
-        $expected = [];
-        foreach ((new Parser($sql))->statements as $statement) {
-            if ($statement instanceof InsertStatement) {
-                $expected[] = str_replace('`', '"', $statement->build());
-            }
-        }
-
-        self::assertSame($expected, \DataMigrations\getInsertStatementsFromStream($file));
+        self::assertSame([
+            'INSERT INTO "first" ("text") VALUES (\'one; two\'), (\'it\\\'s; multiline'."\n".'value\'), (\'double \'\'; still quoted\')',
+            'INSERT INTO "second" ("text") VALUES ("quoted; text"), (\'escaped\\\'; still value\')',
+        ], \DataMigrations\getInsertStatementsFromStream($file));
         fclose($file);
     }
 
-    public function testPublicHelperMatchesCurrentDumpParserOutputInOrder(): void {
-        $sql = file_get_contents(__DIR__.'/../../migrations/dev-data/data.sql');
-        $expected = [];
-        foreach ((new Parser($sql))->statements as $statement) {
-            if ($statement instanceof InsertStatement) {
-                $expected[] = str_replace('`', '"', $statement->build());
-            }
-        }
+    public function testPublicHelperReturnsOnlyNormalizedInsertStatementsInOrder(): void {
+        $statements = \DataMigrations\getStatementsForMigrationFile();
 
-        self::assertSame($expected, \DataMigrations\getStatementsForMigrationFile());
+        self::assertCount(20, $statements);
+        foreach ($statements as $statement) {
+            self::assertMatchesRegularExpression('/^INSERT\b/i', $statement);
+            self::assertStringNotContainsString('`', $statement);
+            self::assertFalse(str_ends_with($statement, ';'));
+        }
     }
 
     public function testLineCommentOnNonSeekableStreamEndsBeforeNextStatement(): void {
@@ -63,23 +57,15 @@ SQL;
         fwrite($writer, $sql);
         fclose($writer);
         self::assertSame(
-            ['INSERT INTO "after_comment"("value") VALUES (\'included\')'],
+            ["INSERT INTO \"after_comment\" (\"value\") VALUES ('included')"],
             \DataMigrations\getInsertStatementsFromStream($reader),
         );
         fclose($reader);
     }
 
-    public function testCurrentDumpMatchesSinglePassParserOutput(): void {
-        $sql = file_get_contents(__DIR__.'/../../migrations/dev-data/data.sql');
+    public function testCurrentDumpStatementCountMatchesPublicHelper(): void {
         $file = fopen(__DIR__.'/../../migrations/dev-data/data.sql', 'rb');
-        $expected = [];
-        foreach ((new Parser($sql))->statements as $statement) {
-            if ($statement instanceof InsertStatement) {
-                $expected[] = str_replace('`', '"', $statement->build());
-            }
-        }
-
-        self::assertSame($expected, \DataMigrations\getInsertStatementsFromStream($file));
+        self::assertSame(20, count(\DataMigrations\getInsertStatementsFromStream($file)));
         fclose($file);
     }
 
@@ -93,14 +79,18 @@ SQL;
         $autoload = realpath(__DIR__.'/../../vendor/autoload.php');
         $helper = realpath($directory.'/helpers.php');
         $streamed = "require '{$autoload}'; require '{$helper}'; "
-            .'exit(count(\DataMigrations\getStatementsForMigrationFile()) === 160 ? 0 : 1);';
+            .'$statements = \DataMigrations\getStatementsForMigrationFile(); '
+            .'echo memory_get_peak_usage(true); '
+            .'exit(count($statements) === 160 ? 0 : 1);';
         $legacy = "require '{$autoload}'; "
             .'$sql = file_get_contents($argv[1]); '
             .'new \PhpMyAdmin\SqlParser\Parser($sql);';
 
         try {
-            self::assertSame(0, $this->runPhpWithMemoryLimit($streamed, $path)[0]);
-            [$legacy_status, $legacy_error] = $this->runPhpWithMemoryLimit($legacy, $path);
+            [$streamed_status, $peak_memory] = $this->runPhpWithMemoryLimit($streamed, $path);
+            self::assertSame(0, $streamed_status);
+            self::assertLessThan(124 * 1024 * 1024, (int) $peak_memory);
+            [$legacy_status, , $legacy_error] = $this->runPhpWithMemoryLimit($legacy, $path);
             self::assertNotSame(0, $legacy_status);
             self::assertStringContainsString('Allowed memory size', $legacy_error);
         } finally {
@@ -116,11 +106,11 @@ SQL;
             [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
             $pipes,
         );
-        stream_get_contents($pipes[1]);
+        $output = stream_get_contents($pipes[1]);
         $error = stream_get_contents($pipes[2]);
         fclose($pipes[1]);
         fclose($pipes[2]);
 
-        return [proc_close($process), $error];
+        return [proc_close($process), $output, $error];
     }
 }

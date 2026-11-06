@@ -2,9 +2,6 @@
 
 namespace DataMigrations;
 
-use PhpMyAdmin\SqlParser\Parser;
-use PhpMyAdmin\SqlParser\Statements\InsertStatement;
-
 function createTruncateDatabaseCommand(): string {
     return "
             DO $$ DECLARE
@@ -39,17 +36,17 @@ function getStatementsForMigrationFile(): array {
 }
 
 function getInsertStatementsFromStream($file): array {
-    $parsed_statements = [];
+    $statements = [];
     foreach (getSqlStatements($file) as $sql) {
-        $parser = new Parser($sql);
-        foreach ($parser->statements as $statement) {
-            if ($statement instanceof InsertStatement) {
-                $parsed_statements[] = str_replace('`', '"', $statement->build());
-            }
+        if (!preg_match('/^\s*(?:(?:--[^\r\n]*(?:\r?\n|$)|#[^\r\n]*(?:\r?\n|$)|\/\*.*?\*\/\s*)*)INSERT\b/is', $sql)) {
+            continue;
         }
+
+        $sql = preg_replace('/^\s*(?:(?:--[^\r\n]*(?:\r?\n|$)|#[^\r\n]*(?:\r?\n|$)|\/\*.*?\*\/\s*)*)/is', '', $sql);
+        $statements[] = rtrim(str_replace('`', '"', trim($sql)), "; \t\n\r\0\x0B");
     }
 
-    return $parsed_statements;
+    return $statements;
 }
 
 function getSqlStatements($file): \Generator {
@@ -88,7 +85,14 @@ function getSqlStatements($file): \Generator {
             } elseif ('\\' === $character) {
                 $escaped = true;
             } elseif ($character === $quote) {
-                $quote = null;
+                $next_character = fgetc($file);
+                if ($character === $next_character) {
+                    $statement .= $next_character;
+                    $previous = $next_character;
+                    $next_character = null;
+                } else {
+                    $quote = null;
+                }
             }
         } elseif ("'" === $character || '"' === $character || '`' === $character) {
             $quote = $character;
