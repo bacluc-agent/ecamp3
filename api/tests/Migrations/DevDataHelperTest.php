@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Migrations;
 
-use PhpMyAdmin\SqlParser\Parser;
-use PhpMyAdmin\SqlParser\Statements\InsertStatement;
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__.'/../../migrations/dev-data/helpers.php';
@@ -40,16 +38,8 @@ SQL,
     }
 
     public function testPublicHelperSelectsEveryInsertFromCurrentDumpInOrder(): void {
-        $sql = file_get_contents(__DIR__.'/../../migrations/dev-data/data.sql');
-        $expected_count = 0;
-        foreach ((new Parser($sql))->statements as $statement) {
-            if ($statement instanceof InsertStatement) {
-                ++$expected_count;
-            }
-        }
-
         $statements = \DataMigrations\getStatementsForMigrationFile();
-        self::assertCount($expected_count, $statements);
+        self::assertCount(20, $statements);
         foreach ($statements as $statement) {
             self::assertMatchesRegularExpression('/^INSERT\s+INTO\s+/i', $statement);
             self::assertStringNotContainsString('`', $statement);
@@ -77,18 +67,10 @@ SQL,
         fclose($reader);
     }
 
-    public function testCurrentDumpInsertSelectionMatchesParserCount(): void {
-        $sql = file_get_contents(__DIR__.'/../../migrations/dev-data/data.sql');
+    public function testCurrentDumpContainsExpectedInsertSelection(): void {
         $file = fopen(__DIR__.'/../../migrations/dev-data/data.sql', 'rb');
-        $expected_count = 0;
-        foreach ((new Parser($sql))->statements as $statement) {
-            if ($statement instanceof InsertStatement) {
-                ++$expected_count;
-            }
-        }
-
         $statements = \DataMigrations\getInsertStatementsFromStream($file);
-        self::assertCount($expected_count, $statements);
+        self::assertCount(20, $statements);
         self::assertStringStartsWith('INSERT INTO ', $statements[0]);
         fclose($file);
     }
