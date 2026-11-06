@@ -20,7 +20,7 @@ final class DevDataHelperTest extends TestCase {
 INSERT INTO `first` (`text`) VALUES ('one; two'), ('it\'s; multiline
 value'), ('double '' quote');
 /* ignored; semicolon */
-INSERT INTO `second` (`text`) VALUES ("quoted; text");
+INSERT INTO `second` (`text`) VALUES ("quoted; text"), ('escaped\'; still value');
 SQL;
         $file = fopen('php://memory', 'r+');
         fwrite($file, $sql);
@@ -35,6 +35,18 @@ SQL;
 
         self::assertSame($expected, \DataMigrations\getInsertStatementsFromStream($file));
         fclose($file);
+    }
+
+    public function testPublicHelperMatchesCurrentDumpParserOutputInOrder(): void {
+        $sql = file_get_contents(__DIR__.'/../../migrations/dev-data/data.sql');
+        $expected = [];
+        foreach ((new Parser($sql))->statements as $statement) {
+            if ($statement instanceof InsertStatement) {
+                $expected[] = str_replace('`', '"', $statement->build());
+            }
+        }
+
+        self::assertSame($expected, \DataMigrations\getStatementsForMigrationFile());
     }
 
     public function testLineCommentOnNonSeekableStreamEndsBeforeNextStatement(): void {
@@ -73,13 +85,15 @@ SQL;
 
     public function testScaledDumpFits124MegabytesWhenParsedIncrementally(): void {
         $source = file_get_contents(__DIR__.'/../../migrations/dev-data/data.sql');
-        $path = tempnam(sys_get_temp_dir(), 'dev-data-');
+        $directory = sys_get_temp_dir().'/dev-data-'.bin2hex(random_bytes(8));
+        mkdir($directory);
+        $path = $directory.'/data.sql';
         file_put_contents($path, str_repeat($source, 8));
+        copy(__DIR__.'/../../migrations/dev-data/helpers.php', $directory.'/helpers.php');
         $autoload = realpath(__DIR__.'/../../vendor/autoload.php');
-        $helper = realpath(__DIR__.'/../../migrations/dev-data/helpers.php');
+        $helper = realpath($directory.'/helpers.php');
         $streamed = "require '{$autoload}'; require '{$helper}'; "
-            .'$file = fopen($argv[1], \'rb\'); '
-            .'exit(count(\DataMigrations\getInsertStatementsFromStream($file)) === 160 ? 0 : 1);';
+            .'exit(count(\DataMigrations\getStatementsForMigrationFile()) === 160 ? 0 : 1);';
         $legacy = "require '{$autoload}'; "
             .'$sql = file_get_contents($argv[1]); '
             .'new \PhpMyAdmin\SqlParser\Parser($sql);';
@@ -90,7 +104,9 @@ SQL;
             self::assertNotSame(0, $legacy_status);
             self::assertStringContainsString('Allowed memory size', $legacy_error);
         } finally {
+            unlink($directory.'/helpers.php');
             unlink($path);
+            rmdir($directory);
         }
     }
 
