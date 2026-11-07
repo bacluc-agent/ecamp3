@@ -218,7 +218,6 @@ test.describe('cache test: /camps/{campId}/categories', () => {
     ])
     await newPage.goto('/camps')
     await expect(newPage.locator('body')).toContainText('GRGR')
-
   })
 
   test.describe('invalidates /camps/{campId}/categories', { tag: '@mature' }, () => {
