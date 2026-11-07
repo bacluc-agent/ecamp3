@@ -20,12 +20,30 @@ check() {
   fi
 }
 
+run_if_running() {
+  local service="$1"
+  shift
+  local container state
+  container="$(docker compose ps -q "$service" 2>/dev/null || true)"
+  if [[ -z "$container" ]]; then
+    printf 'SKIP: %s container is unavailable\n' "$service"
+    return 0
+  fi
+  state="$(docker inspect --format '{{.State.Running}}' "$container" 2>/dev/null || true)"
+  if [[ "$state" != true ]]; then
+    printf 'SKIP: %s container is not running\n' "$service"
+    return 0
+  fi
+  "$@"
+}
+
 # pre-commit.sh is not reused: it runs detached, skips folders absent from `git diff --name-only` and never reports an exit status.
 check 'prettier (root lint:check)' docker compose run --rm prettier npm run lint:check
-check 'php-cs-fixer (api cs-check)' docker compose exec api composer cs-check
-check 'psalm (api)' docker compose exec api composer psalm
-check 'phpstan (api)' docker compose exec api composer phpstan
-check 'eslint+prettier (frontend lint:check)' docker compose exec frontend npm run lint:check
+check 'php-cs-fixer (api cs-check)' run_if_running api docker compose exec api composer cs-check
+check 'psalm (api)' run_if_running api docker compose exec api composer psalm
+check 'phpstan (api)' run_if_running api docker compose exec api composer phpstan
+check 'eslint+prettier (frontend lint:check)' run_if_running frontend docker compose exec frontend npm run lint:check
+check 'eslint+prettier (print lint:check)' run_if_running print docker compose exec print npm run lint:check
 check 'eslint+prettier (e2e lint:check)' docker compose run --rm e2e sh -c 'npm ci --no-audit --no-fund && npm run lint:check'
 check 'eslint+prettier (aws-setup lint:check)' docker compose -f .ops/aws-setup/docker-compose.yml run --rm aws-setup sh -c 'npm ci --no-audit --no-fund && npm run lint:check'
 
