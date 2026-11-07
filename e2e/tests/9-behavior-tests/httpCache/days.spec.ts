@@ -76,12 +76,6 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
 
     const bipiApi = await getAuthContext(bipiUser)
 
-    await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
-      start: '2036-05-10',
-      end: '2036-05-14',
-      moveScheduleEntries: true,
-    })
-
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
@@ -119,11 +113,6 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     await waitForCacheMiss(bipiApi, excludedEntityUri)
     await expectCacheHit(bipiApi, excludedEntityUri)
 
-    await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
-      start: '2036-05-10',
-      end: '2036-05-14',
-      moveScheduleEntries: true,
-    })
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
     await waitForCacheMiss(bipiApi, filteredUri)
