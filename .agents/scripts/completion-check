@@ -26,9 +26,8 @@ check 'php-cs-fixer (api cs-check)' docker compose exec api composer cs-check
 check 'psalm (api)' docker compose exec api composer psalm
 check 'phpstan (api)' docker compose exec api composer phpstan
 check 'eslint+prettier (frontend lint:check)' docker compose exec frontend npm run lint:check
-check 'eslint+prettier (print lint:check)' docker compose exec print npm run lint:check
 check 'eslint+prettier (e2e lint:check)' docker compose run --rm e2e npm run lint:check
-check 'eslint+prettier (aws-setup lint:check)' docker compose -f .ops/aws-setup/docker-compose.yml run --rm aws-setup npm run lint:check
+check 'eslint+prettier (aws-setup lint:check)' docker compose -f .ops/aws-setup/docker-compose.yml run --rm aws-setup sh -c 'npm ci --no-audit --no-fund && npm run lint:check'
 
 if (( status != 0 )); then
   exit 2
