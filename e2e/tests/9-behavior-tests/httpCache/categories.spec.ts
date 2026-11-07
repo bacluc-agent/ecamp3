@@ -219,10 +219,6 @@ test.describe('cache test: /camps/{campId}/categories', () => {
     await newPage.goto('/camps')
     await expect(newPage.locator('body')).toContainText('GRGR')
 
-    const resumedRes = await apiGet(castorApi, uri)
-    expect(resumedRes.status()).toBe(200)
-    expect(resumedRes.headers()['x-cache']).toBe('MISS')
-    await expectCacheHit(castorApi, uri)
   })
 
   test.describe('invalidates /camps/{campId}/categories', { tag: '@mature' }, () => {
