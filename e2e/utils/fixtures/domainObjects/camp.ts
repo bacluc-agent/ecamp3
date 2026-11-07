@@ -88,7 +88,7 @@ class CreateCamp {
   @boxedStep
   async create(user = undefined) {
     const createCampDialogStep2 = await this.openCreateCampStep2(user)
-    const { campInfo } = await createCampDialogStep2
+    const campInfo = await createCampDialogStep2
       .selectPrototype(this._campPrototype!)
       .then((value) =>
         value.submit((campInfo) => this._registerCamp(campInfo, this._campTitle))

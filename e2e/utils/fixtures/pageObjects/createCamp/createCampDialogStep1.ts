@@ -50,6 +50,7 @@ export class CreateCampDialogStep1 {
       undefined,
       undefined,
       undefined,
+      undefined,
       onCreatedCamp
     )
     await createCampDialogStep2.loaded()

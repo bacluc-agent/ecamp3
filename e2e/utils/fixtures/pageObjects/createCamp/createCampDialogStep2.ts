@@ -129,7 +129,7 @@ export class CreateCampDialogStep2 {
     const campInfo = new CampInfo(this._page, campId)
     onCreatedCamp?.(campInfo)
     await campInfo.loaded()
-    return { campPrototype, campInfo }
+    return Object.assign(campInfo, { campPrototype })
   }
 
   get noPrototypeAlert(): Locator {
