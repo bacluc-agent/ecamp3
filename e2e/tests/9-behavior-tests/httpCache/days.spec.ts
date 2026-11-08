@@ -112,7 +112,6 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     await expectCacheHit(bipiApi, filteredUri)
     await waitForCacheMiss(bipiApi, excludedEntityUri)
     await expectCacheHit(bipiApi, excludedEntityUri)
-
   })
 
   test('invalidates /periods/{periodId}/days when adding a day responsible', async () => {
