@@ -114,11 +114,10 @@ export default {
     },
   },
   async mounted() {
-    await this.period.days().$reload()
-
     await Promise.all([
       this.period.camp().campCollaborations()._meta.load,
-      this.dayResponsibles?._meta.load,
+      this.dayResponsibles._meta.load,
+      this.period.days().$reload(),
     ])
 
     this.isLoading = false
