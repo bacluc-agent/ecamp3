@@ -26,6 +26,7 @@ test.describe('The filters in the dashboard', { tag: '@mature' }, () => {
     await expect(
       page.locator('span.v-chip:has-text("Kategorie: ES oder LS")')
     ).toBeVisible()
+    await expect.poll(() => new URL(page.url()).searchParams.has('category')).toBe(true)
 
     await page.locator('span.v-chip:has-text("Status")').click()
     await clickOnItemWithLabel(page, 'Geplant')
@@ -34,6 +35,9 @@ test.describe('The filters in the dashboard', { tag: '@mature' }, () => {
     await expect(
       page.locator('span.v-chip:has-text("Status: Geplant oder Coach OK")')
     ).toBeVisible()
+    await expect
+      .poll(() => new URL(page.url()).searchParams.has('progressLabel'))
+      .toBe(true)
 
     await page.reload()
 
@@ -54,6 +58,8 @@ test.describe('The filters in the dashboard', { tag: '@mature' }, () => {
       page.locator('span.v-chip:has-text("Kategorie: ES oder LS")')
     ).toBeVisible()
 
+    await expect.poll(() => new URL(page.url()).searchParams.has('category')).toBe(true)
+
     await page.reload()
 
     await expect(
@@ -69,6 +75,7 @@ test.describe('The filters in the dashboard', { tag: '@mature' }, () => {
       page.locator('span.v-chip:has-text("Kategorie: ES oder LS")')
     ).toBeHidden()
     await expect(page.locator('span.v-chip:has-text("Kategorie")')).toBeVisible()
+    await expect.poll(() => new URL(page.url()).searchParams.has('category')).toBe(false)
 
     await page.reload()
 
