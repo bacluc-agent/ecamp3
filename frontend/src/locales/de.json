@@ -312,14 +312,14 @@
     },
     "collaborator": {
       "collaboratorBulkCreate": {
-        "validationFailed": "Bereits im Team oder ungültige E-Mail-Adresse:",
         "emailsHint": "Eine E-Mail-Adresse pro Zeile oder durch Kommas getrennt eingeben",
         "emailsLabel": "E-Mail-Adressen",
         "failedEmails": "Einladung fehlgeschlagen: {emails}",
         "invite": "Einladungen verschicken",
         "inviteCta": "Mehrere Personen einladen",
         "successCount": "{count} Einladung(en) verschickt",
-        "title": "Mehrere Personen einladen"
+        "title": "Mehrere Personen einladen",
+        "validationFailed": "Bereits im Team oder ungültige E-Mail-Adresse:"
       },
       "collaboratorCreate": {
         "emailLabel": "E-Mail-Adresse",
@@ -379,9 +379,9 @@
       },
       "commentsList": {
         "empty": "Noch keine Kommentare.",
-        "noResolvedComments": "Keine erledigten Kommentare.",
         "noOpenComments": "Keine offenen Kommentare.",
-        "noOpenCommentsWithResolved": "Keine offenen Kommentare. Siehe Erledigt"
+        "noOpenCommentsWithResolved": "Keine offenen Kommentare. Siehe Erledigt",
+        "noResolvedComments": "Keine erledigten Kommentare."
       },
       "commentsPanel": {
         "activityCommentsElsewhere": "Ein weiterer offener Kommentar befindet sich bei einer Aktivität. | {count} weitere offene Kommentare befinden sich bei einzelnen Aktivitäten.",
@@ -507,10 +507,13 @@
           "title": "Aktivitäten filtern"
         },
         "picassoConfig": {
-          "orientation": "Seitenlayout",
           "landscape": "Querformat",
+          "orientation": "Seitenlayout",
           "periods": "Lagerabschnitt(e)",
-          "portrait": "Hochformat"
+          "portrait": "Hochformat",
+          "responsibles": "Verantwortliche",
+          "responsiblesAvatars": "Avatare",
+          "responsiblesNames": "Namen"
         },
         "programConfig": {
           "dayOverview": "Tagesübersicht"
@@ -524,37 +527,35 @@
           }
         }
       },
-      "localPdfDownloadButton": {
-        "error": "Etwas hat nicht geklappt. Probiere es nochmals, oder lade die Seite neu."
-      },
-      "printClient": {
-        "downloadClientPdfButton": {
-          "label": "PDF herunterladen (Layout #2)"
+      "generator": {
+        "downloadPdfButton": {
+          "label": "PDF herunterladen"
         },
-        "downloadClientPdfListItem": {
-          "label": "PDF herunterladen (Layout #2)"
+        "downloadPdfListItem": {
+          "label": "PDF herunterladen"
         },
         "generatePdfMixin": {
           "error": "Etwas hat nicht geklappt. Probiere es nochmals, oder lade die Seite neu.",
           "progress": {
-            "loadingData": "Lade die aktuellsten Daten des Lagers…",
-            "setupTranslationsAndFonts": "Lade Schriftarten und Texte…",
             "assembleContent": "Stelle {type} zusammen ({content} von {totalContents})…",
+            "done": "Fertig",
+            "downloadingPdf": "Lade die PDF-Datei herunter…",
+            "failed": "Abgebrochen",
             "layoutDocument": "Berechne Dokument-Layout…",
             "layoutPage": "Berechne Layout von Seite {page}…",
+            "loadingData": "Lade die aktuellsten Daten des Lagers…",
             "renderingPdfPage": "Rendere PDF-Seite {page} von {totalPages}…",
-            "downloadingPdf": "Lade die PDF-Datei herunter…",
-            "done": "Fertig",
-            "failed": "Abgebrochen"
+            "setupTranslationsAndFonts": "Lade Schriftarten und Texte…"
           }
         },
-        "printPreviewClient": {
+        "printPreview": {
           "previewError": "Etwas hat nicht geklappt. Probiere es nochmals mit anderen Druckeinstellungen, oder lade die Seite neu.",
           "previewIframeTitle": "Druckvorschau"
         }
       },
       "printConfigurator": {
         "add": "Inhalt hinzufügen",
+        "compact": "Kompaktes Layout (weniger Abstände, leere Felder ausblenden)",
         "config": {
           "Activity": "Einzelne Aktivität",
           "ActivityList": "Aktivitätenliste (Kurse)",
@@ -565,31 +566,17 @@
           "Story": "Geschichte",
           "Toc": "Inhaltsverzeichnis"
         },
-        "options": "Einstellungen",
-        "pageNumbers": "Seitenzahlen",
+        "contactLink": "Melde dich bei uns",
         "fontSize": "Schriftgrösse",
         "fontSizes": {
           "A3": "Kleinere Schrift (optimiert für A4 oder A3)",
           "A4": "Normale Schrift (optimiert für A4 oder A5)",
           "A5": "Grössere Schrift (optimiert für A6)"
-        }
-      },
-      "printNuxt": {
-        "downloadNuxtPdfButton": {
-          "label": "PDF herunterladen (Layout #1)"
         },
-        "downloadNuxtPdfListItem": {
-          "label": "PDF herunterladen (Layout #1)"
-        },
-        "generatePdfMixin": {
-          "error": "Etwas hat nicht geklappt. Probiere es nochmals, oder lade die Seite neu.",
-          "queueFull": "Alle unsere PDF-Drucker sind im Moment beschäftigt. Bitte versuche es später nochmals."
-        },
-        "printPreviewNuxt": {
-          "openPreview": "Vorschau in neuem Fenster öffnen",
-          "previewError": "Etwas hat nicht geklappt. Probiere es nochmals mit anderen Druckeinstellungen, oder lade die Seite neu.",
-          "previewIframeTitle": "Druckvorschau"
-        }
+        "layoutInfo": "Wir haben die Vorteile beider Drucklayouts in einem neuen Layout vereint. Unter «Einstellungen» kannst du das kompakte Layout aktivieren, das dem bisherigen Layout #2 ähnelt. Haben wir etwas übersehen oder funktioniert etwas nicht mehr? {contactLink}.",
+        "layoutInfoTitle": "Wo ist die Druckauswahl?",
+        "options": "Einstellungen",
+        "pageNumbers": "Seitenzahlen"
       }
     },
     "program": {
@@ -639,11 +626,11 @@
         }
       },
       "scheduleEntryFilters": {
+        "allMyActivities": "Alle meine Aktivitäten",
         "category": "Kategorie",
         "clearFilters": "Filter entfernen",
         "day": "Datum",
         "dayLabel": "Tag {dayNumber} ({date})",
-        "allMyActivities": "Alle meine Aktivitäten",
         "onlyMyActivities": "Nur meine Aktivitäten",
         "period": "Lagerabschnitt",
         "progressLabel": "Status",
@@ -660,6 +647,11 @@
     "story": {
       "storyDay": {
         "noStory": "Die Blöcke an diesem Tag enthalten keinen roten Faden."
+      }
+    },
+    "summary": {
+      "summaryDay": {
+        "noContent": "Die Blöcke an diesem Tag enthalten keine {contentType} Inhalte."
       }
     },
     "toast": {
@@ -683,13 +675,285 @@
         "title": "E-Mail-Adresse wird geändert"
       },
       "dialogChangePassword": {
-        "title": "Passwort ändern",
         "currentPassword": "Aktuelles Passwort",
+        "error": "Es ist ein Fehler aufgetreten.",
         "newPassword": "Neues Passwort",
         "newPasswordConfirmation": "Neues Passwort bestätigen",
         "success": "Dein Passwort wurde erfolgreich geändert.",
-        "error": "Es ist ein Fehler aufgetreten."
+        "title": "Passwort ändern"
       }
+    }
+  },
+  "contentNode": {
+    "checklist": {
+      "info": "Wähle die relevanten Checklisten-Einträge aus, die von dieser Aktivität abgedeckt werden (Kursziele, etc.).",
+      "name": "Checklisten"
+    },
+    "columnLayout": {
+      "entity": {
+        "column": {
+          "name": "Spalte|Spalte {name}"
+        }
+      },
+      "name": "Spaltenlayout"
+    },
+    "laThematicArea": {
+      "entity": {
+        "option": {
+          "campsiteAndSurroundings": {
+            "description": "Einrichten von Lagerplatz/Umgebung, Abbau, Erstellen von Spielplatzeinrichtungen und Sportgeräten.",
+            "name": "Lagerplatz/Umgebung"
+          },
+          "natureAndEnvironment": {
+            "description": "Tier- und Pflanzenwelt, Umweltschutz im Lager, Wetter- und Sternkunde, Übermittlungstechniken, Feuer machen.",
+            "name": "Natur und Umwelt"
+          },
+          "outdoorTechnique": {
+            "description": "Wanderplanung, Kartenlesen (z.B. NORDA), Krokieren, Hilfsmittel (z.B. Kompass, GPS, Höhenmeter usw.), orientieren im Gelände.",
+            "name": "Outdoortechniken"
+          },
+          "pioneeringTechnique": {
+            "description": "Biwakbau, Iglubau, Material- und Ausrüstungskunde, Materialpflege, Erstellen und Abbau von Pionierbauten, Seil- und Knotenkunde, Seilbahnen, Seilbrücken, Abseilen.",
+            "name": "Pioniertechnik"
+          },
+          "preventionAndIntegration": {
+            "description": "Aktivitäten, welche der Prävention und der Integration dienen und die Kompetenzen der Teilnehmenden in diesem Bereich fördern.",
+            "name": "Prävention und Integration"
+          },
+          "security": {
+            "description": "Sicherheit bei Aktivitäten im Lager, Unfallorganisation und Alarmierung, 1. Hilfe, Sicherheitsüberlegungen.",
+            "name": "Sicherheit"
+          }
+        }
+      },
+      "info": "Eine J+S Lageraktivität muss mindestens eines der aufgeführten Themen behandeln.{br}Erfasse, welche Themen in diesem Block behandelt werden.",
+      "name": "LA Themenbereich"
+    },
+    "learningObjectives": {
+      "info": "Formuliere die Kompetenzen, über welche die Teilnehmenden nach diesem Block verfügen, in der Form von Lernzielen.",
+      "name": "Blockziele"
+    },
+    "learningTopics": {
+      "info": "Liste die Ausbildungs-Themen auf, mit welchen die Teilnehmenden sich in diesem Block auseinandersetzen werden.",
+      "name": "Blockinhalte"
+    },
+    "material": {
+      "info": "Hier kannst du den Material-Bedarf für diesen Block erfassen.{br}Die Materiallisten kannst du im Menu 'Admin' verwalten.{br}Eine Zusammenstellung für den Einkauf findest du im Menu 'Material'.",
+      "name": "Material"
+    },
+    "notes": {
+      "info": "Hier kannst du beliebige Notizen erfassen.{br}z.B. Ideen, Todo's, offene Fragen, Kontakte, ÖV-Verbindungen, usw.",
+      "name": "Notizen"
+    },
+    "responsiveLayout": {
+      "mainContent": "Hauptinhalt",
+      "name": "Standardlayout",
+      "printAboveMainContent": "Über dem Hauptinhalt drucken",
+      "printBelowMainContent": "Unter dem Hauptinhalt drucken"
+    },
+    "safetyConsiderations": {
+      "info": "Einige Blöcke erfordern, dass ihr euch Gedanken zu den Risiken macht. Hier könnt ihr diese Gedanken erfassen.{br}Haltet fest, welche Risiken ihr erkannt habt - und wie ihr diesen begegnen könnt.",
+      "name": "Sicherheitsüberlegungen"
+    },
+    "storyboard": {
+      "entity": {
+        "section": {
+          "fields": {
+            "column1": "Zeit",
+            "column2Html": "Programm",
+            "column3": "Verantwortlich"
+          },
+          "name": "Programmpunkt | Programmpunkte"
+        }
+      },
+      "info": "Hier kannst du den Inhalt von diesem Block planen.{br}In der linken Spalte [Zeit] kannst du die Dauer der einzelnen Elemente erfassen.{br}In der rechten Spalte [Verantwortlich] kannst du Personen zuteilen.",
+      "name": "Programmabschnitt"
+    },
+    "storycontext": {
+      "info": "Beschreibe, wie sich dieser Block in die Geschichte vom Lager einbettet.{br}Eine Zusammenstellung aller Geschichts-Elemente findest du im Menu 'Geschichte'.{br}Ihr könnt auch erst im Menu 'Geschichte' zuerst eine durchgängige Geschichte erarbeiten - so dass man den Block-Inhalt perfekt in die Geschichte einbetten kann.",
+      "name": "Geschichte"
+    },
+    "ysActivityCharacteristics": {
+      "entity": {
+        "option": {
+          "community": {
+            "name": "Die Gemeinschaft wohlwollend stärken"
+          },
+          "gamesAndSports": {
+            "name": "Vielfältige Spiel- und Sportaktivitäten kreativ mitgestalten"
+          },
+          "gettingInvolved": {
+            "name": "Eigene Bedürfnisse und Ideen bewusst einbringen"
+          },
+          "natureAndEnvironment": {
+            "name": "Respektvoll mit Natur und Umwelt umgehen"
+          },
+          "outdoorTechnique": {
+            "name": "Outdoor- und Lagerbautechniken wirksam anwenden"
+          },
+          "travellingSafety": {
+            "name": "Sicher und vorausschauend unterwegs sein"
+          }
+        }
+      },
+      "info": "Wähle die Erscheinungsformen aus, die in diesem Block behandelt werden.",
+      "name": "J+S Erscheinungsformen"
+    },
+    "ysPhysicalActivityDuration": {
+      "info": "Erfasse für jeden Zeitplaneintrag dieser Aktivität die J+S-Bewegungszeit. Sie wird auch im Grobprogramm angezeigt.",
+      "name": "J+S-Bewegungszeit",
+      "none": "Keine Angabe",
+      "templateHint": "Die J+S-Bewegungszeit wird in jeder Aktivität pro Zeitplaneintrag erfasst."
+    }
+  },
+  "entity": {
+    "activity": {
+      "fields": {
+        "category": "Block-Kategorie",
+        "location": "Ort",
+        "progressLabel": "Status",
+        "responsible": "Verantwortlich",
+        "title": "Titel"
+      },
+      "name": "Aktivität | Aktivitäten",
+      "new": "Neue Aktivität"
+    },
+    "activityProgressLabel": {
+      "fields": {
+        "title": "Titel"
+      }
+    },
+    "camp": {
+      "collaborators": {
+        "guest": "Gast",
+        "invite": "Einladen",
+        "manager": "Administration",
+        "member": "Mitglied"
+      },
+      "fields": {
+        "addressCity": "Ort",
+        "addressName": "Name",
+        "addressStreet": "Strasse",
+        "addressZipcode": "PLZ",
+        "coachName": "Name des J+S-Coachs",
+        "courseKind": "Kursbezeichnung (bei J+S Kurs: J+S Bezeichnung)",
+        "courseNumber": "Kursnummer",
+        "kind": "Lagerart (Haus-, Zelt-, Unterwegslager, Sommer-, Herbstlager)",
+        "motto": "Motto / Thema",
+        "organizer": "Organisator",
+        "printYSLogoOnPicasso": "J+S-Logo auf Grobprogramm drucken (bei J+S-Kursen aktivieren)",
+        "shortTitle": "Kurzer Lagertitel",
+        "title": "Lagertitel",
+        "trainingAdvisorName": "Bürgerlicher Name der Betreuungsperson"
+      },
+      "name": "Lager",
+      "prototype": "Lagervorlage"
+    },
+    "campCollaboration": {
+      "fields": {
+        "abbreviation": "Abkürzung",
+        "color": "Farbe",
+        "inviteEmail": "E-Mail",
+        "role": "Rolle",
+        "status": "Status"
+      },
+      "status": {
+        "established": "Aktiv",
+        "inactive": "Inaktiv",
+        "invited": "Eingeladen"
+      }
+    },
+    "category": {
+      "fields": {
+        "color": "Farbe",
+        "name": "Name",
+        "numberingStyle": "Nummerierung",
+        "short": "Kürzel"
+      },
+      "name": "Block-Kategorien",
+      "numberingStyles": {
+        "1": "1, 2, 3 - Zahlen",
+        "-": "keine Nummerierung",
+        "A": "A, B, C - grosse Buchstaben",
+        "I": "I, II, III - grosse römische Zahlen",
+        "a": "a, b, c - kleine Buchstaben",
+        "i": "i, ii, iii - kleine römische Zahlen"
+      }
+    },
+    "checklist": {
+      "fields": {
+        "copyChecklistSource": "Vorlage",
+        "name": "Name"
+      },
+      "name": "Checkliste | Checklisten"
+    },
+    "checklistItem": {
+      "fields": {
+        "text": "Text"
+      },
+      "name": "Checklisten-Eintrag"
+    },
+    "contentType": {
+      "name": "Inhalttyp | Inhalttypen"
+    },
+    "day": {
+      "fields": {
+        "dayResponsibles": "Tagesverantwortliche"
+      },
+      "name": "Tag | Tage"
+    },
+    "materialItem": {
+      "fields": {
+        "article": "Artikel",
+        "list": "Materialliste",
+        "quantity": "Menge",
+        "reference": "Aktivität / Lagerabschnitt",
+        "unit": "Einheit"
+      }
+    },
+    "materialList": {
+      "fields": {
+        "name": "Name"
+      },
+      "name": "Materialliste"
+    },
+    "period": {
+      "defaultDescription": "Hauptlager",
+      "fields": {
+        "description": "Beschreibung",
+        "end": "Bis",
+        "start": "Von"
+      },
+      "name": "Lagerabschnitt | Lagerabschnitte"
+    },
+    "profile": {
+      "fields": {
+        "abbreviation": "Abkürzung",
+        "color": "Farbe",
+        "email": "E-Mail-Adresse",
+        "firstname": "Vorname",
+        "language": "Sprache",
+        "nickname": "Spitzname",
+        "password": "Passwort",
+        "surname": "Nachname"
+      },
+      "name": "Profil"
+    },
+    "scheduleEntry": {
+      "fields": {
+        "duration": "Dauer",
+        "endDate": "Enddatum",
+        "endDatetime": "Endzeit",
+        "nr": "Nr.",
+        "startDate": "Startdatum",
+        "startDatetime": "Startzeit",
+        "time": "Zeitpunkt",
+        "ysPhysicalActivityDuration": "J+S-Bewegungszeit",
+        "ysPhysicalActivityDurationFormatted": "BZ {duration}",
+        "ysPhysicalActivityDurationOrMore": "{duration} oder mehr",
+        "ysPhysicalActivityDurationOrMoreShort": "{hours}+ h"
+      },
+      "name": "Zeitplaneintrag"
     }
   },
   "global": {
@@ -737,6 +1001,22 @@
       "member": "Lese- & Schreibrecht"
     },
     "datetime": {
+      "dateLong": "dd L",
+      "dateRangeEnd": "dd L",
+      "dateRangeStart": "dd DD.MM.",
+      "dateShort": "dd D.M.",
+      "dateTimeLong": "dd L LT",
+      "duration": {
+        "daysAndHours": "{days} d {hours} h",
+        "daysAndHoursAndMinutes": "{days} d {hours} h {minutes} min",
+        "daysAndMinutes": "{days} d {minutes} min",
+        "hoursAndMinutes": "{hours} h {minutes} min",
+        "daysOnly": "{days} d",
+        "hoursOnly": "{hours} h",
+        "minutesOnly": "{minutes} min"
+      },
+      "hourLong": "LT",
+      "hourShort": "H:mm",
       "vuetifyTimePickerFormat": "24hr"
     },
     "hitobito": {
@@ -760,19 +1040,20 @@
       "news": "News"
     },
     "newVersion": {
-      "title": "Eine neue Version ist verfügbar",
       "description": "Diese Funktion ist nicht verfügbar, bis du auf die neueste Version aktualisierst.",
+      "title": "Eine neue Version ist verfügbar",
       "update": "Jetzt aktualisieren",
       "updateLater": "Später aktualisieren"
     },
     "selfXssWarning": {
-      "title": "Stopp!",
-      "message": "Diese Browser-Konsole ist für Entwickler*innen gedacht. Wenn dich jemand auffordert, hier etwas hineinzukopieren, will diese Person dich mit grosser Wahrscheinlichkeit betrügen: Was du hier einfügst, läuft in deinem Namen und kann alle Lager lesen und verändern, auf die du Zugriff hast. Füge hier niemals Code ein, den du nicht selbst vollständig verstehst."
+      "message": "Diese Browser-Konsole ist für Entwickler*innen gedacht. Wenn dich jemand auffordert, hier etwas hineinzukopieren, will diese Person dich mit grosser Wahrscheinlichkeit betrügen: Was du hier einfügst, läuft in deinem Namen und kann alle Lager lesen und verändern, auf die du Zugriff hast. Füge hier niemals Code ein, den du nicht selbst vollständig verstehst.",
+      "title": "Stopp!"
     },
     "serverError": {
       "409": "Uuuups... Diese Aktion hat zu einem Fehler auf dem Server geführt.",
       "short": "Serverfehler"
     },
+    "shortScheduleEntryDescription": "Tag {dayNumber} {startTime}",
     "toast": {
       "copied": "{source} kopiert"
     },
@@ -785,6 +1066,41 @@
     },
     "warning": {
       "delete": "Möchtest du das wirklich löschen? | Möchtest du \"{entity}\" wirklich löschen?"
+    }
+  },
+  "print": {
+    "activity": {
+      "title": "Einzelne Aktivität"
+    },
+    "activityList": {
+      "title": "Aktivitätenliste"
+    },
+    "config": {
+      "periods": "Lagerabschnitt(e)"
+    },
+    "cover": {
+      "title": "Titelseite"
+    },
+    "picasso": {
+      "picassoFooter": {
+        "coach": "Coach: {coach}",
+        "courseNumber": "Kursnummer: {courseNumber}",
+        "leaders": "Leitung: {leaders}",
+        "trainingAdvisor": "LKB: {trainingAdvisor}"
+      },
+      "title": "Grobprogramm {period}"
+    },
+    "program": {
+      "title": "Detailprogramm"
+    },
+    "safetyConsiderations": {
+      "title": "Sicherheitsüberlegungen"
+    },
+    "story": {
+      "title": "Geschichte"
+    },
+    "toc": {
+      "title": "Inhaltsverzeichnis"
     }
   },
   "views": {
@@ -994,9 +1310,9 @@
         "desktop": {
           "navTopbar": {
             "campIsLoading": "Lager wird geladen",
+            "checklist": "Checklisten",
             "material": "Material",
             "program": "Programm",
-            "checklist": "Checklisten",
             "story": "Geschichte"
           }
         },
@@ -1053,8 +1369,8 @@
       "detail": "Hoppla. Du bist vom Weg abgekommen…{br}Dieser Link funktioniert leider nicht."
     },
     "profile": {
-      "profile": "Profil",
-      "password": "Passwort"
+      "password": "Passwort",
+      "profile": "Profil"
     }
   }
 }

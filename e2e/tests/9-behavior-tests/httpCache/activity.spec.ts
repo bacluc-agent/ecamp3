@@ -25,26 +25,23 @@ const collectionXKeys =
   /* activity "Snowboardfahren" + embedded relations */
   'a13fadc97610 a13fadc97610#scheduleEntries a13fadc97610#camp a13fadc97610#category a13fadc97610#progressLabel a13fadc97610#activityResponsibles a13fadc97610#rootContentNode ' +
   /* category "Snowboard" */
-  'eddb2cd8cee0 eddb2cd8cee0#camp eddb2cd8cee0#preferredContentTypes eddb2cd8cee0#rootContentNode eddb2cd8cee0#emptyContentNodesForIriGeneration a13fadc97610#embeddedCategory ' +
+  'eddb2cd8cee0 eddb2cd8cee0#camp eddb2cd8cee0#preferredContentTypes eddb2cd8cee0#rootContentNode eddb2cd8cee0#contentNodes ' +
   /* progressLabel "Rudolf OK" */
-  'af92782262d7 af92782262d7#camp a13fadc97610#embeddedProgressLabel ' +
+  'af92782262d7 af92782262d7#camp ' +
   /* contentNodes */
   '9ace4f6be500 9ace4f6be500#root 9ace4f6be500#parent 9ace4f6be500#children 9ace4f6be500#contentType ' +
   '0f20419761b6 0f20419761b6#root 0f20419761b6#parent 0f20419761b6#children 0f20419761b6#contentType ' +
   '160f007bd04f 160f007bd04f#root 160f007bd04f#parent 160f007bd04f#children 160f007bd04f#contentType ' +
   'aa0738bc61de aa0738bc61de#root aa0738bc61de#parent aa0738bc61de#children aa0738bc61de#contentType ' +
-  'a13fadc97610#embeddedContentNodes ' +
+  'a13fadc97610#contentNodes ' +
   /* scheduleEntries */
-  /* (the first schedule entry also includes the period id) */
-  '29c9e9a07d82 7fa4564a5d5d 29c9e9a07d82#period 29c9e9a07d82#activity 29c9e9a07d82#day ' +
+  /* (the first schedule entry also includes the period id and related custom cache tags) */
+  '29c9e9a07d82 7fa4564a5d5d 7fa4564a5d5d^scheduleEntryNumbers 70ca971c992f^dayNumbers 29c9e9a07d82#period 29c9e9a07d82#activity 29c9e9a07d82#day ' +
   'f08d69cae18a f08d69cae18a#period f08d69cae18a#activity f08d69cae18a#day ' +
   '7e8086d94633 7e8086d94633#period 7e8086d94633#activity 7e8086d94633#day ' +
-  'a13fadc97610#embeddedScheduleEntries ' +
   /* activityResponsible */
   '06743ccfeedd 06743ccfeedd#activity 06743ccfeedd#campCollaboration ' +
-  '21bc6661c569 21bc6661c569#activity 21bc6661c569#campCollaboration ' +
-  'a13fadc97610#embeddedActivityResponsibles ' +
-  'a13fadc97610#emptyContentNodesForIriGeneration'
+  '21bc6661c569 21bc6661c569#activity 21bc6661c569#campCollaboration'
 
 test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () => {
   test.describe.configure({ mode: 'serial' })
@@ -375,5 +372,112 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, queryUri)
     await waitForCacheMiss(bipiApi, filteredCollectionUri)
     await expectCacheHit(bipiApi, filteredCollectionUri)
+  })
+
+  test.describe('numbering depends on other schedule entries of the period', () => {
+    const uri = '/api/activities/ffd08c52288c'
+    // schedule entry, activity and category which are not part of the cached response
+    const otherScheduleEntryUri = '/api/schedule_entries/661817f7af15'
+    const otherActivityUri = '/api/activities/f72cf8aaed17'
+    const otherCategoryUri = '/api/categories/dfa531302823'
+    const thirdCategoryUri = '/api/categories/1a869b162875'
+
+    test('invalidates /activities/{activitiyId} when the timing of a schedule entry of another activity changes', async () => {
+      const bipiApi = await getAuthContext(bipiUser)
+
+      // bring data into defined state
+      await apiPatch(bipiApi, otherScheduleEntryUri, {
+        start: '2036-05-10T18:00:00+00:00',
+        end: '2036-05-10T19:00:00+00:00',
+      })
+
+      // warm up cache
+      await apiGet(bipiApi, uri)
+      await expectCacheHit(bipiApi, uri)
+
+      // touch other scheduleEntry
+      await apiPatch(bipiApi, otherScheduleEntryUri, {
+        start: '2036-05-10T18:30:00+00:00',
+      })
+
+      // ensure cache was invalidated
+      await waitForCacheMiss(bipiApi, uri)
+      await expectCacheHit(bipiApi, uri)
+
+      // restore
+      await apiPatch(bipiApi, otherScheduleEntryUri, {
+        start: '2036-05-10T18:00:00+00:00',
+      })
+    })
+
+    test('invalidates /activities/{activitiyId} when a schedule entry of another activity is added or deleted', async () => {
+      const bipiApi = await getAuthContext(bipiUser)
+
+      // warm up cache
+      await apiGet(bipiApi, uri)
+      await expectCacheHit(bipiApi, uri)
+
+      // add new scheduleEntry to other activity
+      const postRes = await apiPost(bipiApi, '/api/schedule_entries', {
+        activity: otherActivityUri.replace('/api', ''),
+        period: `/periods/${grgrPeriodId}`,
+        start: '2036-05-11T05:00:00+00:00',
+        end: '2036-05-11T06:00:00+00:00',
+      })
+      const newScheduleEntryUri = (await postRes.json())._links.self.href
+
+      // ensure cache was invalidated
+      await waitForCacheMiss(bipiApi, uri)
+      await expectCacheHit(bipiApi, uri)
+
+      // delete newly created scheduleEntry
+      await apiDelete(bipiApi, newScheduleEntryUri)
+
+      // ensure cache was invalidated
+      await waitForCacheMiss(bipiApi, uri)
+      await expectCacheHit(bipiApi, uri)
+    })
+
+    test('invalidates /activities/{activitiyId} when the category of another activity changes', async () => {
+      const bipiApi = await getAuthContext(bipiUser)
+
+      // bring data into defined state
+      await apiPatch(bipiApi, otherActivityUri, { category: otherCategoryUri })
+
+      // warm up cache
+      await apiGet(bipiApi, uri)
+      await expectCacheHit(bipiApi, uri)
+
+      // touch other activity
+      await apiPatch(bipiApi, otherActivityUri, { category: thirdCategoryUri })
+
+      // ensure cache was invalidated
+      await waitForCacheMiss(bipiApi, uri)
+      await expectCacheHit(bipiApi, uri)
+
+      // restore
+      await apiPatch(bipiApi, otherActivityUri, { category: otherCategoryUri })
+    })
+
+    test('invalidates /activities/{activitiyId} when the numbering style of the category of another activity changes', async () => {
+      const bipiApi = await getAuthContext(bipiUser)
+
+      // bring data into defined state
+      await apiPatch(bipiApi, otherCategoryUri, { numberingStyle: '1' })
+
+      // warm up cache
+      await apiGet(bipiApi, uri)
+      await expectCacheHit(bipiApi, uri)
+
+      // touch other category
+      await apiPatch(bipiApi, otherCategoryUri, { numberingStyle: 'A' })
+
+      // ensure cache was invalidated
+      await waitForCacheMiss(bipiApi, uri)
+      await expectCacheHit(bipiApi, uri)
+
+      // restore
+      await apiPatch(bipiApi, otherCategoryUri, { numberingStyle: '1' })
+    })
   })
 })

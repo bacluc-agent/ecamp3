@@ -616,12 +616,13 @@ class CreateCategoryTest extends ECampApiTestCase {
         $client = static::createClientWithCredentials();
         $cacheManager = $this->mockCacheManager();
 
-        $client->request('POST', '/categories', ['json' => $this->getExampleWritePayload()]);
+        $response = $client->request('POST', '/categories', ['json' => $this->getExampleWritePayload()]);
 
         $this->assertResponseStatusCodeSame(201);
 
         $camp1 = static::getFixture('camp1');
         $contentType = static::getFixture('contentTypeSafetyConsiderations');
+        $rootContentNodeId = basename($response->toArray()['_links']['rootContentNode']['href']);
         self::assertEqualsCanonicalizing([
             '/categories',
             '/categories?',
@@ -634,6 +635,7 @@ class CreateCategoryTest extends ECampApiTestCase {
             '/camps/'.$camp1->getId().'/categories',
             '/camps/'.$camp1->getId().'/categories?',
             $contentType->getId().'#categories',
+            $rootContentNodeId.'#root',
         ], $cacheManager->getInvalidatedTags());
         self::assertNotContains('?'.$camp1->getId(), $cacheManager->getInvalidatedTags());
         self::assertNotContains('/camps', $cacheManager->getInvalidatedTags());

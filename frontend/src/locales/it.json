@@ -1,49 +1,5 @@
 {
   "components": {
-    "comments": {
-      "commentCard": {
-        "campComment": "Tutto il campo",
-        "deleteDisabledReplies": "Non è possibile eliminare commenti con risposte di altre persone.",
-        "deleteWarning": "Vuoi davvero eliminare il tuo commento?",
-        "deleteWithRepliesWarning": "Vuoi davvero eliminare il tuo commento insieme alle tue risposte?",
-        "deleted": "(eliminato)",
-        "deletedAuthor": "Persona eliminata"
-      },
-      "commentComposer": {
-        "placeholder": "Scrivi un commento",
-        "replyPlaceholder": "Scrivi una risposta"
-      },
-      "commentThread": {
-        "reopen": "Riapri",
-        "reply": "Rispondi",
-        "resolve": "Segna come risolto",
-        "resolved": "Risolto",
-        "resolvedBy": "Risolto da {user}"
-      },
-      "commentTime": {
-        "today": "Oggi, {time}",
-        "yesterday": "Ieri, {time}"
-      },
-      "commentsList": {
-        "empty": "Ancora nessun commento.",
-        "noResolvedComments": "Nessun commento risolto.",
-        "noOpenComments": "Nessun commento aperto.",
-        "noOpenCommentsWithResolved": "Nessun commento aperto. Vedi Risolti."
-      },
-      "commentsPanel": {
-        "activityCommentsElsewhere": "Un altro commento aperto si trova in un'attività. | Altri {count} commenti aperti si trovano nelle singole attività.",
-        "all": "Tutti",
-        "commentsOnThisActivity": "Commenti su questa attività",
-        "open": "Aperti",
-        "resolved": "Risolti",
-        "resolvedActivityCommentsElsewhere": "Un altro commento risolto si trova in un'attività. | Altri {count} commenti risolti si trovano nelle singole attività.",
-        "title": "Commenti"
-      },
-      "commentsToggleButton": {
-        "hide": "Nascondi i commenti",
-        "show": "Mostra i commenti | Mostra un commento | Mostra {count} commenti"
-      }
-    },
     "activity": {
       "content": {
         "columnLayout": {
@@ -297,14 +253,14 @@
     },
     "collaborator": {
       "collaboratorBulkCreate": {
-        "validationFailed": "Già nel campo o email non valida:",
         "emailsHint": "Inserisci un indirizzo e-mail per riga o separati da virgole",
         "emailsLabel": "Indirizzi e-mail",
         "failedEmails": "Invito fallito: {emails}",
         "invite": "Inviare gli inviti",
         "inviteCta": "Invitare più persone",
         "successCount": "{count} invito/i inviato/i",
-        "title": "Invitare più persone"
+        "title": "Invitare più persone",
+        "validationFailed": "Già nel campo o email non valida:"
       },
       "collaboratorCreate": {
         "invite": "Inviare l'invito",
@@ -330,6 +286,50 @@
       "promptCollaboratorDeactivate": {
         "deactivate": "Disattivare",
         "warningText": "Vuoi disattivare '{name}'?"
+      }
+    },
+    "comments": {
+      "commentCard": {
+        "campComment": "Tutto il campo",
+        "deleteDisabledReplies": "Non è possibile eliminare commenti con risposte di altre persone.",
+        "deleteWarning": "Vuoi davvero eliminare il tuo commento?",
+        "deleteWithRepliesWarning": "Vuoi davvero eliminare il tuo commento insieme alle tue risposte?",
+        "deleted": "(eliminato)",
+        "deletedAuthor": "Persona eliminata"
+      },
+      "commentComposer": {
+        "placeholder": "Scrivi un commento",
+        "replyPlaceholder": "Scrivi una risposta"
+      },
+      "commentThread": {
+        "reopen": "Riapri",
+        "reply": "Rispondi",
+        "resolve": "Segna come risolto",
+        "resolved": "Risolto",
+        "resolvedBy": "Risolto da {user}"
+      },
+      "commentTime": {
+        "today": "Oggi, {time}",
+        "yesterday": "Ieri, {time}"
+      },
+      "commentsList": {
+        "empty": "Ancora nessun commento.",
+        "noOpenComments": "Nessun commento aperto.",
+        "noOpenCommentsWithResolved": "Nessun commento aperto. Vedi Risolti.",
+        "noResolvedComments": "Nessun commento risolto."
+      },
+      "commentsPanel": {
+        "activityCommentsElsewhere": "Un altro commento aperto si trova in un'attività. | Altri {count} commenti aperti si trovano nelle singole attività.",
+        "all": "Tutti",
+        "commentsOnThisActivity": "Commenti su questa attività",
+        "open": "Aperti",
+        "resolved": "Risolti",
+        "resolvedActivityCommentsElsewhere": "Un altro commento risolto si trova in un'attività. | Altri {count} commenti risolti si trovano nelle singole attività.",
+        "title": "Commenti"
+      },
+      "commentsToggleButton": {
+        "hide": "Nascondi i commenti",
+        "show": "Mostra i commenti | Mostra un commento | Mostra {count} commenti"
       }
     },
     "dashboard": {
@@ -422,7 +422,10 @@
           "activity": "Attività"
         },
         "picassoConfig": {
-          "orientation": "Layout della pagina"
+          "orientation": "Layout della pagina",
+          "responsibles": "Responsabili",
+          "responsiblesAvatars": "Avatar",
+          "responsiblesNames": "Nomi"
         },
         "programConfig": {
           "dayOverview": "Panoramica della giornata di stampa"
@@ -436,26 +439,24 @@
           }
         }
       },
-      "localPdfDownloadButton": {
-        "error": "Qualcosa non ha funzionato. Riprova o ricarica la pagina."
-      },
-      "printClient": {
-        "downloadClientPdfButton": {
-          "label": "Scarica il PDF (layout #2)"
+      "generator": {
+        "downloadPdfButton": {
+          "label": "Scarica il PDF"
         },
-        "downloadClientPdfListItem": {
-          "label": "Scarica il PDF (layout #2)"
+        "downloadPdfListItem": {
+          "label": "Scarica il PDF"
         },
         "generatePdfMixin": {
           "error": "Qualcosa non ha funzionato. Riprova o ricarica la pagina."
         },
-        "printPreviewClient": {
+        "printPreview": {
           "previewError": "Qualcosa non ha funzionato. Riprova con altre impostazioni di stampa o ricarica la pagina.",
           "previewIframeTitle": "Anteprima di stampa"
         }
       },
       "printConfigurator": {
         "add": "Aggiungi contenuti",
+        "compact": "Layout compatto (meno spaziatura, nascondi i campi vuoti)",
         "config": {
           "Activity": "Attività singola",
           "Cover": "Pagina di copertina",
@@ -464,24 +465,10 @@
           "SafetyConsiderations": "Considerazioni sulla sicurezza",
           "Story": "Riassunto della storia",
           "Toc": "Indice dei contenuti"
-        }
-      },
-      "printNuxt": {
-        "downloadNuxtPdfButton": {
-          "label": "Scarica il PDF (layout #1)"
         },
-        "downloadNuxtPdfListItem": {
-          "label": "Scarica il PDF (layout #1)"
-        },
-        "generatePdfMixin": {
-          "error": "Qualcosa non ha funzionato. Riprova o ricarica la pagina.",
-          "queueFull": "Tutte le nostre stampanti PDF sono occupate al momento. Riprova più tardi."
-        },
-        "printPreviewNuxt": {
-          "openPreview": "Apri l'anteprima in una nuova finestra",
-          "previewError": "Qualcosa non ha funzionato. Riprova con altre impostazioni di stampa o ricarica la pagina.",
-          "previewIframeTitle": "Anteprima di stampa"
-        }
+        "contactLink": "Contattaci",
+        "layoutInfo": "Abbiamo riunito i vantaggi di entrambi i layout di stampa in un nuovo layout. Nelle impostazioni puoi attivare il layout compatto, simile al precedente layout #2. Abbiamo dimenticato qualcosa o qualcosa non funziona più? {contactLink}.",
+        "layoutInfoTitle": "Dov'è la scelta del layout di stampa?"
       }
     },
     "program": {
@@ -511,9 +498,9 @@
         }
       },
       "scheduleEntryFilters": {
+        "allMyActivities": "Tutte le mie attività",
         "category": "Categoria",
         "clearFilters": "Cancella i filtri",
-        "allMyActivities": "Tutte le mie attività",
         "onlyMyActivities": "Solo le mie attività",
         "period": "Periodo",
         "progressLabel": "Stati",
@@ -530,6 +517,11 @@
     "story": {
       "storyDay": {
         "noStory": "Nessun contenuto di storia trovato in questo giorno..."
+      }
+    },
+    "summary": {
+      "summaryDay": {
+        "noContent": "Nessun contenuto '{contentType}' trovato in questo giorno..."
       }
     },
     "toast": {
@@ -553,13 +545,250 @@
         "title": "Modifica dell'indirizzo e-mail"
       },
       "dialogChangePassword": {
-        "title": "Cambiare password",
         "currentPassword": "Password attuale",
+        "error": "Si è verificato un errore.",
         "newPassword": "Nuova password",
         "newPasswordConfirmation": "Conferma nuova password",
         "success": "La tua password è stata modificata con successo.",
-        "error": "Si è verificato un errore."
+        "title": "Cambiare password"
       }
+    }
+  },
+  "contentNode": {
+    "columnLayout": {
+      "entity": {
+        "column": {
+          "name": "Colonna|Colonna {name}"
+        }
+      },
+      "name": "Layout delle colonne"
+    },
+    "laThematicArea": {
+      "entity": {
+        "option": {
+          "campsiteAndSurroundings": {
+            "description": "Allestire campo/dintorni, smontare le costruzioni, preparare le installazioni per il terreno da gioco e le attrezzature sportive.",
+            "name": "Campo/dintorni"
+          },
+          "natureAndEnvironment": {
+            "description": "Flora e fauna, tutela dell’ambiente al campo, meteorologia e astronomia, tecniche di trasmissione, accensione di un fuoco.",
+            "name": "Natura e ambiente"
+          },
+          "outdoorTechnique": {
+            "description": "Pianificazione delle escursioni, lettura delle carte topografiche (p. es. NORDA), schizzi topografici, strumenti di supporto (p.es. bussola, GPS, altimetro, ecc.), orientamento sul terreno.",
+            "name": "Tecniche outdoor"
+          },
+          "pioneeringTechnique": {
+            "description": "Installare il bivacco, costruire un igloo, tecniche relative a materiali ed equipaggiamento, effettuare la manutenzione del materiale, montare e smontare le costruzioni pionieristiche, tecniche delle corde e dei nodi, tirolese, ponti di corda, discesa in corda doppia.",
+            "name": "Tecnica pionieristica"
+          },
+          "preventionAndIntegration": {
+            "description": "Attività volte a promuovere la prevenzione e l’integrazione nonché a migliorare le competenze dei partecipanti in questo ambito.",
+            "name": "Prevenzione e integrazione"
+          },
+          "security": {
+            "description": "Sicurezza durante le attività al campo, organizzazione in caso di infortuni e sistema di allerta, primi soccorsi, riflessioni sulla sicurezza.",
+            "name": "Sicurezza"
+          }
+        }
+      },
+      "info": "Un'attività del campo G+S deve trattare almeno uno degli argomenti elencati.{br}Seleziona gli argomenti da trattare in questo blocco.",
+      "name": "Area tematica AC"
+    },
+    "material": {
+      "info": "Qui puoi inserire i requisiti del materiale per questo blocco.{br}Puoi gestire gli elenchi dei materiali nel menu 'Amministrazione'.{br}Puoi trovare un riepilogo degli acquisti nel menu 'Materiale'.",
+      "name": "Materiale"
+    },
+    "notes": {
+      "info": "Qui puoi inserire qualsiasi nota, ad esempio idee, impegni, domande aperte, contatti, collegamenti con i mezzi pubblici, ecc.",
+      "name": "Noti"
+    },
+    "responsiveLayout": {
+      "mainContent": "Contenuto principale",
+      "name": "Layout di default",
+      "printAboveMainContent": "Stampa sopra il contenuto principale",
+      "printBelowMainContent": "Stampa sotto il contenuto principale"
+    },
+    "safetyConsiderations": {
+      "info": "Alcuni blocchi richiedono una riflessione sui rischi. Qui puoi registrare questi pensieri.{br}Registra i rischi che hai identificato e come puoi affrontarli.",
+      "name": "Considerazioni sulla sicurezza"
+    },
+    "storyboard": {
+      "entity": {
+        "section": {
+          "fields": {
+            "column1": "Tempo",
+            "column2Html": "Programma",
+            "column3": "Responsabile"
+          },
+          "name": "Sezione del programma | Sezioni del programma"
+        }
+      },
+      "info": "Qui puoi pianificare il contenuto di questo blocco.{br}Nella colonna di sinistra [Tempo] puoi registrare la durata dei singoli elementi.{br}Nella colonna di destra [Responsabile] puoi assegnare delle persone.",
+      "name": "Programma"
+    },
+    "storycontext": {
+      "info": "Descrivi come questo blocco si inserisce nella storia del campo.{br}Puoi trovare un riepilogo di tutti gli elementi della storia nel menu \"Storia\".{br}Puoi anche elaborare prima una storia continua nel menu \"Storia\", in modo da incorporare perfettamente il contenuto del blocco nella storia.",
+      "name": "Storia"
+    },
+    "ysActivityCharacteristics": {
+      "entity": {
+        "option": {
+          "community": {
+            "name": "Rafforzare la coesione del gruppo con sollecitudine"
+          },
+          "gamesAndSports": {
+            "name": "Partecipare con creatività all’ideazione di giochi e di attività sportive variate"
+          },
+          "gettingInvolved": {
+            "name": "Prendere coscienza dei propri bisogni e delle proprie idee e farle valere consapevolmente"
+          },
+          "natureAndEnvironment": {
+            "name": "Interagire in maniera rispettosa con l’ambiente"
+          },
+          "outdoorTechnique": {
+            "name": "Utilizzare efficacemente le tecniche outdoor e di costruzioni da campo"
+          },
+          "travellingSafety": {
+            "name": "Praticare escursionismo in modo sicuro e previdente"
+          }
+        }
+      },
+      "info": "Seleziona le forme caratteristiche trattate in questa attività.",
+      "name": "Forme caratteristiche G+S"
+    },
+    "ysPhysicalActivityDuration": {
+      "info": "Registra il tempo dedicato all'attività fisica G+S per ogni inserimento nel programma di questa attività. Viene mostrato anche nel programma generale.",
+      "name": "Tempo dedicato all'attività fisica G+S",
+      "none": "Non specificato",
+      "templateHint": "Il tempo dedicato all'attività fisica G+S viene registrato in ogni attività, per inserimento nel programma."
+    }
+  },
+  "entity": {
+    "activity": {
+      "fields": {
+        "category": "Categoria di attività",
+        "location": "Posto",
+        "progressLabel": "Stato",
+        "responsible": "Responsabile",
+        "title": "Titolo"
+      },
+      "name": "Attività",
+      "new": "Nuova attività"
+    },
+    "activityProgressLabel": {
+      "fields": {
+        "title": "Titolo"
+      }
+    },
+    "camp": {
+      "collaborators": {
+        "guest": "Ospite",
+        "invite": "Invita",
+        "manager": "Amministrazione",
+        "member": "Membro"
+      },
+      "fields": {
+        "addressCity": "Città",
+        "addressName": "Nome",
+        "addressStreet": "Via",
+        "addressZipcode": "Codice postale",
+        "motto": "Motto / Tema",
+        "shortTitle": "Titolo breve",
+        "title": "Titolo"
+      },
+      "name": "Campo",
+      "prototype": "Modello di campo"
+    },
+    "campCollaboration": {
+      "fields": {
+        "abbreviation": "Abbreviazione",
+        "color": "Colore",
+        "inviteEmail": "E-mail",
+        "role": "Ruolo",
+        "status": "Stato"
+      },
+      "status": {
+        "inactive": "non attivo"
+      }
+    },
+    "category": {
+      "fields": {
+        "color": "Colore",
+        "name": "Nome",
+        "numberingStyle": "Stile della numerazione",
+        "short": "Abbreviazione"
+      },
+      "name": "Categorie di attività",
+      "numberingStyles": {
+        "1": "1, 2, 3 - numeri",
+        "A": "A, B, C - maiuscole di blocco",
+        "I": "I, II, III - numeri romani maiuscoli",
+        "a": "a, b, c - lettere minuscole",
+        "i": "i, ii, iii - numeri romani minuscoli"
+      }
+    },
+    "contentType": {
+      "name": "Tipo di contenuto | Tipi di contenuto"
+    },
+    "day": {
+      "fields": {
+        "dayResponsibles": "Responsabile del giorno"
+      },
+      "name": "Giorno | Giorni"
+    },
+    "materialItem": {
+      "fields": {
+        "article": "Articolo",
+        "list": "Elenco dei materiali",
+        "quantity": "Quantità",
+        "reference": "Attività / Periodo",
+        "unit": "Unità"
+      }
+    },
+    "materialList": {
+      "fields": {
+        "name": "Nome"
+      },
+      "name": "Elenco dei materiali"
+    },
+    "period": {
+      "defaultDescription": "Campo principale",
+      "fields": {
+        "description": "Descrizione",
+        "end": "Fine",
+        "start": "Inizio"
+      },
+      "name": "Periodo | Periodi"
+    },
+    "profile": {
+      "fields": {
+        "abbreviation": "Abbreviazione",
+        "color": "Colore",
+        "email": "Indirizzo email",
+        "firstname": "Nome",
+        "language": "Lingua",
+        "nickname": "Soprannome",
+        "password": "Parola d'ordine",
+        "surname": "Cognome"
+      },
+      "name": "Profilo"
+    },
+    "scheduleEntry": {
+      "fields": {
+        "duration": "Durata",
+        "endDate": "Data di fine",
+        "endDatetime": "Ora di fine",
+        "nr": "N.",
+        "startDate": "Data di inizio",
+        "startDatetime": "Ora di inizio",
+        "time": "Tempo",
+        "ysPhysicalActivityDuration": "Tempo dedicato all'attività fisica G+S",
+        "ysPhysicalActivityDurationFormatted": "TAF {duration}",
+        "ysPhysicalActivityDurationOrMore": "{duration} o più",
+        "ysPhysicalActivityDurationOrMoreShort": "{hours}+h"
+      },
+      "name": "Inserimento nel programma"
     }
   },
   "global": {
@@ -605,6 +834,18 @@
       "member": "Lettura e scrittura"
     },
     "datetime": {
+      "dateLong": "dd L",
+      "dateRangeEnd": "dd L",
+      "dateRangeStart": "dd DD.MM.",
+      "dateShort": "dd D.M.",
+      "dateTimeLong": "dd L LT",
+      "duration": {
+        "hoursAndMinutes": "{hours}h {minutes}min",
+        "hoursOnly": "{hours}h",
+        "minutesOnly": "{minutes}min"
+      },
+      "hourLong": "LT",
+      "hourShort": "H:mm",
       "vuetifyTimePickerFormat": "24hr"
     },
     "hitobito": {
@@ -628,14 +869,14 @@
       "news": "Notizie"
     },
     "newVersion": {
-      "title": "È disponibile una nuova versione",
       "description": "Questa funzione non è disponibile finché non si esegue l’aggiornamento all’ultima versione.",
+      "title": "È disponibile una nuova versione",
       "update": "Aggiorna ora",
       "updateLater": "Aggiorna più tardi"
     },
     "selfXssWarning": {
-      "title": "Stop!",
-      "message": "Questa console del browser è pensata per gli sviluppatori. Se qualcuno vi ha chiesto di copiare e incollare qualcosa qui, quasi certamente si tratta di una truffa: ciò che incollate viene eseguito a vostro nome e può leggere e modificare tutti i campi a cui avete accesso. Non incollate mai qui del codice che non comprendete completamente."
+      "message": "Questa console del browser è pensata per gli sviluppatori. Se qualcuno vi ha chiesto di copiare e incollare qualcosa qui, quasi certamente si tratta di una truffa: ciò che incollate viene eseguito a vostro nome e può leggere e modificare tutti i campi a cui avete accesso. Non incollate mai qui del codice che non comprendete completamente.",
+      "title": "Stop!"
     },
     "serverError": {
       "409": "Oooops... Questa azione ha causato un errore sul lato server.",
@@ -650,6 +891,32 @@
     },
     "warning": {
       "delete": "Volete davvero cancellarlo? | Volete davvero cancellarlo \"{entity}\"?"
+    }
+  },
+  "print": {
+    "activity": {
+      "title": "Attività"
+    },
+    "config": {
+      "periods": "Sezione/i portante/i"
+    },
+    "cover": {
+      "title": "Pagina di copertina"
+    },
+    "picasso": {
+      "title": "Panoramica del programma {period}"
+    },
+    "program": {
+      "title": "Programma"
+    },
+    "safetyConsiderations": {
+      "title": "Considerazioni sulla sicurezza"
+    },
+    "story": {
+      "title": "Storia"
+    },
+    "toc": {
+      "title": "Indice dei contenuti"
     }
   },
   "views": {
@@ -893,8 +1160,8 @@
       "detail": "Ops. Hai perso la strada…{br}Purtroppo questo link non funziona."
     },
     "profile": {
-      "profile": "Profilo",
-      "password": "Password"
+      "password": "Password",
+      "profile": "Profilo"
     }
   }
 }

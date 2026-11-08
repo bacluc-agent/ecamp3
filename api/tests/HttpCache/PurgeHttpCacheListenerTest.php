@@ -41,6 +41,9 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\MakerBundle\Doctrine\StaticReflectionService;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\PropertyAccess\PropertyPathInterface;
+use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
+use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
+use Symfony\Component\Serializer\NameConverter\MetadataAwareNameConverter;
 
 use function PHPUnit\Framework\assertThat;
 use function PHPUnit\Framework\containsEqual;
@@ -262,6 +265,7 @@ class PurgeHttpCacheListenerTest extends TestCase {
             resourceMetadataCollectionFactory: $metadataFactoryProphecy,
             cacheManager: $cacheManagerProphecy,
             em: $entityManager,
+            nameConverter: $this->nameConverter(),
         );
         $listener->onFlush();
         $listener->postFlush();
@@ -343,6 +347,7 @@ class PurgeHttpCacheListenerTest extends TestCase {
             resourceMetadataCollectionFactory: $metadataFactoryProphecy,
             cacheManager: $cacheManagerProphecy,
             em: $emProphecy,
+            nameConverter: $this->nameConverter(),
         );
         $listener->preUpdate($eventArgs);
         $listener->postFlush();
@@ -388,6 +393,7 @@ class PurgeHttpCacheListenerTest extends TestCase {
             resourceMetadataCollectionFactory: $metadataFactoryProphecy,
             cacheManager: $cacheManagerProphecy,
             em: $emProphecy,
+            nameConverter: $this->nameConverter(),
         );
         $listener->preUpdate($eventArgs);
         $listener->postFlush();
@@ -433,6 +439,7 @@ class PurgeHttpCacheListenerTest extends TestCase {
             resourceMetadataCollectionFactory: $metadataFactoryProphecy,
             cacheManager: $cacheManagerProphecy,
             em: $emProphecy,
+            nameConverter: $this->nameConverter(),
         );
         $listener->onFlush();
     }
@@ -465,7 +472,7 @@ class PurgeHttpCacheListenerTest extends TestCase {
 
         $resourceClassResolverProphecy = $this->createMock(ResourceClassResolverInterface::class);
         $resourceClassResolverProphecy->method('getResourceClass')->willReturn(ContainNonResource::class);
-        $resourceClassResolverProphecy->expects($this->exactly(2))
+        $resourceClassResolverProphecy->expects($this->exactly(3))
             ->method('isResourceClass')
             ->willReturnCallback(
                 function (string $class): bool {
@@ -515,8 +522,74 @@ class PurgeHttpCacheListenerTest extends TestCase {
             resourceMetadataCollectionFactory: $metadataFactoryProphecy,
             cacheManager: $cacheManagerProphecy,
             em: $emProphecy,
+            nameConverter: $this->nameConverter(),
         );
         $listener->onFlush();
+    }
+
+    #[AllowMockObjectsWithoutExpectations]
+    public function testRelationAfterNonResourceAssociationIsTagged(): void {
+        $relatedDummy = new RelatedDummy();
+        $containNonResource = new ContainNonResource();
+        $containNonResource->relatedDummy = $relatedDummy;
+
+        $invalidatedTags = [];
+        $cacheManagerProphecy = $this->createStub(CacheManager::class);
+        $cacheManagerProphecy->method('invalidateTags')->willReturnCallback(function (array $tags) use (&$invalidatedTags, $cacheManagerProphecy) {
+            $invalidatedTags = array_merge($invalidatedTags, $tags);
+
+            return $cacheManagerProphecy;
+        });
+
+        $metadataFactoryProphecy = $this->createStub(ResourceMetadataCollectionFactoryInterface::class);
+        $metadataFactoryProphecy->method('create')->willReturn(new ResourceMetadataCollection('ContainNonResource', [
+            new ApiResource('ContainNonResource')
+                ->withShortName('ContainNonResource'),
+        ]));
+
+        $iriConverterProphecy = $this->createStub(IriConverterInterface::class);
+        $iriConverterProphecy->method('getIriFromResource')->willReturnCallback(
+            fn (object|string $resource) => $resource === $relatedDummy ? '/related_dummies/1' : null
+        );
+
+        $resourceClassResolverProphecy = $this->createStub(ResourceClassResolverInterface::class);
+        $resourceClassResolverProphecy->method('getResourceClass')->willReturn(ContainNonResource::class);
+        $resourceClassResolverProphecy->method('isResourceClass')->willReturnCallback(
+            fn (string $class) => NotAResource::class !== $class
+        );
+
+        $uowProphecy = $this->createStub(UnitOfWork::class);
+        $uowProphecy->method('getScheduledEntityInsertions')->willReturn([$containNonResource]);
+        $uowProphecy->method('getScheduledEntityDeletions')->willReturn([]);
+        $uowProphecy->method('getScheduledEntityUpdates')->willReturn([]);
+        $uowProphecy->method('getScheduledCollectionUpdates')->willReturn([]);
+        $uowProphecy->method('getScheduledCollectionDeletions')->willReturn([]);
+
+        $classMetadata = new ClassMetadata(ContainNonResource::class);
+        $classMetadata->mapManyToOne(['fieldName' => 'notAResource', 'targetEntity' => NotAResource::class, 'inversedBy' => 'resources']);
+        $classMetadata->mapManyToOne(['fieldName' => 'relatedDummy', 'targetEntity' => RelatedDummy::class, 'inversedBy' => 'dummies']);
+        $emProphecy = $this->createStub(EntityManagerInterface::class);
+        $emProphecy->method('getUnitOfWork')->willReturn($uowProphecy);
+        $emProphecy->method('getClassMetadata')->willReturn($classMetadata);
+
+        $propertyAccessorProphecy = $this->createStub(PropertyAccessorInterface::class);
+        $propertyAccessorProphecy->method('isReadable')->willReturnCallback(
+            fn (array|object $obj, PropertyPathInterface|string $prop) => 'relatedDummy' === $prop
+        );
+        $propertyAccessorProphecy->method('getValue')->willReturn($relatedDummy);
+
+        $listener = new PurgeHttpCacheListener(
+            iriConverter: $iriConverterProphecy,
+            resourceClassResolver: $resourceClassResolverProphecy,
+            propertyAccessor: $propertyAccessorProphecy,
+            resourceMetadataCollectionFactory: $metadataFactoryProphecy,
+            cacheManager: $cacheManagerProphecy,
+            em: $emProphecy,
+            nameConverter: $this->nameConverter(),
+        );
+        $listener->onFlush();
+
+        $this->assertSame(['/related_dummies/1#dummies'], $invalidatedTags);
     }
 
     /**
@@ -562,6 +635,7 @@ class PurgeHttpCacheListenerTest extends TestCase {
             resourceMetadataCollectionFactory: $this->metadataFactoryProphecy,
             cacheManager: $this->cacheManagerProphecy,
             em: $em,
+            nameConverter: $this->nameConverter(),
         );
         $listener->onFlush();
         $listener->postFlush();
@@ -612,6 +686,7 @@ class PurgeHttpCacheListenerTest extends TestCase {
             resourceMetadataCollectionFactory: $this->metadataFactoryProphecy,
             cacheManager: $this->cacheManagerProphecy,
             em: $em,
+            nameConverter: $this->nameConverter(),
         );
         $listener->onFlush();
         $listener->postFlush();
@@ -663,8 +738,13 @@ class PurgeHttpCacheListenerTest extends TestCase {
             resourceMetadataCollectionFactory: $this->metadataFactoryProphecy,
             cacheManager: $this->cacheManagerProphecy,
             em: $this->emProphecy,
+            nameConverter: $this->nameConverter(),
         );
         $listener->onFlush();
         $listener->postFlush();
+    }
+
+    private function nameConverter(): MetadataAwareNameConverter {
+        return new MetadataAwareNameConverter(new ClassMetadataFactory(new AttributeLoader()));
     }
 }
