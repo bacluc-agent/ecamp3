@@ -23,6 +23,11 @@ Overview of Camps, their Structure and what makes them useful for developing and
 - Bi-Pi Role: Admin
 - J&S Camp
 
+### Harry Potter Lager nach 2027
+
+- Bi-Pi Role: Admin
+- J&S Camp based on the J+S Lager ab 2027 prototype
+
 ### GRGR
 
 - Bi-Pi Role: Admin
