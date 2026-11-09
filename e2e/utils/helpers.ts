@@ -9,6 +9,18 @@ export const API_ROOT_URL = process.env.API_ROOT_URL || 'http://localhost:3000/a
 export const API_ROOT_URL_CACHED =
   process.env.API_ROOT_URL_CACHED || 'http://localhost:3004'
 
+// Every httpCache test must warm the URL (observe MISS then HIT) before mutating,
+// otherwise waitForCacheMiss can pass vacuously.
+// Inserts the `.jsonhal` format before the query string, so that a uri with
+// query params stays a valid HAL request (e.g. `/activities?x=1` ->
+// `/activities.jsonhal?x=1`).
+export function cachedUrl(uri: string): string {
+  const queryStart = uri.indexOf('?')
+  const path = queryStart === -1 ? uri : uri.slice(0, queryStart)
+  const query = queryStart === -1 ? '' : uri.slice(queryStart)
+  return `${API_ROOT_URL_CACHED}${path}.jsonhal${query}`
+}
+
 export async function login(
   request: APIRequestContext,
   identifier: string,
@@ -35,14 +47,34 @@ export async function loginAndSetCookie(
   ])
 }
 
+const lastLoginTokenByUser = new Map<string, string>()
+
+// The server issues a JWT with 1-second iat/exp granularity, so a login in the
+// same second as the previous one reuses the token (and thus Varnish's cache
+// namespace). Retry a bounded number of times instead of looping forever.
+const maxLoginTokenAttempts = 10
+
 export async function getAuthContext(user: string): Promise<APIRequestContext> {
-  const defaultRequest = await request.newContext()
-  await login(defaultRequest, user)
-  const state = await defaultRequest.storageState()
-  await defaultRequest.dispose()
-  return await request.newContext({
-    storageState: state,
-  })
+  for (let attempt = 1; attempt <= maxLoginTokenAttempts; attempt++) {
+    const defaultRequest = await request.newContext()
+    await login(defaultRequest, user)
+    const state = await defaultRequest.storageState()
+    await defaultRequest.dispose()
+    const loginToken = state.cookies
+      .filter((cookie) => cookie.name.endsWith('jwt_hp'))
+      .map((cookie) => cookie.value)
+      .join('')
+    if (loginToken === '' || lastLoginTokenByUser.get(user) !== loginToken) {
+      lastLoginTokenByUser.set(user, loginToken)
+      return await request.newContext({
+        storageState: state,
+      })
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+  }
+  throw new Error(
+    `getAuthContext(${user}) could not obtain a fresh login token after ${maxLoginTokenAttempts} attempts`
+  )
 }
 
 export { getPdfProperties } from './getPdfProperties'
@@ -55,7 +87,7 @@ export async function expectCacheHeader(
   await test.step(
     `Check Header: ${expectedHeader}`,
     async () => {
-      const response = await request.get(`${API_ROOT_URL_CACHED}${uri}.jsonhal`)
+      const response = await request.get(cachedUrl(uri))
       expect(response.headers()['x-cache']).toBe(expectedHeader)
     },
     { box: true }
@@ -99,7 +131,7 @@ export async function waitForCacheMiss(request: APIRequestContext, uri: string) 
       await expect
         .poll(
           async () => {
-            const response = await request.get(`${API_ROOT_URL_CACHED}${uri}.jsonhal`)
+            const response = await request.get(cachedUrl(uri))
             return response.headers()['x-cache']
           },
           { timeout: 10000 }
@@ -111,7 +143,7 @@ export async function waitForCacheMiss(request: APIRequestContext, uri: string) 
 }
 
 export async function apiGet(request: APIRequestContext, uri: string) {
-  return await request.get(`${API_ROOT_URL_CACHED}${uri}.jsonhal`)
+  return await request.get(cachedUrl(uri))
 }
 
 export async function apiPatch(
@@ -119,7 +151,7 @@ export async function apiPatch(
   uri: string,
   body: Record<string, unknown>
 ) {
-  return await request.patch(`${API_ROOT_URL_CACHED}${uri}.jsonhal`, {
+  return await request.patch(cachedUrl(uri), {
     data: body,
     headers: {
       'Content-Type': 'application/merge-patch+json',
@@ -132,7 +164,7 @@ export async function apiPost(
   uri: string,
   body: Record<string, unknown>
 ) {
-  return await request.post(`${API_ROOT_URL_CACHED}${uri}.jsonhal`, {
+  return await request.post(cachedUrl(uri), {
     data: body,
     headers: {
       'Content-Type': 'application/hal+json',
@@ -141,7 +173,7 @@ export async function apiPost(
 }
 
 export async function apiDelete(request: APIRequestContext, uri: string) {
-  return await request.delete(`${API_ROOT_URL_CACHED}${uri}.jsonhal`)
+  return await request.delete(cachedUrl(uri))
 }
 
 export async function createCampViaUI(page: Page, campTitle: string): Promise<string> {
