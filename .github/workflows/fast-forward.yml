@@ -44,16 +44,81 @@ jobs:
         env:
           prJSON: ${{ toJSON(fromJSON(steps.current_pr.outputs.result).data) }}
 
+      - uses: actions/github-script@v9
+        id: check_mergeable
+        with:
+          github-token: ${{ secrets.FAST_FORWARD_TOKEN }}
+          script: |
+            return (async () => {
+              const prData = JSON.parse(steps.current_pr.outputs.result).data;
+
+              if (prData.mergeable_state === 'clean') {
+                core.setOutput('allowed', 'true');
+                core.setOutput('reason', '');
+                return;
+              }
+
+              const baseRef = prData.base ? prData.base.ref : '';
+              if (baseRef === 'staging' || baseRef === 'prod') {
+                if (prData.mergeable !== true) {
+                  core.setOutput('allowed', 'false');
+                  core.setOutput('reason', 'PR is not mergeable (mergeable: ' + prData.mergeable + ')');
+                  return;
+                }
+
+                const runs = await github.paginate(github.rest.actions.listWorkflowRunsForCommit, {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: prData.head.sha,
+                  per_page: 100,
+                });
+
+                const blockingRuns = [];
+                let mandatoryPassed = false;
+
+                for (const run of runs) {
+                  if (run.name === 'CI (mandatory checks)' && run.conclusion === 'success') {
+                    mandatoryPassed = true;
+                  }
+                  const badConclusions = ['failure', 'timed_out', 'cancelled', 'action_required'];
+                  if (badConclusions.includes(run.conclusion)) {
+                    if (run.name !== 'Tests: All End-to-End (including non-mature)') {
+                      blockingRuns.push({ name: run.name, conclusion: run.conclusion, html_url: run.html_url });
+                    }
+                  }
+                }
+
+                if (!mandatoryPassed) {
+                  core.setOutput('allowed', 'false');
+                  core.setOutput('reason', 'Mandatory CI workflow "CI (mandatory checks)" has not passed (success).');
+                  return;
+                }
+
+                if (blockingRuns.length > 0) {
+                  const list = blockingRuns.map(r => `- ${r.name} (${r.conclusion}): ${r.html_url}`).join('\n');
+                  core.setOutput('allowed', 'false');
+                  core.setOutput('reason', 'Blocking failing runs from other workflows:\n' + list);
+                  return;
+                }
+
+                core.setOutput('allowed', 'true');
+                core.setOutput('reason', '');
+                return;
+              }
+
+              core.setOutput('allowed', 'false');
+              core.setOutput('reason', 'The PR mergeable_state needs to be clean, was: ' + prData.mergeable_state);
+            })();
+
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@v3
-        if: fromJSON(steps.current_pr.outputs.result).data.mergeable_state != 'clean'
+        if: steps.check_mergeable.outputs.allowed != 'true'
         with:
           pr-number: ${{ github.event.issue.number }}
-          message: |
-            The PR mergeable_state needs to be clean, was: ${{ fromJSON(steps.current_pr.outputs.result).data.mergeable_state }}
+          message: ${{ steps.check_mergeable.outputs.reason }}
 
-      - name: Exit if PR mergeable_state is not clean
-        if: fromJSON(steps.current_pr.outputs.result).data.mergeable_state != 'clean'
+      - name: Exit if not allowed
+        if: steps.check_mergeable.outputs.allowed != 'true'
         run: exit 1
 
       # To use this repository's private action, you must check out the repository
