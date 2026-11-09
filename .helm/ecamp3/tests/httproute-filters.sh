@@ -61,8 +61,6 @@ for file in "$disabled" "$enabled"; do
   yq -e 'select(.kind == "HTTPRoute") | (.spec.rules[0] | ((has("filters") | not) or (.filters != null)))' "$file" >/dev/null
 done
 
-yq -e 'select(.kind == "HTTPRoute") | (.spec.rules[0].filters // [] | map(select(.type == "ExtensionRef")) | length == 0)' "$non_traefik" >/dev/null
-
 assert_route "$disabled" httproute-test-ecamp3-frontend 'has("spec") and (.spec.rules[0] | (has("filters") | not))'
 assert_route "$disabled" httproute-test-ecamp3-mail 'has("spec") and (.spec.rules[0] | (has("filters") | not))'
 assert_route "$disabled" httproute-test-ecamp3-api '(.spec.rules[0].filters | length == 2) and .spec.rules[0].filters[0].type == "URLRewrite" and .spec.rules[0].filters[0].urlRewrite.path.type == "ReplacePrefixMatch" and .spec.rules[0].filters[0].urlRewrite.path.replacePrefixMatch == "/" and .spec.rules[0].filters[1].type == "RequestHeaderModifier" and .spec.rules[0].filters[1].requestHeaderModifier.add[0].name == "X-Forwarded-Prefix" and .spec.rules[0].filters[1].requestHeaderModifier.add[0].value == "/api"'
@@ -70,5 +68,9 @@ assert_route "$disabled" httproute-test-ecamp3-api '(.spec.rules[0].filters | le
 assert_route "$enabled" httproute-test-ecamp3-frontend '(.spec.rules[0].filters | length == 1) and .spec.rules[0].filters[0].type == "ExtensionRef" and .spec.rules[0].filters[0].extensionRef.group == "traefik.io" and .spec.rules[0].filters[0].extensionRef.kind == "Middleware" and .spec.rules[0].filters[0].extensionRef.name == "httproute-test-ecamp3-basic-auth"'
 assert_route "$enabled" httproute-test-ecamp3-mail '(.spec.rules[0].filters | length == 1) and .spec.rules[0].filters[0].type == "ExtensionRef" and .spec.rules[0].filters[0].extensionRef.group == "traefik.io" and .spec.rules[0].filters[0].extensionRef.kind == "Middleware" and .spec.rules[0].filters[0].extensionRef.name == "httproute-test-ecamp3-basic-auth"'
 assert_route "$enabled" httproute-test-ecamp3-api '(.spec.rules[0].filters | length == 3) and .spec.rules[0].filters[0].type == "URLRewrite" and .spec.rules[0].filters[0].urlRewrite.path.type == "ReplacePrefixMatch" and .spec.rules[0].filters[0].urlRewrite.path.replacePrefixMatch == "/" and .spec.rules[0].filters[1].type == "RequestHeaderModifier" and .spec.rules[0].filters[1].requestHeaderModifier.add[0].name == "X-Forwarded-Prefix" and .spec.rules[0].filters[1].requestHeaderModifier.add[0].value == "/api" and .spec.rules[0].filters[2].type == "ExtensionRef" and .spec.rules[0].filters[2].extensionRef.group == "traefik.io" and .spec.rules[0].filters[2].extensionRef.kind == "Middleware" and .spec.rules[0].filters[2].extensionRef.name == "httproute-test-ecamp3-basic-auth"'
+
+assert_route "$non_traefik" httproute-test-ecamp3-frontend '(.spec.rules[0].filters // [] | map(select(.type == "ExtensionRef")) | length == 0)'
+assert_route "$non_traefik" httproute-test-ecamp3-api '(.spec.rules[0].filters // [] | map(select(.type == "ExtensionRef")) | length == 0)'
+assert_route "$non_traefik" httproute-test-ecamp3-mail '(.spec.rules[0].filters // [] | map(select(.type == "ExtensionRef")) | length == 0)'
 
 printf '%s\n' 'HTTPRoute filter validation passed for frontend, API, and mail with basic auth enabled and disabled.'
