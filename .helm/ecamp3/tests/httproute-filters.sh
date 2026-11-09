@@ -6,7 +6,7 @@ command -v helm >/dev/null
 command -v helmfile >/dev/null
 command -v yq >/dev/null
 
-chart_dir=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+chart_dir=$(cd -- "$(dirname "$0")/.." && pwd)
 work_dir=$(mktemp -d)
 env_file="$chart_dir/env.yaml"
 values_file="$chart_dir/values.yaml"
@@ -14,8 +14,8 @@ if [ -e "$env_file" ] || [ -e "$values_file" ]; then
   printf '%s\n' 'env.yaml or values.yaml already exists in the chart directory' >&2
   exit 1
 fi
-cp "$chart_dir/env.example.yaml" "$env_file"
 trap 'rm -rf "$work_dir"; rm -f "$env_file" "$values_file"' EXIT
+cp "$chart_dir/env.example.yaml" "$env_file"
 
 render_routes() {
   auth_enabled=$1
@@ -73,4 +73,4 @@ assert_route "$non_traefik" httproute-test-ecamp3-frontend '(.spec.rules[0] | ha
 assert_route "$non_traefik" httproute-test-ecamp3-mail '(.spec.rules[0] | has("filters") | not)'
 assert_route "$non_traefik" httproute-test-ecamp3-api '(.spec.rules[0].filters | length == 2) and ((.spec.rules[0].filters | map(select(.type == "ExtensionRef")) | length) == 0)'
 
-printf '%s\n' 'HTTPRoute filter validation passed for frontend, API, and mail with Traefik and non-Traefik gateway classes.'
+printf '%s\n' 'HTTPRoute filter validation passed for frontend, API, and mail with Traefik and non-Traefik gateway classes; no print HTTPRoute is rendered by this chart.'
