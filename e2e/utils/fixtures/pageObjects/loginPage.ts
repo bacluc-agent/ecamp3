@@ -1,6 +1,12 @@
 import { expect, Locator, Page } from '@playwright/test'
 import { boxedStep } from '@/utils/decorators/boxedStep'
 import { CampListPage } from '@/utils/fixtures/pageObjects/campListPage'
+import { MockOauthProviderPage } from '@/utils/fixtures/pageObjects/mockOauthProviderPage'
+
+// Duplicated from `@/utils/oauthHelpers` on purpose: that module stays intact
+// while the byte-identical `oauth-login.spec.ts` describes still import its copy
+// from there. The two are structurally identical.
+export type OAuthProvider = 'Google' | 'MiData' | 'CeviDB' | 'JublaDB'
 
 export const loginPageFixture = {
   loginPage: async (
@@ -64,5 +70,23 @@ export class LoginPage {
 
   get passwordField(): Locator {
     return this._passwordField
+  }
+
+  oauthProviderButton(provider: OAuthProvider): Locator {
+    return this._page.getByRole('button', { name: provider })
+  }
+
+  @boxedStep
+  async loginWithOAuth(provider: OAuthProvider, username: string): Promise<CampListPage> {
+    await this.loaded()
+    await this.oauthProviderButton(provider).click()
+    const providerPage = new MockOauthProviderPage(this._page)
+    await providerPage.loaded()
+    await providerPage.selectUser(username)
+    // mock POST -> /api/auth/{provider}/callback -> /loginCallback -> /camps
+    await this._page.waitForURL((url) => url.pathname === '/camps', { timeout: 30_000 })
+    const campListPage = new CampListPage(this._page)
+    await campListPage.loaded()
+    return campListPage
   }
 }
