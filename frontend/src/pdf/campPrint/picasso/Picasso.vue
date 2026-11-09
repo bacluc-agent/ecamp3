@@ -23,9 +23,11 @@ export default {
   },
   computed: {
     periods() {
-      return (this.content.options?.periods || []).map((periodUri) => {
-        return this.api.get(periodUri)
-      })
+      return (this.content.options?.periods || [])
+        .map((periodUri) => {
+          return this.api.get(periodUri)
+        })
+        .sort((a, b) => new Date(a.start) - new Date(b.start))
     },
   },
 }
