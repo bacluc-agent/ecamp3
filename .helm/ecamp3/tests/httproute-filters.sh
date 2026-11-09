@@ -19,11 +19,12 @@ trap 'rm -rf "$work_dir"; rm -f "$env_file" "$values_file"' EXIT
 
 render_routes() {
   auth_enabled=$1
+  gateway_class=$2
   basic_auth_enabled=false
   if [ "$auth_enabled" = enabled ]; then
     basic_auth_enabled=true
   fi
-  test_dir="$work_dir/$auth_enabled"
+  test_dir="$work_dir/$auth_enabled-$gateway_class"
   mkdir -p "$test_dir"
   yq -i \
     ".NAME = \"httproute-test\" |
@@ -35,6 +36,7 @@ render_routes() {
      .JWT_PRIVATE_KEY = \"test\" |
      .JWT_PUBLIC_KEY = \"test\" |
      .POSTGRES_URL = \"postgres://test:test@localhost:5432\" |
+     .GATEWAY_CLASS_NAME = \"$gateway_class\" |
      .BASIC_AUTH_ENABLED = $basic_auth_enabled |
      .BASIC_AUTH_USERNAME = \"test\" |
      .BASIC_AUTH_PASSWORD = \"test\"" \
@@ -51,12 +53,15 @@ assert_route() {
   yq -e "select(.kind == \"HTTPRoute\" and .metadata.name == \"$name\") | $expression" "$file" >/dev/null
 }
 
-disabled=$(render_routes disabled)
-enabled=$(render_routes enabled)
+disabled=$(render_routes disabled traefik)
+enabled=$(render_routes enabled traefik)
+non_traefik=$(render_routes enabled nginx)
 
 for file in "$disabled" "$enabled"; do
   yq -e 'select(.kind == "HTTPRoute") | (.spec.rules[0] | ((has("filters") | not) or (.filters != null)))' "$file" >/dev/null
 done
+
+yq -e 'select(.kind == "HTTPRoute") | (.spec.rules[0].filters // [] | map(select(.type == "ExtensionRef")) | length == 0)' "$non_traefik" >/dev/null
 
 assert_route "$disabled" httproute-test-ecamp3-frontend 'has("spec") and (.spec.rules[0] | (has("filters") | not))'
 assert_route "$disabled" httproute-test-ecamp3-mail 'has("spec") and (.spec.rules[0] | (has("filters") | not))'
