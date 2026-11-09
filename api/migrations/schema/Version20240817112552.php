@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use App\Doctrine\DBAL\CockroachDb;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -18,7 +19,12 @@ final class Version20240817112552 extends AbstractMigration {
 
     public function up(Schema $schema): void {
         $this->addSql('ALTER TABLE camp RENAME COLUMN name TO shortTitle');
-        $this->addSql('ALTER TABLE camp ALTER shortTitle DROP NOT NULL, ALTER shortTitle TYPE TEXT');
+        $this->addSql('ALTER TABLE camp ALTER shortTitle DROP NOT NULL');
+        $this->addSql(
+            CockroachDb::is($this->connection)
+            ? 'ALTER TABLE camp ALTER shortTitle TYPE STRING'
+            : 'ALTER TABLE camp ALTER shortTitle TYPE TEXT'
+        );
         $this->addSql('UPDATE camp SET shortTitle = null WHERE shortTitle = title');
         $this->addSql('UPDATE camp SET shortTitle = title, title = shortTitle WHERE char_length(shortTitle) > 16 AND char_length(title) < char_length(shortTitle);');
     }
@@ -26,7 +32,12 @@ final class Version20240817112552 extends AbstractMigration {
     #[\Override]
     public function down(Schema $schema): void {
         $this->addSql("UPDATE camp SET shortTitle = '' WHERE shortTitle IS NULL");
-        $this->addSql('ALTER TABLE camp ALTER shortTitle SET NOT NULL, ALTER shortTitle TYPE VARCHAR(32)');
+        $this->addSql('ALTER TABLE camp ALTER shortTitle SET NOT NULL');
+        $this->addSql(
+            CockroachDb::is($this->connection)
+            ? 'ALTER TABLE camp ALTER shortTitle TYPE STRING'
+            : 'ALTER TABLE camp ALTER shortTitle TYPE VARCHAR(32)'
+        );
         $this->addSql('ALTER TABLE camp RENAME COLUMN shortTitle TO name');
     }
 }

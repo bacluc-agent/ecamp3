@@ -22,8 +22,8 @@ final class Version20240620104153 extends AbstractMigration {
         $this->addSql('CREATE TABLE checklistnode_checklistitem (checklistnode_id VARCHAR(16) NOT NULL, checklistitem_id VARCHAR(16) NOT NULL, PRIMARY KEY(checklistnode_id, checklistitem_id))');
         $this->addSql('CREATE INDEX IDX_5A2B5B31DE6B6F00 ON checklistnode_checklistitem (checklistnode_id)');
         $this->addSql('CREATE INDEX IDX_5A2B5B318A09A289 ON checklistnode_checklistitem (checklistitem_id)');
-        $this->addSql('ALTER TABLE checklistnode_checklistitem ADD CONSTRAINT FK_5A2B5B31DE6B6F00 FOREIGN KEY (checklistnode_id) REFERENCES content_node (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE checklistnode_checklistitem ADD CONSTRAINT FK_5A2B5B318A09A289 FOREIGN KEY (checklistitem_id) REFERENCES checklist_item (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE checklistnode_checklistitem ADD CONSTRAINT FK_5A2B5B31DE6B6F00 FOREIGN KEY (checklistnode_id) REFERENCES content_node (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE checklistnode_checklistitem ADD CONSTRAINT FK_5A2B5B318A09A289 FOREIGN KEY (checklistitem_id) REFERENCES checklist_item (id) ON DELETE CASCADE');
     }
 
     #[\Override]
