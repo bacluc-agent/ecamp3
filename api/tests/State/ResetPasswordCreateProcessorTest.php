@@ -45,7 +45,11 @@ class ResetPasswordCreateProcessorTest extends TestCase {
         $this->pwHasher = $this->createMock(PasswordHasherInterface::class);
         $this->mailService = $this->createMock(MailService::class);
 
-        $recaptcha->method('verify')->willReturn($this->recaptchaResponse);
+        $recaptcha->expects(self::once())
+            ->method('verify')
+            ->with(self::anything(), 'reset_password')
+            ->willReturn($this->recaptchaResponse)
+        ;
         $pwHasherFactory->method('getPasswordHasher')->willReturn($this->pwHasher);
 
         $this->processor = new ResetPasswordCreateProcessor(
