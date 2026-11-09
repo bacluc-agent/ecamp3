@@ -25,6 +25,12 @@ export class CampListPage {
   ) {}
 
   @boxedStep
+  async goto() {
+    await this._page.goto('/camps')
+    return this.loaded()
+  }
+
+  @boxedStep
   async loaded() {
     await this._page.waitForURL('/camps', { timeout: 15000 })
     await expect(this._createCampButton).toBeVisible()
@@ -51,5 +57,11 @@ export class CampListPage {
 
   campTitle(campTitle: string): Locator {
     return this._page.getByText(campTitle, { exact: true })
+  }
+
+  @boxedStep
+  async expectCampNotListed(campTitle: string) {
+    await expect(this._page.getByText(campTitle)).toBeHidden()
+    return this
   }
 }
