@@ -8,13 +8,13 @@ command -v yq >/dev/null
 
 chart_dir=$(cd -- "$(dirname "$0")/.." && pwd)
 work_dir=$(mktemp -d)
+trap 'rm -rf "$work_dir"; rm -f "$env_file" "$values_file"' EXIT
 env_file="$chart_dir/env.yaml"
 values_file="$chart_dir/values.yaml"
 if [ -e "$env_file" ] || [ -e "$values_file" ]; then
   printf '%s\n' 'env.yaml or values.yaml already exists in the chart directory' >&2
   exit 1
 fi
-trap 'rm -rf "$work_dir"; rm -f "$env_file" "$values_file"' EXIT
 cp "$chart_dir/env.example.yaml" "$env_file"
 
 render_routes() {
