@@ -2,13 +2,7 @@ import { fallbackLocales } from '@/plugins/i18n/index'
 
 export default function* (locale) {
   if (typeof locale !== 'string') {
-    if (Array.isArray(fallbackLocales.default)) {
-      for (const fallback of fallbackLocales.default) {
-        yield fallback
-      }
-    } else {
-      yield fallbackLocales.default
-    }
+    yield* fallbackLocales.default
     return
   }
   if (fallbackLocales[locale]) {
@@ -26,11 +20,5 @@ export default function* (locale) {
       }
     }
   }
-  if (Array.isArray(fallbackLocales.default)) {
-    for (const fallback of fallbackLocales.default) {
-      yield fallback
-    }
-  } else {
-    yield fallbackLocales.default
-  }
+  yield* fallbackLocales.default
 }
