@@ -3,12 +3,12 @@ import {
   bipiUser,
   bruceWayneUser,
   grgrPeriodId,
-  harryMainPeriodId,
-  harrySecondPeriodId,
+  skilagerPeriodId,
 } from '@/utils/constants'
 import {
   expectCacheHit,
   expectCacheMiss,
+  expectCachePass,
   waitForCacheMiss,
   apiGet,
   apiPatch,
@@ -18,18 +18,12 @@ import {
 } from '@/utils/helpers'
 import collectionResponse from '@/test-data/httpCache/days_collection.json'
 
-const addDays = (date: string, days: number) => {
-  const result = new Date(date)
-  result.setUTCDate(result.getUTCDate() + days)
-  return result.toISOString().substring(0, 10)
-}
-
 const collectionXKeys =
   /* campCollaboration for bipiUser */
   'b0bdb7202a9d ' +
   /* days + links + dayResponsibles  */
-  /* the first day also includes the period id 76be24bce434 and the camp's day numbers key */
-  '4b90ff5b42c0 76be24bce434 3c79b99ab424^dayNumbers 4b90ff5b42c0#period 4b90ff5b42c0#scheduleEntries cf442e7381e9 cf442e7381e9#day cf442e7381e9#campCollaboration 4b90ff5b42c0#dayResponsibles ' +
+  /* the first day also includes the period id 76be24bce434 */
+  '4b90ff5b42c0 76be24bce434 4b90ff5b42c0#period 4b90ff5b42c0#scheduleEntries cf442e7381e9 cf442e7381e9#day cf442e7381e9#campCollaboration 4b90ff5b42c0#dayResponsibles ' +
   'ac92acd57c49 ac92acd57c49#period ac92acd57c49#scheduleEntries c58a08b98726 c58a08b98726#day c58a08b98726#campCollaboration ac92acd57c49#dayResponsibles ' +
   '1447f15f1e12 1447f15f1e12#period 1447f15f1e12#scheduleEntries db401ffc07e6 db401ffc07e6#day db401ffc07e6#campCollaboration 1447f15f1e12#dayResponsibles ' +
   '963c3c0639dd 963c3c0639dd#period 963c3c0639dd#scheduleEntries 981300f9ef5c 981300f9ef5c#day 981300f9ef5c#campCollaboration 963c3c0639dd#dayResponsibles ' +
@@ -41,6 +35,7 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
 
   test('caches /periods/{periodId}/days separately for each login', async () => {
     const uri = `/api/periods/${grgrPeriodId}/days`
+    const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
@@ -53,21 +48,41 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
 
     // second request is a cache hit
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
 
     // request with a new user is a cache miss
     const bruceApi = await getAuthContext(bruceWayneUser)
     await expectCacheMiss(bruceApi, uri)
+    await expectCacheMiss(bruceApi, filteredUri)
+  })
+
+  test('does not cache a queried day item', async () => {
+    const dayId = '4b90ff5b42c0'
+    const uri = `/api/days/${dayId}?period=%2Fperiods%2F${grgrPeriodId}`
+    const bipiApi = await getAuthContext(bipiUser)
+
+    const response = await apiGet(bipiApi, uri)
+    expect((await response.json())._links.self.href).toMatch(
+      new RegExp(`/days/${dayId}$`)
+    )
+    await expectCachePass(bipiApi, uri)
   })
 
   test('invalidates /periods/{periodId}/days when changing the period dates', async () => {
     const uri = `/api/periods/${grgrPeriodId}/days`
+    const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}`
+    const excludedEntityUri = `${uri}?period=%2Fperiods%2F${skilagerPeriodId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
-
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await expectCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
     // move period start date
     await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
       start: '2036-05-09',
@@ -78,6 +93,10 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // move period start date
     await apiPatch(bipiApi, `/api/periods/${grgrPeriodId}`, {
@@ -89,39 +108,32 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
-  })
-
-  test('invalidates /periods/{periodId}/days of later periods when changing the dates of an earlier period', async () => {
-    const uri = `/api/periods/${harrySecondPeriodId}/days`
-    const mainPeriodUri = `/api/periods/${harryMainPeriodId}`
-
-    const bipiApi = await getAuthContext(bipiUser)
-    const mainPeriod = await (await apiGet(bipiApi, mainPeriodUri)).json()
-
-    // warm up cache
-    await apiGet(bipiApi, uri)
-    await expectCacheHit(bipiApi, uri)
-
-    // lengthen the earlier period, which shifts the day numbers of the later period
-    await apiPatch(bipiApi, mainPeriodUri, { end: addDays(mainPeriod.end, 1) })
-
-    // ensure cache was invalidated
-    await waitForCacheMiss(bipiApi, uri)
-    await expectCacheHit(bipiApi, uri)
-
-    // restore
-    await apiPatch(bipiApi, mainPeriodUri, { end: mainPeriod.end })
-    await waitForCacheMiss(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
   })
 
   test('invalidates /periods/{periodId}/days when adding a day responsible', async () => {
     const uri = `/api/periods/${grgrPeriodId}/days`
+    const filteredUri = `${uri}?period=%2Fperiods%2F${grgrPeriodId}`
+    const excludedEntityUri = `${uri}?period=%2Fperiods%2F${skilagerPeriodId}`
 
     const bipiApi = await getAuthContext(bipiUser)
 
     // warm up cache
     await apiGet(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await expectCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    const excludedEntityResponse = await apiGet(bipiApi, excludedEntityUri)
+    expect(excludedEntityResponse.headers()['x-cache']).toBe('MISS')
+    const excludedDays: Array<{ _links: { self: { href: string } } }> =
+      (await excludedEntityResponse.json())._embedded?.items ?? []
+    expect(
+      excludedDays.some((day) => day._links.self.href.endsWith('/days/4b90ff5b42c0'))
+    ).toBe(false)
+    await expectCacheHit(bipiApi, excludedEntityUri)
 
     // add new day responsible
     const postRes = await apiPost(bipiApi, '/api/day_responsibles', {
@@ -134,6 +146,17 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
+    const excludedDaysAfterMutation: Array<{ _links: { self: { href: string } } }> =
+      (await (await apiGet(bipiApi, excludedEntityUri)).json())._embedded?.items ?? []
+    expect(
+      excludedDaysAfterMutation.some((day) =>
+        day._links.self.href.endsWith('/days/4b90ff5b42c0')
+      )
+    ).toBe(false)
 
     // delete newly created day responsible
     await apiDelete(bipiApi, newDayResponsibleUri)
@@ -141,5 +164,16 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+    await waitForCacheMiss(bipiApi, excludedEntityUri)
+    await expectCacheHit(bipiApi, excludedEntityUri)
+    const excludedDaysAfterDelete: Array<{ _links: { self: { href: string } } }> =
+      (await (await apiGet(bipiApi, excludedEntityUri)).json())._embedded?.items ?? []
+    expect(
+      excludedDaysAfterDelete.some((day) =>
+        day._links.self.href.endsWith('/days/4b90ff5b42c0')
+      )
+    ).toBe(false)
   })
 })
