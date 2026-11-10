@@ -220,7 +220,7 @@ test.describe('cache test: /camps/{campId}/categories', () => {
     await expect(newPage.locator('body')).toContainText('GRGR')
   })
 
-  test.describe('invalidates /camps/{campId}/categories', { tag: '@mature' }, () => {
+  test.describe('invalidates /camps/{campId}/categories', () => {
     // @ts-expect-error we can type this later
     let categoryBefore
     let bipiApi: APIRequestContext
@@ -254,7 +254,7 @@ test.describe('cache test: /camps/{campId}/categories', () => {
       expect(res.status()).toBe(200)
     })
 
-    test('when preferredContentTypes are removed', { tag: '@mature' }, async () => {
+    test('when preferredContentTypes are removed', async () => {
       const uri = `/api/camps/${grgrCampId}/categories`
 
       // warm up cache
@@ -271,7 +271,7 @@ test.describe('cache test: /camps/{campId}/categories', () => {
       await expectCacheHit(bipiApi, uri)
     })
 
-    test('when preferredContentType is added', { tag: '@mature' }, async () => {
+    test('when preferredContentType is added', async () => {
       const uri = `/api/camps/${grgrCampId}/categories`
 
       // warm up cache
