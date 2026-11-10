@@ -8,12 +8,6 @@ setupVuetify()
 
 vi.mock('@/plugins/index.js', () => ({ headEnvironment: null }))
 
-// Model the layout feedback that would exist if a footer sized itself from
-// --footer-height: it would then flip between 0px and 40px forever. Nothing in
-// this repo's CSS does that today, so the loop this guards against is latent,
-// not observed. Freeze the measurement after MEASUREMENT_CAP so an unbounded
-// loop unwinds into a countable number instead of hanging on the vitest
-// timeout.
 const MEASUREMENT_CAP = 50
 
 function drain() {
@@ -85,9 +79,6 @@ describe('App footer height observer', () => {
       },
     })
 
-    // Vuetify re-patches <v-footer app>'s inline layout styles on every viewport
-    // resize (VFooter.js layoutItemStyles -> layout.js), so a resize that re-wraps
-    // the footer text arrives as a descendant `style` mutation.
     const footer = document.createElement('footer')
     footer.className = 'v-footer ec-footer'
     wrapper.element.appendChild(footer)
