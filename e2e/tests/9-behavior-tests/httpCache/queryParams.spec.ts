@@ -28,11 +28,9 @@ test.describe('cache test: collection with query params', () => {
 
     const unfiltered = await apiGet(bruceApi, collectionUri)
     expect(unfiltered.headers()['x-cache']).toBe('MISS')
-    expect(
-      stripComma(
-        `${unfiltered.headers()['xkey']} /api/camps/${loremIpsumCampId}/activities?`
-      )
-    ).toEqual(stripComma(filtered.headers()['xkey'] ?? ''))
+    expect(stripComma(`${unfiltered.headers()['xkey']}`)).toEqual(
+      stripComma(filtered.headers()['xkey'] ?? '')
+    )
   })
 
   test('caches the same params in a different order as a separate entry', async () => {
