@@ -7,8 +7,8 @@
   ],
   "ignorePresets": ["group:apiPlatform"],
   "constraints": {
-    "node": "24.21.0",
-    "php": "8.5.9"
+    "node": "26.12.1",
+    "php": "8.5.12"
   },
   "automergeType": "branch",
   "rebaseWhen": "conflicted",
@@ -28,7 +28,7 @@
     },
     {
       "matchUpdateTypes": ["lockFileMaintenance"],
-      "rebaseWhen": "behind-base"
+      "rebaseWhen": "behind-base-branch"
     },
     {
       "groupName": "api-platform packages",
@@ -63,13 +63,18 @@
       "matchPackageNames": ["/^@tiptap//"]
     },
     {
+      "description": "@mdi/font and @mdi/js must provide the same icon set",
+      "groupName": "mdi",
+      "matchFileNames": ["frontend/package.json"],
+      "matchPackageNames": ["@mdi/**"]
+    },
+    {
       "description": "@react-pdf/font depends on an exact pdfkit version",
       "groupName": "react-pdf",
       "matchPackageNames": ["@react-pdf/**", "pdfkit"]
     },
     {
       "matchDepNames": [
-        "browserless/chromium",
         "caddy",
         "krakjoe/apcu",
         "mailhog/mailhog",
@@ -83,10 +88,6 @@
       "schedule": ["after 10pm on sunday", "before 7am on monday"]
     },
     {
-      "matchDepNames": ["browserless/chromium"],
-      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<compatibility>\\w+)-(?<build>\\d+)\\.(\\d+)\\.(\\d+)?$"
-    },
-    {
       "matchDepNames": ["dunglas/frankenphp"],
       "versioning": "regex:^(?<build>\\d+)\\.(?<revision>\\d+)-(?<compatibility>\\w+)(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)?$"
     },
@@ -96,7 +97,8 @@
     },
     {
       "groupName": "playwright",
-      "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"]
+      "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"],
+      "automerge": false
     },
     {
       "matchPackageNames": ["mcr.microsoft.com/playwright"],
@@ -104,6 +106,13 @@
     }
   ],
   "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^e2e/playwright\\.version$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[^\\s]+) depName=(?<depName>[^\\s]+)\\n[A-Z_]+=(?<currentValue>[0-9][\\w.-]*)"
+      ]
+    },
     {
       "customType": "regex",
       "managerFilePatterns": ["/^api/phpunit.xml.dist$/"],

@@ -5,7 +5,8 @@
     :error="error"
     icon="mdi-package-variant"
     :title="$t('components.material.dialogMaterialItemEdit.title')"
-    :submit-action="update"
+    :submit-action="updateMaterialItem"
+    :submit-enabled="!creatingMaterialList"
     submit-color="success"
     :cancel-action="close"
   >
@@ -16,6 +17,7 @@
     <template #moreActions>
       <PromptEntityDelete
         :entity="materialItemUri"
+        :success-handler="deleteSuccessHandler"
         :warning-text-entity="materialItem.article"
         align="left"
         position="top"
@@ -26,8 +28,9 @@
     </template>
 
     <dialog-material-item-form
-      :material-lists="camp.materialLists()"
+      :camp="camp"
       :material-item="entityData"
+      @update:creating="creatingMaterialList = $event"
     />
   </dialog-form>
 </template>
@@ -44,11 +47,13 @@ export default {
   extends: DialogBase,
   props: {
     materialItemUri: { type: String, required: true },
+    deleteSuccessHandler: { type: Function, default: null },
   },
   data() {
     return {
       entityProperties: ['quantity', 'unit', 'article'],
       embeddedEntities: ['materialList'],
+      creatingMaterialList: false,
     }
   },
   computed: {
@@ -63,8 +68,16 @@ export default {
     // copy data whenever dialog is opened
     showDialog: function (showDialog) {
       if (showDialog) {
+        this.creatingMaterialList = false
         this.loadEntityData(this.materialItemUri)
       }
+    },
+  },
+  methods: {
+    updateMaterialItem() {
+      if (this.creatingMaterialList) return
+
+      return this.update()
     },
   },
 }

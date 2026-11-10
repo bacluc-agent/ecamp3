@@ -272,10 +272,10 @@ class UpdateCategoryTest extends ECampApiTestCase {
             ]
         );
 
-        $this->assertResponseStatusCodeSame(400);
+        $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains([
             'title' => 'An error occurred',
-            'detail' => 'The type of the "short" attribute must be "string", "NULL" given.',
+            'detail' => 'short: This value should not be blank.',
         ]);
     }
 
@@ -378,10 +378,10 @@ class UpdateCategoryTest extends ECampApiTestCase {
             ]
         );
 
-        $this->assertResponseStatusCodeSame(400);
+        $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains([
             'title' => 'An error occurred',
-            'detail' => 'The type of the "name" attribute must be "string", "NULL" given.',
+            'detail' => 'name: This value should not be blank.',
         ]);
     }
 
@@ -486,9 +486,9 @@ class UpdateCategoryTest extends ECampApiTestCase {
             ]
         );
 
-        $this->assertResponseStatusCodeSame(400);
+        $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains([
-            'detail' => 'The type of the "color" attribute must be "string", "NULL" given.',
+            'detail' => 'color: This value should not be blank.',
         ]);
     }
 
@@ -593,5 +593,20 @@ class UpdateCategoryTest extends ECampApiTestCase {
             $contentTypeNotes->getId().'#categories',
             $contentTypeSafetyConsiderations->getId().'#categories', // SafetyConsiderations was previously in the list, so this is purged because it was removed
         ], $cacheManager->getInvalidatedTags());
+    }
+
+    public function testPatchCategoryNumberingStylePurgesAllScheduleEntryNumbersInTheCamp() {
+        $client = static::createClientWithCredentials();
+        $cacheManager = $this->mockCacheManager();
+
+        $category = static::getFixture('category1');
+        $client->request('PATCH', '/categories/'.$category->getId(), ['json' => [
+            'numberingStyle' => 'A',
+        ], 'headers' => ['Content-Type' => 'application/merge-patch+json']]);
+
+        $this->assertResponseStatusCodeSame(200);
+        $tags = $cacheManager->getInvalidatedTags();
+        self::assertContains(static::getFixture('period1')->getId().'^scheduleEntryNumbers', $tags);
+        self::assertContains(static::getFixture('period2')->getId().'^scheduleEntryNumbers', $tags);
     }
 }

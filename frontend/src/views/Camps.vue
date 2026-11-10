@@ -17,48 +17,44 @@
             :periods="upcomingPeriods"
           />
         </template>
-        <v-list-item lines="two">
-          <template #append>
-            <v-list-item-action class="gap-2">
-              <v-menu location="bottom end">
-                <template #activator="{ props }">
-                  <button-add
-                    v-bind="props"
-                    color="secondary"
-                    variant="text"
-                    data-testid="import-camp-button"
-                    icon="mdi-download"
-                  >
-                    {{ $t('views.camps.import') }}
-                  </button-add>
-                </template>
-                <v-list>
-                  <v-list-item
-                    v-for="provider in hitobitoProviders"
-                    :key="provider"
-                    :data-testid="`import-camp-provider-${provider}`"
-                    :to="{ name: 'camps/import', params: { provider } }"
-                  >
-                    <v-list-item-title class="d-flex align-center gap-2">
-                      <v-icon
-                        :color="providerIconColor(provider)"
-                        :icon="providerIcon(provider)"
-                      />
-                      {{ $t(providerNameKey(provider)) }}
-                    </v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
+        <ContentActions>
+          <v-menu v-if="featureHitobito" location="bottom end">
+            <template #activator="{ props }">
               <button-add
-                data-testid="create-camp-button"
-                icon="mdi-plus"
-                :to="{ name: 'camps/create' }"
+                v-bind="props"
+                color="secondary"
+                variant="text"
+                data-testid="import-camp-button"
+                icon="mdi-download"
               >
-                {{ $t('views.camps.create') }}
+                {{ $t('views.camps.import') }}
               </button-add>
-            </v-list-item-action>
-          </template>
-        </v-list-item>
+            </template>
+            <v-list>
+              <v-list-item
+                v-for="provider in hitobitoProviders"
+                :key="provider"
+                :data-testid="`import-camp-provider-${provider}`"
+                :to="{ name: 'camps/import', params: { provider } }"
+              >
+                <v-list-item-title class="d-flex align-center gap-2">
+                  <v-icon
+                    :color="providerIconColor(provider)"
+                    :icon="providerIcon(provider)"
+                  />
+                  {{ $t(providerNameKey(provider)) }}
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+          <button-add
+            data-testid="create-camp-button"
+            icon="mdi-plus"
+            :to="{ name: 'camps/create' }"
+          >
+            {{ $t('views.camps.create') }}
+          </button-add>
+        </ContentActions>
       </v-list>
       <v-expansion-panels
         v-if="
@@ -108,7 +104,7 @@
 </template>
 
 <script>
-import dayjs from '@/common/helpers/dayjs.js'
+import dayjs from '@/helpers/dayjs.js'
 import { isAdmin } from '@/plugins/auth'
 import ContentCard from '@/components/layout/ContentCard.vue'
 import ButtonAdd from '@/components/buttons/ButtonAdd.vue'
@@ -120,6 +116,7 @@ import {
   providerIconColor,
   providerNameKey,
 } from '@/plugins/hitobito'
+import { getEnv } from '@/environment.js'
 import { groupBy } from 'lodash-es'
 
 export default {
@@ -143,6 +140,9 @@ export default {
     }
   },
   computed: {
+    featureHitobito() {
+      return getEnv().FEATURE_HITOBITO ?? false
+    },
     hitobitoProviders() {
       return HITOBITO_PROVIDERS
     },

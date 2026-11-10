@@ -16,6 +16,7 @@ use App\InputFilter;
 use App\Repository\ActivityRepository;
 use App\State\ActivityCreateProcessor;
 use App\State\ActivityRemoveProcessor;
+use App\State\ActivityUpdateProcessor;
 use App\Validator\AssertBelongsToSameCamp;
 use App\Validator\AssertLastCollectionItemIsNotDeleted;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -38,7 +39,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Patch(
             normalizationContext: self::ITEM_NORMALIZATION_CONTEXT,
             security: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object)',
-            validationContext: ['groups' => ['Default', 'update']]
+            validationContext: ['groups' => ['Default', 'update']],
+            processor: ActivityUpdateProcessor::class
         ),
         new Delete(
             security: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object)',
@@ -118,7 +120,7 @@ class Activity extends BaseEntity implements BelongsToCampInterface {
     )]
     #[Groups(['read', 'create'])]
     #[ORM\OneToMany(targetEntity: ScheduleEntry::class, mappedBy: 'activity', cascade: ['persist'], orphanRemoval: true)]
-    #[ORM\OrderBy(['startOffset' => 'ASC', 'left' => 'ASC', 'endOffset' => 'DESC', 'id' => 'ASC'])]
+    #[ORM\OrderBy(['startOffset' => \SortDirection::Ascending, 'left' => \SortDirection::Ascending, 'endOffset' => \SortDirection::Descending, 'id' => \SortDirection::Ascending])]
     public Collection $scheduleEntries;
 
     /**
@@ -192,7 +194,7 @@ class Activity extends BaseEntity implements BelongsToCampInterface {
     )]
     #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'activity')]
-    #[ORM\OrderBy(['createTime' => 'ASC'])]
+    #[ORM\OrderBy(['createTime' => \SortDirection::Ascending])]
     public Collection $comments;
 
     /**
@@ -201,7 +203,7 @@ class Activity extends BaseEntity implements BelongsToCampInterface {
     #[ApiProperty(writable: false)]
     #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: ActivityResponsible::class, mappedBy: 'activity', orphanRemoval: true)]
-    #[ORM\OrderBy(['createTime' => 'ASC'])]
+    #[ORM\OrderBy(['createTime' => \SortDirection::Ascending])]
     private Collection $activityResponsibles;
 
     public function __construct() {

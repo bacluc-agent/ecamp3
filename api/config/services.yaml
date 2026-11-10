@@ -72,6 +72,11 @@ services:
     App\Serializer\Normalizer\CollectionItemsNormalizer:
         decorates: 'api_platform.hal.normalizer.collection'
 
+    App\State\DenormalizationViolationFactory:
+        decorates: 'api_platform.state.denormalization_violation_factory'
+        arguments:
+            - '@.inner'
+
     App\State\ValidationErrorProvider:
         decorates: 'api_platform.validator.state.error_provider'
         arguments:
@@ -155,6 +160,7 @@ services:
     App\Service\Hitobito\ClientProvider:
         arguments:
             $pbsmidataBaseUrl: '%env(HITOBITO_PBSMIDATA_API_BASE_URL)%'
+            $useMockClient: false
 
     App\Security\ReCaptcha\ReCaptchaWrapper:
         public: true # necessary to be able to mock ReCaptcha in the container in Api tests
@@ -193,9 +199,10 @@ services:
 
     App\HttpCache\PurgeHttpCacheListener:
         arguments:
-            - '@api_platform.iri_converter'
-            - '@api_platform.resource_class_resolver'
-            - '@api_platform.property_accessor'
+            $iriConverter: '@api_platform.iri_converter'
+            $resourceClassResolver: '@api_platform.resource_class_resolver'
+            $propertyAccessor: '@api_platform.property_accessor'
+            $nameConverter: '@serializer.name_converter.metadata_aware'
         tags:
             - { name: doctrine.event_listener, event: preUpdate }
             - { name: doctrine.event_listener, event: onFlush }
@@ -203,6 +210,8 @@ services:
 
     api_platform.http_cache.tag_collector:
         class: App\HttpCache\TagCollector
+        arguments:
+            $nameConverter: '@serializer.name_converter.metadata_aware'
 
     App\HttpCache\AddCollectionTagsListener:
         tags:

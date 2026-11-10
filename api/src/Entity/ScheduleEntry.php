@@ -13,8 +13,11 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Doctrine\Filter\ExpressionDateTimeFilter;
+use App\HttpCache\CacheTag;
 use App\HttpCache\CanGenerateTagsInterface;
 use App\Repository\ScheduleEntryRepository;
+use App\State\ScheduleEntryPersistProcessor;
+use App\State\ScheduleEntryRemoveProcessor;
 use App\Util\DateTimeUtil;
 use App\Validator\AssertBelongsToSameCamp;
 use App\Validator\ScheduleEntryPostGroupSequence;
@@ -36,12 +39,14 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Patch(
             normalizationContext: self::ITEM_NORMALIZATION_CONTEXT,
-            security: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object)'
+            security: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object)',
+            processor: ScheduleEntryPersistProcessor::class
         ),
         new Delete(
             security: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object)',
             validationContext: ['groups' => ['delete', 'ScheduleEntry:delete']],
-            validate: true
+            validate: true,
+            processor: ScheduleEntryRemoveProcessor::class
         ),
         new GetCollection(
             security: 'is_authenticated()',
@@ -68,7 +73,8 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: self::ITEM_NORMALIZATION_CONTEXT,
             denormalizationContext: ['groups' => ['write', 'create']],
             securityPostDenormalize: 'is_granted("CAMP_MEMBER", object) or is_granted("CAMP_MANAGER", object) or object.activity === null',
-            validationContext: ['groups' => ScheduleEntryPostGroupSequence::class]
+            validationContext: ['groups' => ScheduleEntryPostGroupSequence::class],
+            processor: ScheduleEntryPersistProcessor::class
         ),
     ],
     normalizationContext: ['groups' => ['read']],
@@ -89,6 +95,8 @@ class ScheduleEntry extends BaseEntity implements BelongsToCampInterface, CanGen
         'groups' => ['read', 'ScheduleEntry:Activity'],
         'swagger_definition_name' => 'read',
     ];
+
+    public const YS_PHYSICAL_ACTIVITY_DURATION_CHOICES = [30, 45, 60, 75, 90, 105, 120];
 
     /**
      * The time period which this schedule entry is part of. Must belong to the same camp as the activity.
@@ -150,6 +158,18 @@ class ScheduleEntry extends BaseEntity implements BelongsToCampInterface, CanGen
     #[Groups(['read', 'write'])]
     #[ORM\Column(type: 'float', nullable: true)]
     public ?float $width = 1;
+
+    /**
+     * The J+S physical activity duration ("Bewegungszeit") in minutes during this schedule entry. Null
+     * if not specified. Each schedule entry of an activity has its own value, because e.g. a repeated
+     * activity or an activity split into multiple schedule entries may contain different amounts of
+     * physical activity.
+     */
+    #[Assert\Choice(choices: self::YS_PHYSICAL_ACTIVITY_DURATION_CHOICES)]
+    #[ApiProperty(example: 60)]
+    #[Groups(['read', 'write'])]
+    #[ORM\Column(type: 'integer', nullable: true)]
+    public ?int $ysPhysicalActivityDurationMinutes = null;
 
     /**
      * internal cache of 'start' and 'end' property during denormalization
@@ -360,7 +380,11 @@ class ScheduleEntry extends BaseEntity implements BelongsToCampInterface, CanGen
     }
 
     public function getCacheTags(): array {
-        return [$this->getPeriod()->getId()];
+        return [
+            $this->getPeriod()->getId(),
+            CacheTag::forCustomTag($this->getPeriod(), Period::SCHEDULE_ENTRY_NUMBERS_CACHE_TAG),
+            CacheTag::forCustomTag($this->getPeriod()->camp, Camp::DAY_NUMBERS_CACHE_TAG),
+        ];
     }
 
     /**

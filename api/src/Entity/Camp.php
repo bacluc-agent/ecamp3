@@ -77,6 +77,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Index(columns: ['randomlyGenerated'])]
 #[ORM\Index(columns: ['updateTime'])] // TODO unclear why this is necessary, but doctrine forgot about this index from BaseEntity...
 class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototypeInterface {
+    /** Custom cache tag on a camp for the numbers of all of its days. */
+    public const string DAY_NUMBERS_CACHE_TAG = 'dayNumbers';
+
     public const ITEM_NORMALIZATION_CONTEXT = [
         'groups' => ['read', 'Camp:Periods', 'Period:Days', 'Camp:CampCollaborations', 'CampCollaboration:User'],
         'swagger_definition_name' => 'read',
@@ -86,7 +89,7 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
     #[SerializedName('campCollaborations')]
     #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: CampCollaboration::class, mappedBy: 'camp', orphanRemoval: true)]
-    #[ORM\OrderBy(['status' => 'ASC', 'role' => 'ASC', 'createTime' => 'ASC'])]
+    #[ORM\OrderBy(['status' => \SortDirection::Ascending, 'role' => \SortDirection::Ascending, 'createTime' => \SortDirection::Ascending])]
     public Collection $collaborations;
 
     /**
@@ -111,7 +114,7 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
     )]
     #[Groups(['read', 'create'])]
     #[ORM\OneToMany(targetEntity: Period::class, mappedBy: 'camp', cascade: ['persist'], orphanRemoval: true)]
-    #[ORM\OrderBy(['start' => 'ASC'])]
+    #[ORM\OrderBy(['start' => \SortDirection::Ascending])]
     public Collection $periods;
 
     /**
@@ -124,7 +127,7 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
     )]
     #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: Category::class, mappedBy: 'camp', cascade: ['persist'], orphanRemoval: true)]
-    #[ORM\OrderBy(['short' => 'ASC', 'createTime' => 'ASC'])]
+    #[ORM\OrderBy(['short' => \SortDirection::Ascending, 'createTime' => \SortDirection::Ascending])]
     public Collection $categories;
 
     /**
@@ -137,7 +140,7 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
     )]
     #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: ActivityProgressLabel::class, mappedBy: 'camp', cascade: ['persist'], orphanRemoval: true)]
-    #[ORM\OrderBy(['position' => 'ASC'])]
+    #[ORM\OrderBy(['position' => \SortDirection::Ascending])]
     public Collection $progressLabels;
 
     /**
@@ -151,7 +154,7 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
     )]
     #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: Activity::class, mappedBy: 'camp', orphanRemoval: true)]
-    #[ORM\OrderBy(['title' => 'ASC', 'createTime' => 'ASC'])]
+    #[ORM\OrderBy(['title' => \SortDirection::Ascending, 'createTime' => \SortDirection::Ascending])]
     public Collection $activities;
 
     /**
@@ -161,14 +164,14 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
     #[ApiProperty(writable: false, example: '["/material_lists/1a2b3c4d"]')]
     #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: MaterialList::class, mappedBy: 'camp', cascade: ['persist'], orphanRemoval: true)]
-    #[ORM\OrderBy(['name' => 'ASC', 'createTime' => 'ASC'])]
+    #[ORM\OrderBy(['name' => \SortDirection::Ascending, 'createTime' => \SortDirection::Ascending])]
     public Collection $materialLists;
 
     /**
      * List of MaterialItems that belong to this Camp.
      */
     #[ORM\OneToMany(targetEntity: MaterialItem::class, mappedBy: 'camp', cascade: ['persist'], orphanRemoval: true)]
-    #[ORM\OrderBy(['article' => 'ASC', 'createTime' => 'ASC'])]
+    #[ORM\OrderBy(['article' => \SortDirection::Ascending, 'createTime' => \SortDirection::Ascending])]
     public Collection $materialItems;
 
     /**
@@ -177,7 +180,7 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
     #[ApiProperty(writable: false, uriTemplate: Checklist::CAMP_SUBRESOURCE_URI_TEMPLATE)]
     #[Groups(['read'])]
     #[ORM\OneToMany(targetEntity: Checklist::class, mappedBy: 'camp', cascade: ['persist'], orphanRemoval: true)]
-    #[ORM\OrderBy(['name' => 'ASC', 'createTime' => 'ASC'])]
+    #[ORM\OrderBy(['name' => \SortDirection::Ascending, 'createTime' => \SortDirection::Ascending])]
     public Collection $checklists;
 
     /**
@@ -483,7 +486,7 @@ class Camp extends BaseEntity implements BelongsToCampInterface, CopyFromPrototy
      */
     #[ApiProperty(readable: false, writable: false)]
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'camp', cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[ORM\OrderBy(['createTime' => 'ASC'])]
+    #[ORM\OrderBy(['createTime' => \SortDirection::Ascending])]
     public Collection $comments;
 
     public function __construct() {

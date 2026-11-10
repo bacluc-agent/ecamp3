@@ -200,10 +200,10 @@ class UpdateActivityTest extends ECampApiTestCase {
             ], 'headers' => ['Content-Type' => 'application/merge-patch+json']])
         ;
 
-        $this->assertResponseStatusCodeSame(400);
+        $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains([
             'title' => 'An error occurred',
-            'detail' => 'The type of the "title" attribute must be "string", "NULL" given.',
+            'detail' => 'title: This value should not be blank.',
         ]);
     }
 
@@ -281,10 +281,10 @@ class UpdateActivityTest extends ECampApiTestCase {
             ], 'headers' => ['Content-Type' => 'application/merge-patch+json']])
         ;
 
-        $this->assertResponseStatusCodeSame(400);
+        $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains([
             'title' => 'An error occurred',
-            'detail' => 'The type of the "location" attribute must be "string", "NULL" given.',
+            'detail' => 'location: This value should not be null.',
         ]);
     }
 
@@ -347,5 +347,20 @@ class UpdateActivityTest extends ECampApiTestCase {
         $this->assertJsonContains([
             'location' => str_repeat('a', 64),
         ]);
+    }
+
+    public function testPatchActivityCategoryPurgesAllScheduleEntryNumbersInAffectedPeriods() {
+        $client = static::createClientWithCredentials();
+        $cacheManager = $this->mockCacheManager();
+
+        $activity = static::getFixture('activity1');
+        $client->request('PATCH', '/activities/'.$activity->getId(), ['json' => [
+            'category' => $this->getIriFor('category2'),
+        ], 'headers' => ['Content-Type' => 'application/merge-patch+json']]);
+
+        $this->assertResponseStatusCodeSame(200);
+        $tags = $cacheManager->getInvalidatedTags();
+        self::assertContains(static::getFixture('period1')->getId().'^scheduleEntryNumbers', $tags);
+        self::assertContains(static::getFixture('period2')->getId().'^scheduleEntryNumbers', $tags);
     }
 }
