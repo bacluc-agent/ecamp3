@@ -6,6 +6,7 @@
       "Host": "database",
       "Port": 5432,
       "Username": "ecamp3",
+      "PasswordExecCommand": "ecamp3-password",
       "MaintenanceDB": "postgres",
       "SSLMode": "prefer",
       "DBRestriction": "ecamp3dev"
