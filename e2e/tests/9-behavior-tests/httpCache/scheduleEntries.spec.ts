@@ -74,7 +74,7 @@ test.describe(
           start: '2036-05-10T16:00:00+00:00',
         }
       )
-      expect(resetRes.status()).toBe(200)
+      expect(resetRes.status(), await resetRes.text()).toBe(200)
 
       // warm up cache
       await apiGet(bipiApi, uri)
@@ -92,7 +92,7 @@ test.describe(
           start: '2036-05-10T17:00:00+00:00',
         }
       )
-      expect(patchRes.status()).toBe(200)
+      expect(patchRes.status(), await patchRes.text()).toBe(200)
 
       // ensure cache was invalidated
       await waitForCacheMiss(castorApi, uri)
