@@ -99,6 +99,10 @@ test.describe('The filters in the dashboard', { tag: '@mature' }, () => {
       page.locator('span.v-chip:has-text("Verantwortlich: Keine Verantwortlichen")')
     ).toBeVisible()
 
+    await expect
+      .poll(() => new URL(page.url()).searchParams.getAll('responsible'))
+      .toEqual(['none'])
+
     await page.reload()
 
     await expect(
