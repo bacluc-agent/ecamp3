@@ -1,10 +1,10 @@
 import { minBy, maxBy, sortBy, keyBy } from 'lodash-es'
-import dayjs from '@/helpers/dayjs.js'
+import { Temporal } from '@/helpers/temporal.js'
 import { arrange } from './scheduleEntryLayout.js'
 
-/**
- * @typedef {import('@/helpers/dayjs.js').dayjs} Dayjs
- */
+const unixSeconds = (instant) => Math.floor(instant.epochMilliseconds / 1000)
+const diffMinutes = (a, b) =>
+  Math.floor((a.epochMilliseconds - b.epochMilliseconds) / 60000)
 
 /**
  * Splits a set of days into pages, such that all pages contain a similar number of days.
@@ -39,11 +39,10 @@ export function splitDaysIntoPages(days, maxDaysPerPage) {
  * the people in the camp are not active. This time period can be safely hidden on the picasso.
  *
  * @param scheduleEntries set of schedule entries to consider
- * @param dayjs a dayjs helper object, needed to do time calculations
- * @param firstDayStart dayjs object describing the start of the first day displayed. Is used to make sure that schedule
+ * @param firstDayStart UTC ISO date-time string describing the start of the first day displayed. Is used to make sure that schedule
  * entries starting on this day may not be assigned to the preceding day, because that would mean they would become
  * invisible on the picasso
- * @param lastDayEnd dayjs object describing the end of the last day displayed. Is used to make sure that schedule
+ * @param lastDayEnd UTC ISO date-time string describing the end of the last day displayed. Is used to make sure that schedule
  * entries ending on this day may not be assigned to the following day, because that would mean they would become
  * invisible on the picasso
  * @param timeBucketSize size of the time buckets into which the schedule entry boundaries are quantized, in hours
@@ -51,16 +50,16 @@ export function splitDaysIntoPages(days, maxDaysPerPage) {
  */
 export function calculateBedtime(
   scheduleEntries,
-  dayjs,
   firstDayStart,
   lastDayEnd,
   timeBucketSize = 1
 ) {
+  const firstDayStartInstant = Temporal.Instant.from(firstDayStart)
+  const lastDayEndInstant = Temporal.Instant.from(lastDayEnd)
   const scheduleEntryBounds = getScheduleEntryBounds(
     scheduleEntries,
-    dayjs,
-    firstDayStart.unix(),
-    lastDayEnd.unix()
+    unixSeconds(firstDayStartInstant),
+    unixSeconds(lastDayEndInstant)
   )
   if (!scheduleEntryBounds.length) return { bedtime: 24, getUpTime: 0 }
 
@@ -80,9 +79,8 @@ export function calculateBedtime(
   // The first and last day on our picasso impose some constraints on the range of bedtimes we can choose.
   const { earliestBedtime, latestGetUpTime } = bedtimeConstraintsFromFirstAndLastDay(
     scheduleEntryBounds,
-    firstDayStart,
-    lastDayEnd,
-    dayjs,
+    firstDayStartInstant,
+    lastDayEndInstant,
     timeBucketSize
   )
 
@@ -106,17 +104,18 @@ export function calculateBedtime(
 
 function getScheduleEntryBounds(
   scheduleEntries,
-  dayjs,
   firstDayStartTimestamp,
   lastDayEndTimestamp
 ) {
   const bounds = scheduleEntries
     .flatMap((scheduleEntry) => {
-      const start = dayjs.utc(scheduleEntry.start)
-      const end = dayjs.utc(scheduleEntry.end)
-      const startHours = start.hour() + start.minute() / 60
-      const endHours = end.hour() + end.minute() / 60
-      const duration = end.diff(start, 'minute') / 60
+      const start = Temporal.Instant.from(scheduleEntry.start)
+      const end = Temporal.Instant.from(scheduleEntry.end)
+      const startUtc = start.toZonedDateTimeISO('UTC')
+      const endUtc = end.toZonedDateTimeISO('UTC')
+      const startHours = startUtc.hour + startUtc.minute / 60
+      const endHours = endUtc.hour + endUtc.minute / 60
+      const duration = diffMinutes(end, start) / 60
       return [
         { hours: startHours, time: start, type: 'start', duration },
         { hours: endHours, time: end, type: 'end', duration },
@@ -124,14 +123,14 @@ function getScheduleEntryBounds(
     })
     .filter(
       (bound) =>
-        bound.time.unix() >= firstDayStartTimestamp &&
-        bound.time.unix() <= lastDayEndTimestamp
+        unixSeconds(bound.time) >= firstDayStartTimestamp &&
+        unixSeconds(bound.time) <= lastDayEndTimestamp
     )
   // Add a copy of all bounds 24 hours later, to simplify working with the circular characteristics of daytimes
   const shifted = bounds.map((bound) => ({
     ...bound,
     hours: bound.hours + 24,
-    time: bound.time.add(24, 'hours'),
+    time: bound.time.add({ hours: 24 }),
   }))
   return sortBy([...bounds, ...shifted], (bound) => bound.hours)
 }
@@ -153,7 +152,7 @@ function bedtimeConstraintsFromFirstAndLastDay(
   // So we must make sure that our calculated "go to bed time" lies after this.
   const earliestBedtime = latestScheduleEntryBoundOnLastDay(
     scheduleEntryBounds,
-    lastDayEnd.subtract(1, 'second')
+    lastDayEnd.subtract({ seconds: 1 })
   )
 
   return {
@@ -163,10 +162,10 @@ function bedtimeConstraintsFromFirstAndLastDay(
 }
 
 function earliestScheduleEntryBoundOnFirstDay(scheduleEntryBounds, firstDayStart) {
-  const earliestBound = minBy(scheduleEntryBounds, (bound) => bound.time.unix())
+  const earliestBound = minBy(scheduleEntryBounds, (bound) => unixSeconds(bound.time))
   if (
     earliestBound.hours < 24 &&
-    earliestBound.time.diff(firstDayStart, 'minute') / 60 < 24
+    diffMinutes(earliestBound.time, firstDayStart) / 60 < 24
   ) {
     return earliestBound.hours
   }
@@ -174,8 +173,8 @@ function earliestScheduleEntryBoundOnFirstDay(scheduleEntryBounds, firstDayStart
 }
 
 function latestScheduleEntryBoundOnLastDay(scheduleEntryBounds, lastDayEnd) {
-  const latestBound = maxBy(scheduleEntryBounds, (bound) => bound.time.unix())
-  if (latestBound.hours < 24 && lastDayEnd.diff(latestBound.time, 'minute') / 60 < 24) {
+  const latestBound = maxBy(scheduleEntryBounds, (bound) => unixSeconds(bound.time))
+  if (latestBound.hours < 24 && diffMinutes(lastDayEnd, latestBound.time) / 60 < 24) {
     return latestBound.hours
   }
   return undefined
@@ -274,30 +273,32 @@ export function positionPercentage(milliseconds, times) {
 }
 
 export function filterScheduleEntriesByDay(scheduleEntries, day, times) {
-  const startOfDay = dayStart(day, times)
-  const endOfDay = dayEnd(day, times)
+  const startOfDayMs = Temporal.Instant.from(dayStart(day, times)).epochMilliseconds
+  const endOfDayMs = Temporal.Instant.from(dayEnd(day, times)).epochMilliseconds
   return scheduleEntries.filter(
     (scheduleEntry) =>
-      dayjs.utc(scheduleEntry.start).isBefore(endOfDay) &&
-      dayjs.utc(scheduleEntry.end).isAfter(startOfDay)
+      Temporal.Instant.from(scheduleEntry.start).epochMilliseconds < endOfDayMs &&
+      Temporal.Instant.from(scheduleEntry.end).epochMilliseconds > startOfDayMs
   )
 }
 
 /**
  * @param day a day object of the api
  * @param offset {number} the offset hour of the day
- * @returns {Dayjs}
+ * @returns {string} UTC ISO date-time string
  */
 function dayOffset(day, offset) {
-  return dayjs.utc(day.start).add(offset, 'hour')
+  return Temporal.Instant.from(day.start)
+    .add({ seconds: offset * 3600 })
+    .toString()
 }
 
 /**
- * Calculates the day start dayjs object according to times
+ * Calculates the day start according to times
  *
  * @param day a day object of the api
  * @param times {TimeWeights}
- * @returns {Dayjs}
+ * @returns {string} UTC ISO date-time string
  */
 export function dayStart(day, times) {
   const dayStart = times[0][0]
@@ -305,11 +306,11 @@ export function dayStart(day, times) {
 }
 
 /**
- * Calculates the day end dayjs object according to times
+ * Calculates the day end according to times
  *
  * @param day a day object of the api
  * @param times {TimeWeights}
- * @returns {Dayjs}
+ * @returns {string} UTC ISO date-time string
  */
 export function dayEnd(day, times) {
   const dayEnd = times[times.length - 1][0]
@@ -325,19 +326,20 @@ function leftAndWith(scheduleEntries) {
  */
 export function positionStyles(scheduleEntries, day, times) {
   const leftAndWidth = leftAndWith(scheduleEntries)
+  const dayStartMs = Temporal.Instant.from(day.start).epochMilliseconds
 
   return keyBy(
     scheduleEntries.map((scheduleEntry) => {
       const left = leftAndWidth[scheduleEntry.id]?.left || 0
       const width = leftAndWidth[scheduleEntry.id]?.width || 0
       const top = positionPercentage(
-        dayjs.utc(scheduleEntry.start).valueOf() - dayjs.utc(day.start).valueOf(),
+        Temporal.Instant.from(scheduleEntry.start).epochMilliseconds - dayStartMs,
         times
       )
       const bottom =
         100 -
         positionPercentage(
-          dayjs.utc(scheduleEntry.end).valueOf() - dayjs.utc(day.start).valueOf(),
+          Temporal.Instant.from(scheduleEntry.end).epochMilliseconds - dayStartMs,
           times
         )
       return {

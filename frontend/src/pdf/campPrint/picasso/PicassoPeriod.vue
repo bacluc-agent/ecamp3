@@ -76,9 +76,8 @@ export default {
     bedtimes() {
       return calculateBedtime(
         this.scheduleEntries,
-        this.$date,
-        this.$date.utc(this.days[0].start),
-        this.$date.utc(this.days[this.days.length - 1].end),
+        this.days[0].start,
+        this.days[this.days.length - 1].end,
         this.timeStep
       )
     },
