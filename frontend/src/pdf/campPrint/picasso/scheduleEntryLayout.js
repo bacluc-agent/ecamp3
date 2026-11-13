@@ -3,7 +3,14 @@
 // Taken and adapted from Vuetify 2's v-calendar event overlap logic:
 // https://github.com/vuetifyjs/vuetify/blob/v2-stable/packages/vuetify/src/components/VCalendar/modes/column.ts
 
-import dayjs from '@/helpers/dayjs.js'
+import { Temporal } from '@/helpers/temporal.js'
+
+// Treats date-time strings without offset as UTC.
+function toInstant(value) {
+  return /[zZ]$|[+-]\d{2}:?\d{2}$/.test(value)
+    ? Temporal.Instant.from(value)
+    : Temporal.PlainDateTime.from(value).toZonedDateTime('UTC').toInstant()
+}
 
 const FULL_WIDTH = 100
 
@@ -14,8 +21,8 @@ function getVisuals(events) {
     column: 0,
     left: 0,
     width: 100,
-    startTimestamp: dayjs.utc(event.start).unix(),
-    endTimestamp: dayjs.utc(event.end).unix(),
+    startTimestamp: Math.floor(toInstant(event.start).epochMilliseconds / 1000),
+    endTimestamp: Math.floor(toInstant(event.end).epochMilliseconds / 1000),
   }))
 
   visuals.sort((a, b) => {
