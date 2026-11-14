@@ -102,11 +102,17 @@
       },
       "campPeriodsListItem": {
         "changePeriodDescription": "Midar la descripziun",
+        "deletePeriod": {
+          "explanation": "Questa acziun na po betg vegnir revocada. La part dal champ e sias inscripziuns en il program vegnan stizzadas.",
+          "label": "Endatescha \"{periodDescription}\" per confermar."
+        },
         "deleteWarning": "Vuls ti propi stizzar questa part?",
         "lastPeriodNotDeletable": "Impussibel da stizzar l'ultima part.",
+        "materialItemsWarning": "Questa part dal champ na cuntegna actualmain naginas endataziuns da material | Questa part dal champ cuntegna actualmain 1 endataziun da material | Questa part dal champ cuntegna actualmain {count} endataziuns da material",
         "movePeriod": "Spustar questa part dal champ",
         "periodChangeEnd": "Agiuntar/allontanar dis a la fin",
-        "periodChangeStart": "Agiuntar/allontanar dis a l'entschatta"
+        "periodChangeStart": "Agiuntar/allontanar dis a l'entschatta",
+        "scheduleEntriesWarning": "Questa part dal champ na cuntegna actualmain naginas inscripziuns en il program | Questa part dal champ cuntegna actualmain 1 inscripziun en il program | Questa part dal champ cuntegna actualmain {count} inscripziuns en il program"
       },
       "campSettings": {
         "title": "Descripziun"

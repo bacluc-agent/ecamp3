@@ -124,11 +124,17 @@
       },
       "campPeriodsListItem": {
         "changePeriodDescription": "Bezeichnung ändern",
+        "deletePeriod": {
+          "explanation": "Diese Aktion kann nicht rückgängig gemacht werden. Dadurch werden der Lagerabschnitt und seine Zeitplaneinträge gelöscht.",
+          "label": "Bitte gib zur Bestätigung \"{periodDescription}\" ein."
+        },
         "deleteWarning": "Möchtest du diesen Lagerabschnitt wirklich löschen?",
         "lastPeriodNotDeletable": "Der letzte Lagerabschnitt kann nicht gelöscht werden.",
+        "materialItemsWarning": "Dieser Lagerabschnitt enthält aktuell keine Materialeinträge | Dieser Lagerabschnitt enthält aktuell 1 Materialeintrag | Dieser Lagerabschnitt enthält aktuell {count} Materialeinträge",
         "movePeriod": "Lagerabschnitt verschieben",
         "periodChangeEnd": "Am Ende Tage hinzufügen/entfernen",
-        "periodChangeStart": "Zu Begin Tage hinzufügen/entfernen"
+        "periodChangeStart": "Zu Begin Tage hinzufügen/entfernen",
+        "scheduleEntriesWarning": "Dieser Lagerabschnitt enthält aktuell keine Zeitplaneinträge | Dieser Lagerabschnitt enthält aktuell 1 Zeitplaneintrag | Dieser Lagerabschnitt enthält aktuell {count} Zeitplaneinträge"
       },
       "campSettings": {
         "title": "Beschreibung"

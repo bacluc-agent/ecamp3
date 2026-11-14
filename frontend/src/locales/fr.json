@@ -124,11 +124,17 @@
       },
       "campPeriodsListItem": {
         "changePeriodDescription": "Modifier la description",
+        "deletePeriod": {
+          "explanation": "Cette action ne peut pas être annulée. La période et ses inscriptions au calendrier seront supprimées.",
+          "label": "Veuillez saisir \"{periodDescription}\" pour confirmer."
+        },
         "deleteWarning": "Veux-tu vraiment supprimer cette période ?",
         "lastPeriodNotDeletable": "La dernière période ne peut pas être supprimée",
+        "materialItemsWarning": "Cette période ne contient actuellement aucune entrée de matériel | Cette période contient actuellement 1 entrée de matériel | Cette période contient actuellement {count} entrées de matériel",
         "movePeriod": "Déplacer la période",
         "periodChangeEnd": "Ajouter/supprimer des jours à la fin",
-        "periodChangeStart": "Ajouter/supprimer des jours au début"
+        "periodChangeStart": "Ajouter/supprimer des jours au début",
+        "scheduleEntriesWarning": "Cette période ne contient actuellement aucune inscription au calendrier | Cette période contient actuellement 1 inscription au calendrier | Cette période contient actuellement {count} inscriptions au calendrier"
       },
       "campSettings": {
         "title": "Paramètres"
