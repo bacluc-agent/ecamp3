@@ -71,6 +71,6 @@ assert_route "$enabled" httproute-test-ecamp3-api '(.filters | length == 3) and 
 
 assert_route "$non_traefik" httproute-test-ecamp3-frontend '(has("filters") | not)'
 assert_route "$non_traefik" httproute-test-ecamp3-mail '(has("filters") | not)'
-assert_route "$non_traefik" httproute-test-ecamp3-api '(.filters | length == 2) and ((.filters | map(select(.type == "ExtensionRef")) | length) == 0)'
+assert_route "$non_traefik" httproute-test-ecamp3-api '(.filters | length == 2) and .filters[0].type == "URLRewrite" and .filters[0].urlRewrite.path.type == "ReplacePrefixMatch" and .filters[0].urlRewrite.path.replacePrefixMatch == "/" and .filters[1].type == "RequestHeaderModifier" and .filters[1].requestHeaderModifier.add[0].name == "X-Forwarded-Prefix" and .filters[1].requestHeaderModifier.add[0].value == "/api"'
 
 printf '%s\n' 'HTTPRoute filter validation passed for frontend, API, and mail with Traefik and non-Traefik gateway classes; no print HTTPRoute is rendered by this chart.'
