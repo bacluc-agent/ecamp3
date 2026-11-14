@@ -132,6 +132,11 @@ jobs:
       - run: |
           npm run lint:check:prettier
 
+      - uses: ./.github/actions/setup-helmfile
+
+      - name: Test Helm HTTPRoute filters
+        run: ./.helm/ecamp3/tests/httproute-filters.sh
+
   frontend-eslint:
     name: 'Lint: Frontend (ESLint)'
     runs-on: ubuntu-latest
