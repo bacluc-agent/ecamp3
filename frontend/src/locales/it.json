@@ -112,11 +112,17 @@
       },
       "campPeriodsListItem": {
         "changePeriodDescription": "Cambia la descrizione",
+        "deletePeriod": {
+          "explanation": "Questa azione non può essere annullata. Il periodo e i suoi inserimenti nel programma verranno eliminati.",
+          "label": "Digita \"{periodDescription}\" per confermare."
+        },
         "deleteWarning": "Volete davvero cancellarlo?",
         "lastPeriodNotDeletable": "L'ultimo periodo non è cancellabile.",
+        "materialItemsWarning": "Questo periodo non contiene attualmente voci di materiale | Questo periodo contiene attualmente 1 voce di materiale | Questo periodo contiene attualmente {count} voci di materiale",
         "movePeriod": "Periodo di spostamento",
         "periodChangeEnd": "Aggiungi/rimuovi giorni alla fine",
-        "periodChangeStart": "Aggiungi/rimuovi giorni all'inizio"
+        "periodChangeStart": "Aggiungi/rimuovi giorni all'inizio",
+        "scheduleEntriesWarning": "Questo periodo non contiene attualmente inserimenti nel programma | Questo periodo contiene attualmente 1 inserimento nel programma | Questo periodo contiene attualmente {count} inserimenti nel programma"
       },
       "campSettings": {
         "title": "Impostazioni"

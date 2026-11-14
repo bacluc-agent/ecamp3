@@ -89,8 +89,8 @@ Displays a single period as a list item including controls to edit and delete it
 
           <dialog-entity-delete
             :entity="period"
-            :submit-enabled="!isLastPeriod"
-            @closed="showMenuEdit = false"
+            :submit-enabled="!isLastPeriod && promptText === period.description"
+            @closed="onDeleteDialogClosed"
           >
             <template #activator="{ props }">
               <v-list-item v-bind="props">
@@ -112,6 +112,36 @@ Displays a single period as a list item including controls to edit and delete it
                   {{ period.description }}
                 </li>
               </ul>
+              <p class="text-body-1">
+                {{
+                  $t('components.campAdmin.campPeriodsListItem.deletePeriod.explanation')
+                }}
+              </p>
+              <p class="text-body-1">
+                {{
+                  $t(
+                    'components.campAdmin.campPeriodsListItem.scheduleEntriesWarning',
+                    { count: scheduleEntryCount },
+                    scheduleEntryCount
+                  )
+                }}
+              </p>
+              <p class="text-body-1">
+                {{
+                  $t(
+                    'components.campAdmin.campPeriodsListItem.materialItemsWarning',
+                    { count: materialItemCount },
+                    materialItemCount
+                  )
+                }}
+              </p>
+              <label
+                >{{
+                  $t('components.campAdmin.campPeriodsListItem.deletePeriod.label', {
+                    periodDescription: period.description,
+                  })
+                }}<e-text-field v-model="promptText" path="promptText"
+              /></label>
             </div>
           </dialog-entity-delete>
         </v-list>
@@ -124,11 +154,17 @@ Displays a single period as a list item including controls to edit and delete it
 import DialogEntityDelete from '@/components/dialog/DialogEntityDelete.vue'
 import DialogPeriodDateEdit from './DialogPeriodDateEdit.vue'
 import DialogPeriodDescriptionEdit from './DialogPeriodDescriptionEdit.vue'
+import ETextField from '@/components/form/base/ETextField.vue'
 import { dateHelperUTCFormatted } from '@/mixins/dateHelperUTCFormatted.js'
 
 export default {
   name: 'CampPeriods',
-  components: { DialogEntityDelete, DialogPeriodDescriptionEdit, DialogPeriodDateEdit },
+  components: {
+    DialogEntityDelete,
+    DialogPeriodDescriptionEdit,
+    DialogPeriodDateEdit,
+    ETextField,
+  },
   mixins: [dateHelperUTCFormatted],
   props: {
     period: { type: Object, required: true },
@@ -137,11 +173,24 @@ export default {
   data() {
     return {
       showMenuEdit: false,
+      promptText: '',
     }
   },
   computed: {
     isLastPeriod() {
       return this.period.camp().periods().items.length === 1
+    },
+    scheduleEntryCount() {
+      return this.period.scheduleEntries().items.length
+    },
+    materialItemCount() {
+      return this.period.materialItems().items.length
+    },
+  },
+  methods: {
+    onDeleteDialogClosed() {
+      this.showMenuEdit = false
+      this.promptText = ''
     },
   },
 }
