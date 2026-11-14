@@ -141,6 +141,9 @@
     "uri-js": "npm:uri-js-replace",
     "js-beautify": {
       "glob": "13.0.6"
+    },
+    "cheerio": {
+      "encoding-sniffer": "1.0.2"
     }
   },
   "postcss": {
