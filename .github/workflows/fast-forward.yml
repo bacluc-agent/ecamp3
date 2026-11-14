@@ -18,10 +18,10 @@ jobs:
           require: 'write'
 
       - name: Comment PR
-        uses: thollander/actions-comment-pull-request@v3
+        uses: marocchino/sticky-pull-request-comment@v3.0.5
         if: steps.has_permission.outputs.require-result != 'true'
         with:
-          pr-number: ${{ github.event.issue.number }}
+          number: ${{ github.event.issue.number }}
           message: |
             You have no write permission on this repository
 
@@ -45,10 +45,10 @@ jobs:
           prJSON: ${{ toJSON(fromJSON(steps.current_pr.outputs.result).data) }}
 
       - name: Comment PR
-        uses: thollander/actions-comment-pull-request@v3
+        uses: marocchino/sticky-pull-request-comment@v3.0.5
         if: fromJSON(steps.current_pr.outputs.result).data.mergeable_state != 'clean'
         with:
-          pr-number: ${{ github.event.issue.number }}
+          number: ${{ github.event.issue.number }}
           message: |
             The PR mergeable_state needs to be clean, was: ${{ fromJSON(steps.current_pr.outputs.result).data.mergeable_state }}
 
