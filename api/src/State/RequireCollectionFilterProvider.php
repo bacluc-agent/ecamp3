@@ -39,7 +39,7 @@ final readonly class RequireCollectionFilterProvider implements ProviderInterfac
         private RequestStack $requestStack
     ) {}
 
-    public function provide(Operation $operation, array $uriVariables = [], array $context = []): array|object|null {
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable|object|null {
         if ($operation instanceof CollectionOperationInterface && [] === $uriVariables) {
             $this->assertScoped($operation);
         }
