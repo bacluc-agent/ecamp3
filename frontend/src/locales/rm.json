@@ -103,7 +103,7 @@
       "campPeriodsListItem": {
         "changePeriodDescription": "Midar la descripziun",
         "deletePeriod": {
-          "explanation": "Questa acziun na po betg vegnir revocada. La part dal champ e sias inscripziuns en il program vegnan stizzadas.",
+          "explanation": "Questa acziun na po betg vegnir revocada. La part dal champ, sias inscripziuns en il program e sias endataziuns da material vegnan stizzadas.",
           "label": "Endatescha \"{periodDescription}\" per confermar."
         },
         "deleteWarning": "Vuls ti propi stizzar questa part?",

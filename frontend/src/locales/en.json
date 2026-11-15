@@ -125,7 +125,7 @@
       "campPeriodsListItem": {
         "changePeriodDescription": "Change description",
         "deletePeriod": {
-          "explanation": "This action cannot be undone. This will delete the period and its schedule entries.",
+          "explanation": "This action cannot be undone. This will delete the period, its schedule entries and material items.",
           "label": "Please type \"{periodDescription}\" to confirm."
         },
         "deleteWarning": "Do you really want to delete this period?",

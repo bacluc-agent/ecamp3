@@ -125,7 +125,7 @@
       "campPeriodsListItem": {
         "changePeriodDescription": "Bezeichnung ändern",
         "deletePeriod": {
-          "explanation": "Diese Aktion kann nicht rückgängig gemacht werden. Dadurch werden der Lagerabschnitt und seine Zeitplaneinträge gelöscht.",
+          "explanation": "Diese Aktion kann nicht rückgängig gemacht werden. Dadurch werden der Lagerabschnitt, seine Zeitplaneinträge und Materialeinträge gelöscht.",
           "label": "Bitte gib zur Bestätigung \"{periodDescription}\" ein."
         },
         "deleteWarning": "Möchtest du diesen Lagerabschnitt wirklich löschen?",

@@ -125,7 +125,7 @@
       "campPeriodsListItem": {
         "changePeriodDescription": "Modifier la description",
         "deletePeriod": {
-          "explanation": "Cette action ne peut pas être annulée. La période et ses inscriptions au calendrier seront supprimées.",
+          "explanation": "Cette action ne peut pas être annulée. La période, ses inscriptions au calendrier et ses entrées de matériel seront supprimées.",
           "label": "Veuillez saisir \"{periodDescription}\" pour confirmer."
         },
         "deleteWarning": "Veux-tu vraiment supprimer cette période ?",
