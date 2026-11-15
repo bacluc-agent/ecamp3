@@ -39,7 +39,10 @@ final readonly class RequireCollectionFilterProvider implements ProviderInterfac
         private RequestStack $requestStack
     ) {}
 
-    public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable|object|null {
+    /**
+     * @return T|\ApiPlatform\State\Pagination\PartialPaginatorInterface<T>|iterable<T>|null
+     */
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): array|object|null {
         if ($operation instanceof CollectionOperationInterface && [] === $uriVariables) {
             $this->assertScoped($operation);
         }
