@@ -126,15 +126,6 @@ Displays a single period as a list item including controls to edit and delete it
                   )
                 }}
               </p>
-              <p class="text-body-1">
-                {{
-                  $t(
-                    'components.campAdmin.campPeriodsListItem.materialItemsWarning',
-                    { count: materialItemCount },
-                    materialItemCount
-                  )
-                }}
-              </p>
               <label
                 >{{
                   $t('components.campAdmin.campPeriodsListItem.deletePeriod.label', {
@@ -182,9 +173,6 @@ export default {
     },
     scheduleEntryCount() {
       return this.period.scheduleEntries().items.length
-    },
-    materialItemCount() {
-      return this.period.materialItems().items.length
     },
   },
   methods: {

@@ -118,7 +118,6 @@
         },
         "deleteWarning": "Volete davvero cancellarlo?",
         "lastPeriodNotDeletable": "L'ultimo periodo non è cancellabile.",
-        "materialItemsWarning": "Questo periodo non contiene attualmente voci di materiale | Questo periodo contiene attualmente 1 voce di materiale | Questo periodo contiene attualmente {count} voci di materiale",
         "movePeriod": "Periodo di spostamento",
         "periodChangeEnd": "Aggiungi/rimuovi giorni alla fine",
         "periodChangeStart": "Aggiungi/rimuovi giorni all'inizio",

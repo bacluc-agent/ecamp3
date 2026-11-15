@@ -130,7 +130,6 @@
         },
         "deleteWarning": "Möchtest du diesen Lagerabschnitt wirklich löschen?",
         "lastPeriodNotDeletable": "Der letzte Lagerabschnitt kann nicht gelöscht werden.",
-        "materialItemsWarning": "Dieser Lagerabschnitt enthält aktuell keine Materialeinträge | Dieser Lagerabschnitt enthält aktuell 1 Materialeintrag | Dieser Lagerabschnitt enthält aktuell {count} Materialeinträge",
         "movePeriod": "Lagerabschnitt verschieben",
         "periodChangeEnd": "Am Ende Tage hinzufügen/entfernen",
         "periodChangeStart": "Zu Begin Tage hinzufügen/entfernen",

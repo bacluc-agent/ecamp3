@@ -108,7 +108,6 @@
         },
         "deleteWarning": "Vuls ti propi stizzar questa part?",
         "lastPeriodNotDeletable": "Impussibel da stizzar l'ultima part.",
-        "materialItemsWarning": "Questa part dal champ na cuntegna actualmain naginas endataziuns da material | Questa part dal champ cuntegna actualmain 1 endataziun da material | Questa part dal champ cuntegna actualmain {count} endataziuns da material",
         "movePeriod": "Spustar questa part dal champ",
         "periodChangeEnd": "Agiuntar/allontanar dis a la fin",
         "periodChangeStart": "Agiuntar/allontanar dis a l'entschatta",
