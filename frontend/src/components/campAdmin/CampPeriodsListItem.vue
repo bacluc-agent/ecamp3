@@ -89,7 +89,7 @@ Displays a single period as a list item including controls to edit and delete it
 
           <dialog-entity-delete
             :entity="period"
-            :submit-enabled="!isLastPeriod && promptText === period.description"
+            :submit-enabled="!isLastPeriod && promptText === (period.description ?? '')"
             @closed="onDeleteDialogClosed"
           >
             <template #activator="{ props }">

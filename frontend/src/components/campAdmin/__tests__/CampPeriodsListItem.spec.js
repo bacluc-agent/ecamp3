@@ -27,10 +27,11 @@ function createPeriod({
   periodCount = 2,
   scheduleEntryCount = 0,
   materialItemCount = 0,
+  description = 'Sommerlager',
 } = {}) {
   return {
     _meta: { self: '/periods/1', loading: false },
-    description: 'Sommerlager',
+    description,
     start: '2022-07-01T00:00:00+00:00',
     end: '2022-07-10T00:00:00+00:00',
     camp: () => ({ periods: () => ({ items: Array.from({ length: periodCount }) }) }),
@@ -106,6 +107,16 @@ describe('CampPeriodsListItem deletion prompt', () => {
 
     await wrapper.setData({ promptText: 'Sommerlager' })
     expect(deleteDialog().props('submitEnabled')).toBe(true)
+  })
+
+  it('enables submission for a period without a description only with an empty prompt', async () => {
+    mountItem(createPeriod({ description: null }))
+    await flushPromises()
+
+    expect(deleteDialog().props('submitEnabled')).toBe(true)
+
+    await wrapper.setData({ promptText: 'Sommerlager' })
+    expect(deleteDialog().props('submitEnabled')).toBe(false)
   })
 
   it('never enables submission for the last period', async () => {
