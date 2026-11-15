@@ -6,6 +6,7 @@ namespace App\State;
 
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\Pagination\PartialPaginatorInterface;
 use ApiPlatform\State\ProviderInterface;
 use ApiPlatform\State\Util\RequestParser;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,7 +41,7 @@ final readonly class RequireCollectionFilterProvider implements ProviderInterfac
     ) {}
 
     /**
-     * @return T|\ApiPlatform\State\Pagination\PartialPaginatorInterface<T>|iterable<T>|null
+     * @return null|iterable<T>|PartialPaginatorInterface<T>|T
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): array|object|null {
         if ($operation instanceof CollectionOperationInterface && [] === $uriVariables) {
