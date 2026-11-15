@@ -57,16 +57,16 @@ Object.defineProperty(i18n, 'browserPreferredLocale', {
   get: function () {
     const languages = navigator.languages || [navigator.language]
     for (const language of languages) {
-      if (i18n.global.availableLocales.includes(language)) {
+      if (this.availableLocales.includes(language)) {
         return language
       }
 
       const languageFallback = language.substring(0, 2)
-      if (i18n.global.availableLocales.includes(languageFallback)) {
+      if (this.availableLocales.includes(languageFallback)) {
         return languageFallback
       }
     }
-    return fallbackLocales.default[0]
+    return fallbackLocales.default
   },
 })
 
