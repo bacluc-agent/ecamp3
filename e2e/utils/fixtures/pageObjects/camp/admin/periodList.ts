@@ -19,7 +19,9 @@ export class PeriodList {
   }
 
   private period(description: string) {
-    return this._page.locator('.v-list-item').filter({ hasText: description })
+    return this._page
+      .getByText(description, { exact: true })
+      .locator('xpath=ancestor::*[contains(@class, "v-list-item")][1]')
   }
 
   @boxedStep
