@@ -160,11 +160,11 @@ import {
 } from '@/helpers/querySyncHelper'
 import AvatarRow from '@/components/generic/AvatarRow.vue'
 import ScheduleEntryFilters from '@/components/program/ScheduleEntryFilters.vue'
-import dayjs from '@/common/helpers/dayjs.js'
-import { filterMatchScheduleEntry } from '@/common/helpers/filterMatchScheduleEntry.js'
+import dayjs from '@/helpers/dayjs.js'
+import { filterMatchScheduleEntry } from '@/helpers/filterMatchScheduleEntry.js'
 import { campRoleMixin } from '../../mixins/campRoleMixin.js'
 import CommentsToggleButton from '../../components/comments/CommentsToggleButton.vue'
-import { commentCountsByActivity } from '@/components/comments/commentCounts.js'
+import { commentCountsByActivity } from '@/components/comments/commentHelpers.js'
 import { getEnv } from '@/environment.js'
 
 export default {

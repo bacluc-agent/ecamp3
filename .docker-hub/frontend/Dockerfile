@@ -1,11 +1,9 @@
 # frontend build stage
-FROM node:24.22.1-alpine AS frontend-build-stage
+FROM node:26.13.0-alpine AS frontend-build-stage
 ARG SENTRY_AUTH_TOKEN
 ARG SENTRY_ORG
 ARG SENTRY_FRONTEND_PROJECT
 ARG SENTRY_RELEASE_NAME
-
-COPY common /common
 
 WORKDIR /app
 COPY frontend/package*.json frontend/.npmrc ./

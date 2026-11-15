@@ -71,9 +71,25 @@ Show all activity schedule entries of a single period.
               <v-badge inline color="primary" :content="filteredPropertiesCount" />
             </template>
           </v-list-item>
+          <v-list-item
+            v-if="hasPhysicalActivityDuration"
+            :title="$t('entity.scheduleEntry.fields.ysPhysicalActivityDuration')"
+            prepend-icon="mdi-run"
+            :active="showPhysicalActivityDuration"
+            @click="showPhysicalActivityDuration = !showPhysicalActivityDuration"
+          >
+            <template #append>
+              <v-icon>
+                {{
+                  showPhysicalActivityDuration
+                    ? 'mdi-checkbox-marked'
+                    : 'mdi-checkbox-blank-outline'
+                }}
+              </v-icon>
+            </template>
+          </v-list-item>
           <v-divider />
-          <DownloadNuxtPdf :config="printConfig" />
-          <DownloadClientPdf :config="printConfig" />
+          <DownloadPdfListItem :config="printConfig" />
         </v-list>
       </v-menu>
     </template>
@@ -107,6 +123,7 @@ Show all activity schedule entries of a single period.
           :start="period.start"
           :end="period.end"
           :editable="editMode"
+          :show-physical-activity-duration="showPhysicalActivityDuration"
           :is-filter-set="isFilterSet"
           @new-entry="slotProps.on.newEntry"
           @unlock-reminder="showUnlockReminder"
@@ -138,8 +155,7 @@ import ContentCard from '@/components/layout/ContentCard.vue'
 import Picasso from '@/components/program/picasso/Picasso.vue'
 import ScheduleEntries from '@/components/program/ScheduleEntries.vue'
 import PeriodSwitcher from '@/components/program/PeriodSwitcher.vue'
-import DownloadNuxtPdf from '@/components/print/print-nuxt/DownloadNuxtPdfListItem.vue'
-import DownloadClientPdf from '@/components/print/print-client/DownloadClientPdfListItem.vue'
+import DownloadPdfListItem from '@/components/print/generator/DownloadPdfListItem.vue'
 import LockButton from '@/components/generic/LockButton.vue'
 import LockUnlockListItem from '@/components/generic/LockUnlockListItem.vue'
 import ScheduleEntryFilters from '@/components/program/ScheduleEntryFilters.vue'
@@ -148,8 +164,8 @@ import {
   processRouteQuery,
   transformValuesToHalId,
 } from '@/helpers/querySyncHelper.js'
-import { filterMatchScheduleEntry } from '@/common/helpers/filterMatchScheduleEntry.js'
-import campShortTitle from '@/common/helpers/campShortTitle.js'
+import { filterMatchScheduleEntry } from '@/helpers/filterMatchScheduleEntry.js'
+import campShortTitle from '@/helpers/campShortTitle.js'
 
 const REMINDER_TIMEOUT = 5000
 
@@ -157,8 +173,7 @@ export default {
   name: 'CampProgram',
   components: {
     ScheduleEntryFilters,
-    DownloadNuxtPdf,
-    DownloadClientPdf,
+    DownloadPdfListItem,
     PeriodSwitcher,
     ContentCard,
     Picasso,
@@ -177,6 +192,7 @@ export default {
       reminderInst: null,
       reminderText: null,
       openFilter: false,
+      showPhysicalActivityDuration: false,
       loading: true,
       loadingEndpoints: {
         categories: true,
@@ -202,6 +218,13 @@ export default {
     camp() {
       return this.period.camp()
     },
+    hasPhysicalActivityDuration() {
+      return this.period
+        .scheduleEntries()
+        .items.some(
+          (scheduleEntry) => scheduleEntry.ysPhysicalActivityDurationMinutes !== null
+        )
+    },
     printConfig() {
       return {
         camp: this.camp._meta.self,
@@ -214,6 +237,7 @@ export default {
             options: {
               periods: [this.period._meta.self],
               orientation: 'L',
+              showYSPhysicalActivityDuration: this.showPhysicalActivityDuration,
             },
           },
         ],

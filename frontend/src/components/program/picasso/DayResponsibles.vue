@@ -33,7 +33,7 @@
 
 <script>
 import { serverErrorToString } from '@/helpers/serverError.js'
-import campCollaborationDisplayName from '@/common/helpers/campCollaborationDisplayName.js'
+import campCollaborationDisplayName from '@/helpers/campCollaborationDisplayName.js'
 
 export default {
   name: 'DayResponsibles',
@@ -114,10 +114,11 @@ export default {
     },
   },
   async mounted() {
+    await this.period.days().$reload()
+
     await Promise.all([
       this.period.camp().campCollaborations()._meta.load,
-      this.dayResponsibles._meta.load,
-      this.period.days().$reload(),
+      this.dayResponsibles?._meta.load,
     ])
 
     this.isLoading = false

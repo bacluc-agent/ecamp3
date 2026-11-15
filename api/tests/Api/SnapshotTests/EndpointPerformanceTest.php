@@ -3,6 +3,7 @@
 namespace App\Tests\Api\SnapshotTests;
 
 use App\Tests\Api\ECampApiTestCase;
+use App\Tests\Spatie\Snapshots\Driver\ECampYamlSnapshotDriver;
 use Hautelook\AliceBundle\PhpUnit\FixtureStore;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -75,7 +76,7 @@ class EndpointPerformanceTest extends ECampApiTestCase {
 
         $endpointsWithTooLongExecutionTime = array_filter($queryExecutionTime, fn ($value) => MAX_EXECUTION_TIME_SECONDS < $value);
 
-        $this->assertMatchesYamlSnapshot($numberOfQueries);
+        $this->assertMatchesSnapshot($numberOfQueries, new ECampYamlSnapshotDriver());
         if ([] !== $endpointsWithTooLongExecutionTime) {
             self::markTestSkipped('Some endpoints have too long execution time, were: '.join(',', array_keys($endpointsWithTooLongExecutionTime)));
         }
@@ -206,6 +207,8 @@ class EndpointPerformanceTest extends ECampApiTestCase {
             '/content_node/material_nodes/item' => [9, 9],
             '/content_node/multi_selects' => [7, 8],
             '/content_node/multi_selects/item' => [9, 9],
+            '/content_node/no_datas' => [6, 7],
+            '/content_node/no_datas/item' => [9, 9],
             '/content_node/responsive_layouts' => [7, 7],
             '/content_node/responsive_layouts/item' => [9, 9],
             '/content_node/single_texts' => [7, 8],

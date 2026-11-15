@@ -43,7 +43,8 @@
                             "number": "escaped_value",
                             "scheduleEntryNumber": "escaped_value",
                             "start": "escaped_value",
-                            "width": "escaped_value"
+                            "width": "escaped_value",
+                            "ysPhysicalActivityDurationMinutes": "escaped_value"
                         },
                         {
                             "_links": {
@@ -67,7 +68,33 @@
                             "number": "escaped_value",
                             "scheduleEntryNumber": "escaped_value",
                             "start": "escaped_value",
-                            "width": "escaped_value"
+                            "width": "escaped_value",
+                            "ysPhysicalActivityDurationMinutes": "escaped_value"
+                        },
+                        {
+                            "_links": {
+                                "activity": {
+                                    "href": "escaped_value"
+                                },
+                                "day": {
+                                    "href": "escaped_value"
+                                },
+                                "period": {
+                                    "href": "escaped_value"
+                                },
+                                "self": {
+                                    "href": "escaped_value"
+                                }
+                            },
+                            "dayNumber": "escaped_value",
+                            "end": "escaped_value",
+                            "id": "escaped_value",
+                            "left": "escaped_value",
+                            "number": "escaped_value",
+                            "scheduleEntryNumber": "escaped_value",
+                            "start": "escaped_value",
+                            "width": "escaped_value",
+                            "ysPhysicalActivityDurationMinutes": "escaped_value"
                         }
                     ]
                 },
@@ -156,7 +183,8 @@
                             "number": "escaped_value",
                             "scheduleEntryNumber": "escaped_value",
                             "start": "escaped_value",
-                            "width": "escaped_value"
+                            "width": "escaped_value",
+                            "ysPhysicalActivityDurationMinutes": "escaped_value"
                         }
                     ]
                 },

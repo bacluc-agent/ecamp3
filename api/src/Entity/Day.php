@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
+use App\HttpCache\CacheTag;
 use App\HttpCache\CanGenerateTagsInterface;
 use App\Repository\DayRepository;
 use App\Serializer\Normalizer\RelatedCollectionLink;
@@ -193,7 +194,6 @@ class Day extends BaseEntity implements BelongsToCampInterface, CanGenerateTagsI
     #[ApiProperty(
         readableLink: true,
         uriTemplate: DayResponsible::DAY_SUBRESOURCE_URI_TEMPLATE,
-        extraProperties: ['cacheDependencies' => ['dayResponsibles']]
     )]
     #[SerializedName('dayResponsibles')]
     #[Groups(['Day:DayResponsibles'])]
@@ -228,6 +228,6 @@ class Day extends BaseEntity implements BelongsToCampInterface, CanGenerateTagsI
     }
 
     public function getCacheTags(): array {
-        return [$this->period->getId()];
+        return [$this->period->getId(), CacheTag::forCustomTag($this->period->camp, Camp::DAY_NUMBERS_CACHE_TAG)];
     }
 }
