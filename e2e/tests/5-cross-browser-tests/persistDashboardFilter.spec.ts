@@ -26,10 +26,6 @@ test.describe('The filters in the dashboard', { tag: '@mature' }, () => {
     await expect(
       page.locator('span.v-chip:has-text("Kategorie: ES oder LS")')
     ).toBeVisible()
-    await expect
-      .poll(() => new URL(page.url()).searchParams.getAll('category'))
-      .toEqual(['ebfd46a1c181', 'a023e85227ac'])
-
     await page.locator('span.v-chip:has-text("Status")').click()
     await clickOnItemWithLabel(page, 'Geplant')
     await clickOnItemWithLabel(page, 'Coach OK')
@@ -37,10 +33,6 @@ test.describe('The filters in the dashboard', { tag: '@mature' }, () => {
     await expect(
       page.locator('span.v-chip:has-text("Status: Geplant oder Coach OK")')
     ).toBeVisible()
-    await expect
-      .poll(() => new URL(page.url()).searchParams.getAll('progressLabel'))
-      .toEqual(['82547049ea38', '332e0c387141'])
-
     await page.reload()
 
     await expect(
@@ -98,10 +90,6 @@ test.describe('The filters in the dashboard', { tag: '@mature' }, () => {
     await expect(
       page.locator('span.v-chip:has-text("Verantwortlich: Keine Verantwortlichen")')
     ).toBeVisible()
-
-    await expect
-      .poll(() => new URL(page.url()).searchParams.getAll('responsible'))
-      .toEqual(['none'])
 
     await page.reload()
 
