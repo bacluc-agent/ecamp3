@@ -1,6 +1,13 @@
 import { expect } from '@playwright/test'
 import { test } from '@/utils/etest'
 
+// The camp is created with a period for tomorrow, so use later dates to avoid an overlap error.
+const daysFromNow = (days: number) => {
+  const date = new Date()
+  date.setDate(date.getDate() + days)
+  return date
+}
+
 test('makes deleting a period require an exact description', async ({
   createCamp,
   runId,
@@ -9,15 +16,9 @@ test('makes deleting a period require an exact description', async ({
   const periods = camp.periodList
   const secondPeriod = `Second period ${runId}`
   const thirdPeriod = `Third period ${runId}`
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  const in2Days = new Date()
-  in2Days.setDate(in2Days.getDate() + 2)
-  const start = tomorrow.toLocaleDateString('de-CH')
-  const end = in2Days.toLocaleDateString('de-CH')
 
   await periods.goto()
-  await periods.create(secondPeriod, start, end)
+  await periods.create(secondPeriod, daysFromNow(10), daysFromNow(12))
   const deleteDialog = await periods.openDelete(secondPeriod)
   await expect(deleteDialog.scheduleEntryWarning).toContainText('keine Zeitplaneinträge')
   await expect(deleteDialog.deleteButton).toBeDisabled()
@@ -28,11 +29,18 @@ test('makes deleting a period require an exact description', async ({
   await deleteDialog.submit()
   await periods.expectHidden(secondPeriod)
 
-  await periods.create(thirdPeriod, start, end)
+  await periods.create(thirdPeriod, daysFromNow(20), daysFromNow(22))
+  // Activities need a category, so create one before adding them
+  const activitySettings = camp.campActivitySettings
+  await activitySettings.goTo()
+  const categoryDialog = await activitySettings.openCreateCategoryDialog()
+  await categoryDialog.fillForm('AC', `Category ${runId}`)
+  await categoryDialog.submit()
   await camp.program(thirdPeriod).goto()
   await camp.program(thirdPeriod).createActivity(`Activity one ${runId}`)
   await camp.program(thirdPeriod).createActivity(`Activity two ${runId}`)
 
+  await periods.goto()
   const populatedDeleteDialog = await periods.openDelete(thirdPeriod)
   await expect(populatedDeleteDialog.scheduleEntryWarning).toContainText(
     '2 Zeitplaneinträge'

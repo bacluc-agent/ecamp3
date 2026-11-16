@@ -4,9 +4,9 @@ import { boxedStep } from '@/utils/decorators/boxedStep'
 export class DialogDeletePeriod {
   constructor(
     private readonly _page: Page,
-    private readonly _dialog = _page.locator('.v-overlay--active'),
-    private readonly _promptInput = this._dialog.locator('[name="promptText"] input'),
-    private readonly _deleteButton = this._dialog.getByRole('button', {
+    _dialog = _page.locator('.v-overlay--active'),
+    private readonly _promptInput = _dialog.locator('[name="promptText"] input'),
+    private readonly _deleteButton = _dialog.getByRole('button', {
       name: /Löschen/i,
     })
   ) {}
@@ -18,7 +18,11 @@ export class DialogDeletePeriod {
   }
 
   get scheduleEntryWarning() {
-    return this._dialog.getByText(/Zeitplaneinträge/)
+    // The explanation paragraph also mentions "Zeitplaneinträge"; the warning is the last one.
+    return this._page
+      .locator('.v-overlay--active')
+      .getByText(/Zeitplaneinträge/)
+      .last()
   }
 
   get deleteButton() {
@@ -33,7 +37,10 @@ export class DialogDeletePeriod {
 
   @boxedStep
   async close() {
-    await this._dialog.getByRole('button', { name: /Abbrechen/i }).click()
+    await this._page
+      .locator('.v-overlay--active')
+      .getByRole('button', { name: /Abbrechen/i })
+      .click()
     return this
   }
 
