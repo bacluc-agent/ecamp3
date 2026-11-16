@@ -10,14 +10,12 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "types": ["node"],
-    "baseUrl": ".",
     "paths": {
-      "@/utils/*": ["utils/*"],
-      "@/tests/*": ["tests/*"],
-      "@/test-data/*": ["test-data/*"],
-      "@/shared-types/*": ["shared-types/*"]
-    },
-    "ignoreDeprecations": "6.0"
+      "@/utils/*": ["./utils/*"],
+      "@/tests/*": ["./tests/*"],
+      "@/test-data/*": ["./test-data/*"],
+      "@/shared-types/*": ["./shared-types/*"]
+    }
   },
   "include": ["tests/**/*.ts", "utils/**/*.ts", "playwright.config.ts", "pdfjs.d.ts"],
   "exclude": ["node_modules", "dist"]
