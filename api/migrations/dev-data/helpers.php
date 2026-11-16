@@ -3,7 +3,6 @@
 namespace DataMigrations;
 
 use PhpMyAdmin\SqlParser\Parser;
-use PhpMyAdmin\SqlParser\Statements\InsertStatement;
 
 function createTruncateDatabaseCommand(): string {
     return "
@@ -29,7 +28,20 @@ function getStatementsForMigrationFile(): array {
     $sql = file_get_contents($dump_file);
 
     $parser = new Parser($sql);
-    $parsed_statements = array_map(fn (InsertStatement $statement) => $statement->build(), $parser->statements);
+    $statements = [];
+    foreach ($parser->statements as $statement) {
+        $raw = '';
+        for ($i = $statement->first; $i <= $statement->last; $i++) {
+            $raw .= $parser->list->tokens[$i]->token;
+        }
+        $raw = trim($raw);
+        // strip trailing semicolon
+        $raw = rtrim($raw, "; \t\n\r");
+        $raw = trim($raw);
+        if ($raw !== '') {
+            $statements[] = $raw;
+        }
+    }
 
-    return str_replace('`', '"', $parsed_statements);
+    return $statements;
 }
