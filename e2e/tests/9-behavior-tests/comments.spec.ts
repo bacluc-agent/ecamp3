@@ -1,7 +1,17 @@
-import { expect } from '@playwright/test'
+import { expect, type Locator, type Page } from '@playwright/test'
 import { test } from '@/utils/etest'
 import { bipiUser, skilagerCampId } from '@/utils/constants'
 import { loginAndSetCookie } from '@/utils/helpers'
+
+async function deleteComment(page: Page, card: Locator) {
+  const deleteButton = card.locator('button.ec-comment-card__delete')
+  await expect(async () => {
+    await card.hover()
+    await expect(deleteButton).toBeVisible({ timeout: 1_000 })
+    await deleteButton.click({ timeout: 2_000 })
+  }).toPass({ timeout: 15_000 })
+  await page.locator('.v-overlay--active button.bg-error').click()
+}
 
 test.describe('comments on an activity', () => {
   test('writes, reads and deletes an own comment', async ({ page, request, runId }) => {
@@ -19,6 +29,7 @@ test.describe('comments on an activity', () => {
     const composer = panel.getByTestId('comment-composer')
     await composer.locator('.ProseMirror').click()
     await composer.locator('.ProseMirror').pressSequentially(text, { delay: 30 })
+    await expect(composer.locator('.ProseMirror')).toContainText(text)
     await composer.getByTestId('comment-submit').click()
 
     const comment = page.getByTestId('comment-card').filter({ hasText: text })
@@ -28,10 +39,7 @@ test.describe('comments on an activity', () => {
     await page.getByTestId('comments-toggle').click()
     await expect(comment).toBeVisible()
 
-    await comment.hover()
-    await expect(comment.locator('button.ec-comment-card__delete')).toBeVisible()
-    await comment.locator('button.ec-comment-card__delete').click()
-    await page.locator('.v-overlay--active button.bg-error').click()
+    await deleteComment(page, comment)
 
     await expect(comment).toHaveCount(0)
   })
@@ -51,6 +59,7 @@ test.describe('comments on an activity', () => {
     const composer = page.getByTestId('comments-panel').getByTestId('comment-composer')
     await composer.locator('.ProseMirror').click()
     await composer.locator('.ProseMirror').pressSequentially(text, { delay: 30 })
+    await expect(composer.locator('.ProseMirror')).toContainText(text)
     await page.keyboard.press('ControlOrMeta+Enter')
 
     const comment = page.getByTestId('comment-card').filter({ hasText: text })
@@ -59,10 +68,7 @@ test.describe('comments on an activity', () => {
     await expect(comment.locator('.ProseMirror')).toHaveText(text)
     expect(await comment.locator('.ProseMirror').innerHTML()).not.toContain('<br')
 
-    await comment.hover()
-    await expect(comment.locator('button.ec-comment-card__delete')).toBeVisible()
-    await comment.locator('button.ec-comment-card__delete').click()
-    await page.locator('.v-overlay--active button.bg-error').click()
+    await deleteComment(page, comment)
 
     await expect(comment).toHaveCount(0)
   })
@@ -82,6 +88,7 @@ test.describe('comments on an activity', () => {
     await composer.locator('.ProseMirror').pressSequentially(text, { delay: 30 })
     // any further keydown makes ProseMirror read in the last typed character
     await page.keyboard.press('End')
+    await expect(composer.locator('.ProseMirror')).toContainText(text)
     await composer.getByTestId('comment-submit').click()
 
     const thread = panel.getByTestId('comment-thread').filter({ hasText: text })
@@ -95,6 +102,7 @@ test.describe('comments on an activity', () => {
     await replyEditor.click()
     await replyEditor.pressSequentially(replyText, { delay: 30 })
     await page.keyboard.press('End')
+    await expect(replyEditor).toContainText(replyText)
     await thread.getByTestId('comment-submit').click()
 
     const cards = thread.getByTestId('comment-card')
@@ -119,15 +127,11 @@ test.describe('comments on an activity', () => {
     await expect(thread).toBeVisible()
 
     const reply = thread.getByTestId('comment-card').filter({ hasText: replyText })
-    await reply.hover()
-    await reply.locator('button.ec-comment-card__delete').click()
-    await page.locator('.v-overlay--active button.bg-error').click()
+    await deleteComment(page, reply)
     await expect(reply).toHaveCount(0)
 
     const root = thread.getByTestId('comment-card').first()
-    await root.hover()
-    await root.locator('button.ec-comment-card__delete').click()
-    await page.locator('.v-overlay--active button.bg-error').click()
+    await deleteComment(page, root)
     await expect(thread).toHaveCount(0)
   })
 })
