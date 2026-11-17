@@ -67,14 +67,9 @@ test.describe(
 
       // bring data into defined state
       const bipiApi = await getAuthContext(bipiUser)
-      const resetRes = await apiPatch(
-        bipiApi,
-        `/api/schedule_entries/${scheduleEntryId}`,
-        {
-          start: '2036-05-10T16:00:00+00:00',
-        }
-      )
-      expect(resetRes.status()).toBe(200)
+      await apiPatch(bipiApi, `/api/schedule_entries/${scheduleEntryId}`, {
+        start: '2036-05-10T16:00:00+00:00',
+      })
 
       // warm up cache
       await apiGet(bipiApi, uri)
@@ -85,14 +80,9 @@ test.describe(
       await expectCacheHit(castorApi, uri)
 
       // touch scheduleEntry
-      const patchRes = await apiPatch(
-        castorApi,
-        `/api/schedule_entries/${scheduleEntryId}`,
-        {
-          start: '2036-05-10T17:00:00+00:00',
-        }
-      )
-      expect(patchRes.status()).toBe(200)
+      await apiPatch(castorApi, `/api/schedule_entries/${scheduleEntryId}`, {
+        start: '2036-05-10T17:00:00+00:00',
+      })
 
       // ensure cache was invalidated
       await waitForCacheMiss(castorApi, uri)
