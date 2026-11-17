@@ -30,6 +30,8 @@ test.describe('comments on an activity', () => {
     await composer.locator('.ProseMirror').click()
     await composer.locator('.ProseMirror').pressSequentially(text, { delay: 30 })
     await expect(composer.locator('.ProseMirror')).toContainText(text)
+    // any further keydown makes ProseMirror read in the last typed character
+    await page.keyboard.press('End')
     await composer.getByTestId('comment-submit').click()
 
     const comment = page.getByTestId('comment-card').filter({ hasText: text })
@@ -60,6 +62,8 @@ test.describe('comments on an activity', () => {
     await composer.locator('.ProseMirror').click()
     await composer.locator('.ProseMirror').pressSequentially(text, { delay: 30 })
     await expect(composer.locator('.ProseMirror')).toContainText(text)
+    // any further keydown makes ProseMirror read in the last typed character
+    await page.keyboard.press('End')
     await page.keyboard.press('ControlOrMeta+Enter')
 
     const comment = page.getByTestId('comment-card').filter({ hasText: text })
@@ -86,9 +90,9 @@ test.describe('comments on an activity', () => {
     const composer = panel.getByTestId('comment-composer').last()
     await composer.locator('.ProseMirror').click()
     await composer.locator('.ProseMirror').pressSequentially(text, { delay: 30 })
+    await expect(composer.locator('.ProseMirror')).toContainText(text)
     // any further keydown makes ProseMirror read in the last typed character
     await page.keyboard.press('End')
-    await expect(composer.locator('.ProseMirror')).toContainText(text)
     await composer.getByTestId('comment-submit').click()
 
     const thread = panel.getByTestId('comment-thread').filter({ hasText: text })
@@ -101,8 +105,9 @@ test.describe('comments on an activity', () => {
     await expect(replyEditor).toBeVisible()
     await replyEditor.click()
     await replyEditor.pressSequentially(replyText, { delay: 30 })
-    await page.keyboard.press('End')
     await expect(replyEditor).toContainText(replyText)
+    // any further keydown makes ProseMirror read in the last typed character
+    await page.keyboard.press('End')
     await thread.getByTestId('comment-submit').click()
 
     const cards = thread.getByTestId('comment-card')
