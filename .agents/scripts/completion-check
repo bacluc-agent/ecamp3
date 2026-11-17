@@ -38,7 +38,7 @@ run_if_running() {
 }
 
 # pre-commit.sh is not reused: it runs detached, skips folders absent from `git diff --name-only` and never reports an exit status.
-check 'prettier (root lint:check)' docker compose run --rm prettier npm run lint:check
+check 'prettier (root lint:check)' docker compose run --rm -e HOME=/tmp -e NPM_CONFIG_CACHE=/tmp/npm prettier npm run lint:check
 check 'php-cs-fixer (api cs-check)' run_if_running api docker compose exec api composer cs-check
 check 'psalm (api)' run_if_running api docker compose exec api composer psalm
 check 'phpstan (api)' run_if_running api docker compose exec api composer phpstan
