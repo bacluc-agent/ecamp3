@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/../.."
+
+# docker compose falls back to uid 1000, which cannot write the npm cache and mounted checkout when the hook runs as another uid.
+export USER_ID="${USER_ID:-$(id -u)}"
+
+status=0
+
+check() {
+  local name="$1"
+  shift
+  printf '==> %s\n' "$name"
+  if "$@"; then
+    printf 'PASS: %s\n' "$name"
+  else
+    printf 'FAIL: %s\n' "$name" >&2
+    status=1
+  fi
+}
+
+check_if_running() {
+  local service="$1"
+  local name="$2"
+  shift 2
+  local container state
+  container="$(docker compose ps -q "$service" 2>/dev/null || true)"
+  if [[ -z "$container" ]]; then
+    printf 'SKIP: %s (container is unavailable)\n' "$name"
+    return 0
+  fi
+  state="$(docker inspect --format '{{.State.Running}}' "$container" 2>/dev/null || true)"
+  if [[ "$state" != true ]]; then
+    printf 'SKIP: %s (container is not running)\n' "$name"
+    return 0
+  fi
+  check "$name" "$@"
+}
+
+# pre-commit.sh is not reused: it runs detached, skips folders absent from `git diff --name-only` and never reports an exit status.
+check 'prettier (root lint:check)' docker compose run --rm -e HOME=/tmp -e NPM_CONFIG_CACHE=/tmp/npm prettier npm run lint:check
+check_if_running api 'php-cs-fixer (api cs-check)' docker compose exec api composer cs-check
+check_if_running api 'psalm (api)' docker compose exec api composer psalm
+check_if_running api 'phpstan (api)' docker compose exec api composer phpstan
+check_if_running frontend 'eslint+prettier (frontend lint:check)' docker compose exec frontend npm run lint:check
+check 'eslint+prettier+typecheck (e2e)' docker compose run --rm e2e sh -c 'npm ci --no-audit --no-fund && npm run lint:check && npm run typecheck'
+check 'eslint+prettier (aws-setup lint:check)' docker compose -f .ops/aws-setup/docker-compose.yml run --rm aws-setup sh -c 'npm ci --no-audit --no-fund && npm run lint:check'
+
+if (( status != 0 )); then
+  exit 2
+fi
+exit 0
