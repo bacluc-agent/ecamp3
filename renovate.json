@@ -98,7 +98,8 @@
     {
       "groupName": "playwright",
       "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"],
-      "automerge": false
+      "automerge": false,
+      "minimumReleaseAge": "0 days"
     },
     {
       "matchPackageNames": ["mcr.microsoft.com/playwright"],
