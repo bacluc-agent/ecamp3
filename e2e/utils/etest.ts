@@ -8,15 +8,24 @@ import {
   camplistPageFixture,
   CampListPageFixtureType,
 } from '@/utils/fixtures/pageObjects/campListPage'
+import {
+  programPageFixture,
+  ProgramPageFixtureType,
+} from '@/utils/fixtures/pageObjects/camp/program/programPage'
 import { campFixture, CampFixtureType } from '@/utils/fixtures/domainObjects/camp'
 
 const fixtureObject = {
   ...runIdFixture,
   ...loginPageFixture,
   ...camplistPageFixture,
+  ...programPageFixture,
   ...campFixture,
 }
 
 export const test = base.extend<
-  LoginPageFixtureType & CampListPageFixtureType & RunIdFixtureType & CampFixtureType
+  LoginPageFixtureType &
+    CampListPageFixtureType &
+    ProgramPageFixtureType &
+    RunIdFixtureType &
+    CampFixtureType
 >(fixtureObject)
