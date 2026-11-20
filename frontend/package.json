@@ -77,6 +77,7 @@
     "pdfkit": "0.20.1",
     "runes": "0.4.3",
     "slugify": "1.6.9",
+    "temporal-polyfill": "^1.0.8",
     "url-template": "3.1.1",
     "util": "0.12.5",
     "v-resize-observer": "2.1.0",
