@@ -19,8 +19,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  authorize-deployment:
+    name: Authorize deployment
+    runs-on: ubuntu-latest
+    outputs:
+      authorized: ${{ steps.authorize.outputs.authorized }}
+    steps:
+      - id: authorize
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          script: |
+            const login = context.eventName === 'pull_request_target'
+              ? context.payload.pull_request?.user?.login
+              : context.actor;
+            let authorized = false;
+
+            if (typeof login === 'string' && login.length > 0) {
+              try {
+                const membership = await github.request('GET /orgs/ecamp/memberships/{username}', {
+                  username: login,
+                });
+                const permission = await github.request('GET /repos/ecamp/ecamp3/collaborators/{username}/permission', {
+                  username: login,
+                });
+                authorized = membership?.data?.state === 'active'
+                  && ['write', 'maintain', 'admin'].includes(permission?.data?.permission);
+              } catch {}
+            }
+
+            core.setOutput('authorized', String(authorized));
+            console.log(`${login || 'unknown'}: ${authorized ? 'allow' : 'deny'}`);
+
   build-and-push:
-    if: (github.event_name == 'workflow_dispatch') || (contains(github.event.pull_request.labels.*.name, 'deploy!') && github.event.pull_request.state == 'open')
+    needs: authorize-deployment
+    if: needs.authorize-deployment.outputs.authorized == 'true' && ((github.event_name == 'workflow_dispatch') || (contains(github.event.pull_request.labels.*.name, 'deploy!') && github.event.pull_request.state == 'open'))
     name: Build and push docker images
     uses: ./.github/workflows/reusable-build-and-push.yml
     with:
