@@ -1,6 +1,8 @@
-import { test, expect } from '@playwright/test'
+import { expect } from '@playwright/test'
+import { test } from '@/utils/etest'
 import { bipiUser } from '@/utils/constants'
 import { loginAndSetCookie } from '@/utils/helpers'
+import { NewVersionAvailableDialog } from '@/utils/fixtures/pageObjects/newVersionAvailableDialog'
 
 const CAMP_CREATE_CHUNK = /.*CampCreate.*/
 
@@ -103,6 +105,104 @@ test(
 
     await page.getByTestId('new-version-continue').click()
     await expect(dialog).toBeHidden()
+    expect(page.url()).toBe(urlBefore)
+    const stillNoReload = await page.evaluate(
+      () => (window as unknown as { __noReload?: boolean }).__noReload === true
+    )
+    expect(stillNoReload).toBe(true)
+  }
+)
+
+test(
+  'reloads the page when a route chunk is missing after a deploy via page objects',
+  { tag: '@mature' },
+  async ({ page, browserName, loginPage }) => {
+    //eslint-disable-next-line
+    if (browserName === 'webkit') {
+      // webkit crashes completely on the production build when an asset fails to load.
+      // I also didn't find a way to recover webkit after that.
+      //eslint-disable-next-line
+      test.skip()
+    }
+    const campListPage = await (await loginPage.open()).loginToCampList(bipiUser)
+    // CampListPage.loaded() already waits for the create-camp button, but the
+    // skeleton loader check stays here: campListPage.ts is shared with other
+    // page-object branches.
+    await expect(page.locator('.v-skeleton-loader')).toHaveCount(0)
+
+    await page.evaluate(() => {
+      ;(window as unknown as { __noReload: boolean }).__noReload = true
+    })
+
+    let chunkRequestCount = 0
+    await page.route(CAMP_CREATE_CHUNK, async (route) => {
+      const request = route.request()
+      if (!request.url().endsWith('.js')) {
+        await route.continue()
+        return
+      }
+      chunkRequestCount += 1
+      // Vite preloads the chunk via <link rel="modulepreload"> (referer = page)
+      // before the actual dynamic import (referer = router chunk). Aborting the
+      // preload alone only breaks the import in chromium (module map caches the
+      // failure); firefox re-fetches the import successfully. Abort the preload
+      // AND the import re-fetch so the chunk load fails in every browser.
+      const isImport = request.headers()['referer']?.endsWith('.js') ?? false
+      if (isImport || chunkRequestCount === 1) {
+        await route.abort('failed')
+      } else {
+        await route.continue()
+      }
+    })
+
+    await campListPage.openCreateCampDialog()
+
+    await expect(page).toHaveURL(/\/camps\/create$/)
+
+    const markerSurvived = await page.evaluate(
+      () => (window as unknown as { __noReload?: boolean }).__noReload === true
+    )
+    expect(markerSurvived).toBe(false)
+    expect(chunkRequestCount).toBeGreaterThanOrEqual(2)
+  }
+)
+
+test(
+  'shows the update popup instead of reloading when an in-page feature chunk is missing via page objects',
+  { tag: '@mature' },
+  async ({ page, browserName, loginPage }) => {
+    //eslint-disable-next-line
+    if (browserName === 'webkit') {
+      // webkit just silently fails when a chunk cannot be loaded without a route change.
+      //eslint-disable-next-line
+      test.skip()
+    }
+    await (await loginPage.open()).loginToCampList(bipiUser)
+    const newVersionAvailableDialog = new NewVersionAvailableDialog(page)
+    const urlBefore = page.url()
+
+    await page.evaluate(() => {
+      ;(window as unknown as { __noReload: boolean }).__noReload = true
+    })
+
+    await page.route(FEATURE_CHUNK_PATH, (route) =>
+      route.fulfill({ status: 404, contentType: 'text/plain', body: 'gone' })
+    )
+
+    await page.evaluate((path) => {
+      void import(/* @vite-ignore */ path)
+    }, FEATURE_CHUNK_PATH)
+
+    await newVersionAvailableDialog.shown()
+
+    const markerSurvived = await page.evaluate(
+      () => (window as unknown as { __noReload?: boolean }).__noReload === true
+    )
+    expect(markerSurvived).toBe(true)
+    expect(page.url()).toBe(urlBefore)
+
+    await newVersionAvailableDialog.continueWithoutUpdating()
+    await expect(newVersionAvailableDialog.locator).toBeHidden()
     expect(page.url()).toBe(urlBefore)
     const stillNoReload = await page.evaluate(
       () => (window as unknown as { __noReload?: boolean }).__noReload === true
