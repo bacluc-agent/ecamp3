@@ -156,7 +156,7 @@ export default {
       let recaptchaToken = null
       if (this.recaptcha) {
         const recaptcha = await this.recaptcha
-        recaptchaToken = await recaptcha.execute('login')
+        recaptchaToken = await recaptcha.execute('update_password')
       }
 
       this.$auth
