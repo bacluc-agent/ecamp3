@@ -45,7 +45,11 @@ test('makes deleting a period require an exact description', async ({
   await expect(populatedDeleteDialog.scheduleEntryWarning).toContainText(
     '2 Zeitplaneinträge'
   )
+  await expect(populatedDeleteDialog.deleteButton).toBeDisabled()
+  await populatedDeleteDialog.fillPrompt('wrong')
+  await expect(populatedDeleteDialog.deleteButton).toBeDisabled()
   await populatedDeleteDialog.fillPrompt(thirdPeriod)
+  await expect(populatedDeleteDialog.deleteButton).toBeEnabled()
   await populatedDeleteDialog.submit()
   await periods.expectHidden(thirdPeriod)
 
