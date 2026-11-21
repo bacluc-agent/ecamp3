@@ -4,6 +4,8 @@ import { LoginPage } from '@/utils/fixtures/pageObjects/loginPage'
 import { bipiUser } from '@/utils/constants'
 import { CampInfo } from '@/utils/fixtures/pageObjects/camp/admin/campInfo'
 import { CampActivitySettings } from '@/utils/fixtures/pageObjects/camp/admin/campActivitySettings'
+import { PeriodList } from '@/utils/fixtures/pageObjects/camp/admin/periodList'
+import { CampProgram } from '@/utils/fixtures/pageObjects/camp/program'
 
 type CampPrototype = 'empty' | string
 
@@ -75,6 +77,14 @@ export class Camp {
 
   get campActivitySettings() {
     return new CampActivitySettings(this._page, this._campId)
+  }
+
+  get periodList() {
+    return new PeriodList(this._page, this._campId)
+  }
+
+  program(periodDescription: string) {
+    return new CampProgram(this._page, this._campId, periodDescription)
   }
 
   @boxedStep
