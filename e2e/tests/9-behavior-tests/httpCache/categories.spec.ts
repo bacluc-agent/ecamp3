@@ -292,3 +292,42 @@ test.describe('cache test: /camps/{campId}/categories', () => {
     })
   })
 })
+
+test.describe('cache test: /camps/{campId}/categories with query params', () => {
+  test.describe.configure({ mode: 'serial' })
+
+  const collectionUri = `/api/camps/${loremIpsumCampId}/categories`
+  const filteredUri = `${collectionUri}?camp=camps%2F${loremIpsumCampId}`
+  const categoryUri = '/api/categories/c5e1bc565094'
+
+  test('caches a filtered url and tags it like the unfiltered one', async () => {
+    const bruceApi = await getAuthContext(bruceWayneUser)
+
+    const filtered = await apiGet(bruceApi, filteredUri)
+    expect(filtered.headers()['x-cache']).toBe('MISS')
+    expect(filtered.headers()['xkey']).toContain(collectionUri)
+
+    await expectCacheHit(bruceApi, filteredUri)
+  })
+
+  test('invalidates every variant of the collection on category patch', async () => {
+    const bruceApi = await getAuthContext(bruceWayneUser)
+    const originalName = (await (await apiGet(bruceApi, categoryUri)).json()).name
+
+    await apiPatch(bruceApi, categoryUri, { name: 'old_name' })
+
+    await apiGet(bruceApi, collectionUri)
+    await expectCacheHit(bruceApi, collectionUri)
+    await apiGet(bruceApi, filteredUri)
+    await expectCacheHit(bruceApi, filteredUri)
+
+    await apiPatch(bruceApi, categoryUri, { name: 'new_name' })
+
+    await waitForCacheMiss(bruceApi, collectionUri)
+    await expectCacheHit(bruceApi, collectionUri)
+    await waitForCacheMiss(bruceApi, filteredUri)
+    await expectCacheHit(bruceApi, filteredUri)
+
+    await apiPatch(bruceApi, categoryUri, { name: originalName })
+  })
+})

@@ -269,3 +269,58 @@ test.describe(
     })
   }
 )
+
+test.describe('cache test: /periods/{periodId}/schedule_entries with query params', () => {
+  test.describe.configure({ mode: 'serial' })
+
+  const collectionUri = `/api/periods/${grgrPeriodId}/schedule_entries`
+  const filteredUri = `${collectionUri}?period=${grgrPeriodId}&activity=%2Factivities%2Fffd08c52288c`
+  const reversedUri = `${collectionUri}?activity=%2Factivities%2Fffd08c52288c&period=${grgrPeriodId}`
+  const scheduleEntryUri = '/api/schedule_entries/661817f7af15'
+
+  test('caches a filtered url and tags it like the unfiltered one', async () => {
+    const bipiApi = await getAuthContext(bipiUser)
+
+    const filtered = await apiGet(bipiApi, filteredUri)
+    expect(filtered.headers()['x-cache']).toBe('MISS')
+    expect(filtered.headers()['xkey']).toContain(collectionUri)
+
+    await expectCacheHit(bipiApi, filteredUri)
+  })
+
+  test('caches the same params in a different order as a separate entry', async () => {
+    const bipiApi = await getAuthContext(bipiUser)
+
+    await apiGet(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+
+    await expectCacheMiss(bipiApi, reversedUri)
+    await expectCacheHit(bipiApi, reversedUri)
+  })
+
+  test('invalidates every variant when an entity outside the filter is patched', async () => {
+    const bipiApi = await getAuthContext(bipiUser)
+
+    await apiPatch(bipiApi, scheduleEntryUri, {
+      start: '2036-05-10T18:00:00+00:00',
+    })
+
+    await apiGet(bipiApi, collectionUri)
+    await expectCacheHit(bipiApi, collectionUri)
+    await apiGet(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+
+    await apiPatch(bipiApi, scheduleEntryUri, {
+      start: '2036-05-10T18:30:00+00:00',
+    })
+
+    await waitForCacheMiss(bipiApi, collectionUri)
+    await expectCacheHit(bipiApi, collectionUri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+
+    await apiPatch(bipiApi, scheduleEntryUri, {
+      start: '2036-05-10T18:00:00+00:00',
+    })
+  })
+})

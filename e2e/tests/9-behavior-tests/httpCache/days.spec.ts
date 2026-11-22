@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test'
 import {
   bipiUser,
   bruceWayneUser,
+  grgrCampId,
   grgrPeriodId,
   harryMainPeriodId,
   harrySecondPeriodId,
@@ -141,5 +142,60 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+  })
+})
+
+test.describe('cache test: /periods/{periodId}/days with query params', () => {
+  test.describe.configure({ mode: 'serial' })
+
+  const collectionUri = `/api/periods/${grgrPeriodId}/days`
+  const filteredUri = `${collectionUri}?period=${grgrPeriodId}&period.camp=%2Fcamps%2F${grgrCampId}`
+  const reversedUri = `${collectionUri}?period.camp=%2Fcamps%2F${grgrCampId}&period=${grgrPeriodId}`
+  const periodUri = `/api/periods/${grgrPeriodId}`
+
+  test('caches a filtered url and tags it like the unfiltered one', async () => {
+    const bipiApi = await getAuthContext(bipiUser)
+
+    const filtered = await apiGet(bipiApi, filteredUri)
+    expect(filtered.headers()['x-cache']).toBe('MISS')
+    expect(filtered.headers()['xkey']).toContain(collectionUri)
+
+    await expectCacheHit(bipiApi, filteredUri)
+  })
+
+  test('caches the same params in a different order as a separate entry', async () => {
+    const bipiApi = await getAuthContext(bipiUser)
+
+    await apiGet(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+
+    await expectCacheMiss(bipiApi, reversedUri)
+    await expectCacheHit(bipiApi, reversedUri)
+  })
+
+  test('invalidates every variant of the collection on period patch', async () => {
+    const bipiApi = await getAuthContext(bipiUser)
+
+    await apiPatch(bipiApi, periodUri, {
+      start: '2036-05-09',
+      end: '2036-05-12',
+      moveScheduleEntries: true,
+    })
+
+    await apiGet(bipiApi, collectionUri)
+    await expectCacheHit(bipiApi, collectionUri)
+    await apiGet(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+
+    await apiPatch(bipiApi, periodUri, {
+      start: '2036-05-10',
+      end: '2036-05-13',
+      moveScheduleEntries: true,
+    })
+
+    await waitForCacheMiss(bipiApi, collectionUri)
+    await expectCacheHit(bipiApi, collectionUri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
   })
 })

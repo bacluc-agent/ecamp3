@@ -47,3 +47,20 @@ test.describe('cache test: /content-types', { tag: '@mature' }, () => {
     await expectCacheHit(bipiApi, uri)
   })
 })
+
+test.describe('cache test: /content_types with query params', () => {
+  test.describe.configure({ mode: 'serial' })
+
+  const collectionUri = '/api/content_types'
+  const filteredUri = `${collectionUri}?name=Checklist`
+
+  test('caches a filtered url and tags it like the unfiltered one', async () => {
+    const bipiApi = await getAuthContext(bipiUser)
+
+    const filtered = await apiGet(bipiApi, filteredUri)
+    expect(filtered.headers()['x-cache']).toBe('MISS')
+    expect(filtered.headers()['xkey']).toContain(collectionUri)
+
+    await expectCacheHit(bipiApi, filteredUri)
+  })
+})
