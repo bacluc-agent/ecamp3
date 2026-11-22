@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")/../.."
+
+fail() { printf 'FAIL: %s\n' "$*" >&2; exit 1; }
+pass() { printf 'PASS: %s\n' "$*"; }
+
+SCRIPT=.agents/scripts/completion-check
+SETTINGS=.agents/settings.json
+
+# Hook config: exactly one Stop command hook pointing at the script.
+python3 - "$SETTINGS" <<'PY'
+import json, sys
+cfg = json.load(open(sys.argv[1]))
+cmds = [h["command"] for g in cfg["hooks"]["Stop"]
+        for h in g["hooks"] if h.get("type") == "command"]
+assert cmds == ["./.agents/scripts/completion-check"], cmds
+PY
+pass 'settings.json Stop hook wiring'
+
+# Script sanity: executable, syntactically valid, shellcheck-clean when available.
+[[ -x "$SCRIPT" ]] || fail 'completion-check is not executable'
+bash -n "$SCRIPT" || fail 'bash -n completion-check'
+if command -v shellcheck >/dev/null 2>&1; then
+  shellcheck "$SCRIPT" || fail 'shellcheck completion-check'
+fi
+pass 'completion-check executable and syntactically valid'
+
+# Every linter/formatter check is present; no skip path remains.
+for needle in \
+  'prettier npm run lint:check' \
+  'composer cs-check' \
+  'composer psalm' \
+  'composer phpstan' \
+  'docker compose exec frontend npm run lint:check' \
+  'docker compose run --rm e2e' \
+  'aws-setup/docker-compose.yml'; do
+  grep -qF "$needle" "$SCRIPT" || fail "missing check: $needle"
+done
+! grep -qE 'check_if_running|SKIP:' "$SCRIPT" || fail 'skip path still present'
+pass 'all expected checks present and no skip path'
+
+# Behavior with a stubbed docker: no daemon, no repo mutation.
+stub="$(mktemp -d)"
+trap 'rm -rf "$stub"' EXIT
+cat > "$stub/docker" <<'STUB'
+#!/usr/bin/env bash
+args="$*"
+if [[ -n "${STUB_FAIL_MATCH:-}" && "$args" == *"$STUB_FAIL_MATCH"* ]]; then
+  exit 1
+fi
+exit 0
+STUB
+chmod +x "$stub/docker"
+export PATH="$stub:$PATH"
+
+out="$("$SCRIPT" 2>&1)" && rc=0 || rc=$?
+[[ $rc -eq 0 && "$out" != *FAIL:* ]] || fail "all-pass case: rc=$rc out=$out"
+[[ "$(grep -c '^PASS:' <<<"$out" || true)" -eq 7 ]] || fail 'all-pass case: expected 7 PASS lines'
+pass 'all pass -> exit 0'
+
+out="$(STUB_FAIL_MATCH='composer psalm' "$SCRIPT" 2>&1)" && rc=0 || rc=$?
+[[ $rc -eq 2 && "$out" == *'FAIL: psalm (api)'* ]] || fail "failure case: rc=$rc out=$out"
+[[ "$(grep -c '^==>' <<<"$out" || true)" -eq 7 ]] || fail 'failure case: expected 7 checks to run'
+pass 'one failure -> exit 2, all checks still run'
+
+out="$(STUB_FAIL_MATCH='compose exec api' "$SCRIPT" 2>&1)" && rc=0 || rc=$?
+[[ $rc -eq 2 && "$out" == *FAIL:* && "$out" != *SKIP:* ]] || fail "down-service case: rc=$rc out=$out"
+pass 'unavailable container -> FAIL and exit 2, no SKIP'

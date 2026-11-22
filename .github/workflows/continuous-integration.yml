@@ -132,6 +132,10 @@ jobs:
       - run: |
           npm run lint:check:prettier
 
+      - name: Completion check self-test
+        if: always()
+        run: ./.agents/scripts/completion-check.test
+
   frontend-eslint:
     name: 'Lint: Frontend (ESLint)'
     runs-on: ubuntu-latest
