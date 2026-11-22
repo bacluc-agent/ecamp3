@@ -48,6 +48,32 @@ class CacheRegexTest extends KernelTestCase {
         assertMatchesRegularExpression($this->cacheRegex, $url);
     }
 
+    #[TestWith(data: ['/invitations'], name: '/invitations')]
+    #[TestWith(data: ['/personal_invitations'], name: '/personal_invitations')]
+    #[TestWith(data: ['/activity_progress_labels'], name: '/activity_progress_labels')]
+    #[TestWith(data: ['/activity_responsibles'], name: '/activity_responsibles')]
+    #[TestWith(data: ['/camp_collaborations'], name: '/camp_collaborations')]
+    #[TestWith(data: ['/categories'], name: '/categories')]
+    #[TestWith(data: ['/checklists'], name: '/checklists')]
+    #[TestWith(data: ['/checklist_items'], name: '/checklist_items')]
+    #[TestWith(data: ['/content_nodes'], name: '/content_nodes')]
+    #[TestWith(data: ['/content_node/checklist_nodes'], name: '/content_node/checklist_nodes')]
+    #[TestWith(data: ['/content_node/column_layouts'], name: '/content_node/column_layouts')]
+    #[TestWith(data: ['/content_node/material_nodes'], name: '/content_node/material_nodes')]
+    #[TestWith(data: ['/content_node/multi_selects'], name: '/content_node/multi_selects')]
+    #[TestWith(data: ['/content_node/storyboards'], name: '/content_node/storyboards')]
+    #[TestWith(data: ['/days'], name: '/days')]
+    #[TestWith(data: ['/day_responsibles'], name: '/day_responsibles')]
+    #[TestWith(data: ['/material_items'], name: '/material_items')]
+    #[TestWith(data: ['/material_lists'], name: '/material_lists')]
+    #[TestWith(data: ['/periods'], name: '/periods')]
+    #[TestWith(data: ['/profiles'], name: '/profiles')]
+    #[TestWith(data: ['/schedule_entries'], name: '/schedule_entries')]
+    #[TestWith(data: ['/users'], name: '/users')]
+    public function testDoesNotIncludeUrls(string $url) {
+        assertDoesNotMatchRegularExpression($this->cacheRegex, $url);
+    }
+
     #[TestWith(data: ['/invitations?x=y'], name: '/invitations?x=y')]
     #[TestWith(data: ['/personal_invitations?x=y'], name: '/personal_invitations?x=y')]
     #[TestWith(data: ['/activity_progress_labels?x=y'], name: '/activity_progress_labels?x=y')]
@@ -70,7 +96,7 @@ class CacheRegexTest extends KernelTestCase {
     #[TestWith(data: ['/profiles?x=y'], name: '/profiles?x=y')]
     #[TestWith(data: ['/schedule_entries?x=y'], name: '/schedule_entries?x=y')]
     #[TestWith(data: ['/users?x=y'], name: '/users?x=y')]
-    public function testDoesNotIncludeUrls(string $url) {
+    public function testDoesNotIncludeUrlsWithQueryParams(string $url) {
         assertDoesNotMatchRegularExpression($this->cacheRegex, $url);
     }
 }
