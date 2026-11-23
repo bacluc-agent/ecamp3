@@ -153,8 +153,10 @@ test.describe('cache test: filtered /periods/{periodId}/days', () => {
     const collectionIri = `/api/periods/${grgrPeriodId}/days`
     const inFilterUri = `${collectionIri}?period=%2Fperiods%2F${grgrPeriodId}`
     const excludedUri = `${collectionIri}?period.camp=%2Fcamps%2F${skilagerCampId}`
+    const periodUri = `/api/periods/${grgrPeriodId}`
 
     const api = await getAuthContext(bipiUser)
+    const period = await (await apiGet(api, periodUri)).json()
 
     const res = await apiGet(api, inFilterUri)
     expect(res.headers()['x-cache']).toBe('MISS')
@@ -167,19 +169,14 @@ test.describe('cache test: filtered /periods/{periodId}/days', () => {
     await apiGet(api, collectionIri)
     await expectCacheHit(api, collectionIri)
 
-    const postRes = await apiPost(api, '/api/day_responsibles', {
-      day: '/days/4b90ff5b42c0',
-      campCollaboration: '/camp_collaborations/c88fd78c90ea',
-    })
-    const body = await postRes.json()
-    const newDayResponsibleUri = body._links.self.href
+    await apiPatch(api, periodUri, { end: addDays(period.end, 1) })
 
     await waitForCacheMiss(api, collectionIri)
     await waitForCacheMiss(api, inFilterUri)
     await waitForCacheMiss(api, excludedUri)
     await expectCacheHit(api, inFilterUri)
 
-    await apiDelete(api, newDayResponsibleUri)
+    await apiPatch(api, periodUri, { end: period.end })
 
     await waitForCacheMiss(api, inFilterUri)
     await expectCacheHit(api, inFilterUri)
