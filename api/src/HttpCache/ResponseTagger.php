@@ -39,8 +39,8 @@ class ResponseTagger {
             return false;
         }
 
-        $requestUri = $request->getRequestUri();
+        $pathInfo = $request->getPathInfo();
 
-        return (bool) preg_match('{'.$this->matchPath.'}', $requestUri);
+        return (bool) preg_match('{'.$this->matchPath.'}', $pathInfo);
     }
 }
