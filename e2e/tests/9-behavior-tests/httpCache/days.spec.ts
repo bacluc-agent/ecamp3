@@ -164,6 +164,9 @@ test.describe('cache test: filtered /periods/{periodId}/days', () => {
     await apiGet(api, excludedUri)
     await expectCacheHit(api, excludedUri)
 
+    await apiGet(api, collectionIri)
+    await expectCacheHit(api, collectionIri)
+
     const postRes = await apiPost(api, '/api/day_responsibles', {
       day: '/days/4b90ff5b42c0',
       campCollaboration: '/camp_collaborations/c88fd78c90ea',
@@ -171,6 +174,7 @@ test.describe('cache test: filtered /periods/{periodId}/days', () => {
     const body = await postRes.json()
     const newDayResponsibleUri = body._links.self.href
 
+    await waitForCacheMiss(api, collectionIri)
     await waitForCacheMiss(api, inFilterUri)
     await waitForCacheMiss(api, excludedUri)
     await expectCacheHit(api, inFilterUri)

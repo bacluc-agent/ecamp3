@@ -118,6 +118,9 @@ test.describe('cache test: filtered /camps/{campId}/checklists', () => {
     await apiGet(api, excludedUri)
     await expectCacheHit(api, excludedUri)
 
+    await apiGet(api, collectionIri)
+    await expectCacheHit(api, collectionIri)
+
     const postRes = await apiPost(api, '/api/checklists', {
       camp: `/api/camps/${basiskursCampId}`,
       name: 'new_checklist',
@@ -125,6 +128,7 @@ test.describe('cache test: filtered /camps/{campId}/checklists', () => {
     const body = await postRes.json()
     const newChecklistUri = body._links.self.href
 
+    await waitForCacheMiss(api, collectionIri)
     await waitForCacheMiss(api, inFilterUri)
     await waitForCacheMiss(api, excludedUri)
     await expectCacheHit(api, inFilterUri)

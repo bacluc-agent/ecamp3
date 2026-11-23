@@ -288,6 +288,9 @@ test.describe('cache test: filtered /periods/{periodId}/scheduleEntries', () => 
     await apiGet(api, excludedUri)
     await expectCacheHit(api, excludedUri)
 
+    await apiGet(api, collectionIri)
+    await expectCacheHit(api, collectionIri)
+
     const postRes = await apiPost(api, '/api/schedule_entries', {
       start: '2036-05-10T10:00:00+00:00',
       end: '2036-05-10T11:00:00+00:00',
@@ -297,6 +300,7 @@ test.describe('cache test: filtered /periods/{periodId}/scheduleEntries', () => 
     const body = await postRes.json()
     const newScheduleEntryUri = body._links.self.href
 
+    await waitForCacheMiss(api, collectionIri)
     await waitForCacheMiss(api, inFilterUri)
     await waitForCacheMiss(api, excludedUri)
     await expectCacheHit(api, inFilterUri)

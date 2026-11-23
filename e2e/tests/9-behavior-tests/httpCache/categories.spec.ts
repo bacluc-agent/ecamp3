@@ -147,6 +147,9 @@ test.describe('cache test: /camps/{campId}/categories', () => {
     await apiGet(api, excludedUri)
     await expectCacheHit(api, excludedUri)
 
+    await apiGet(api, collectionIri)
+    await expectCacheHit(api, collectionIri)
+
     const postRes = await apiPost(api, '/api/categories', {
       camp: `/api/camps/${grgrCampId}`,
       short: 'new',
@@ -157,6 +160,7 @@ test.describe('cache test: /camps/{campId}/categories', () => {
     const body = await postRes.json()
     const newCategoryUri = body._links.self.href
 
+    await waitForCacheMiss(api, collectionIri)
     await waitForCacheMiss(api, inFilterUri)
     await waitForCacheMiss(api, excludedUri)
     await expectCacheHit(api, inFilterUri)

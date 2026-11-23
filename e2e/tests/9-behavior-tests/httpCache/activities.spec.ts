@@ -343,6 +343,9 @@ test.describe('cache test: filtered /camps/{campId}/activities', () => {
     await apiGet(api, excludedUri)
     await expectCacheHit(api, excludedUri)
 
+    await apiGet(api, collectionIri)
+    await expectCacheHit(api, collectionIri)
+
     const postRes = await apiPost(api, '/api/activities', {
       title: 'New_activity',
       category: '/api/categories/1a869b162875',
@@ -357,6 +360,7 @@ test.describe('cache test: filtered /camps/{campId}/activities', () => {
     const body = await postRes.json()
     const newActivityUri = body._links.self.href
 
+    await waitForCacheMiss(api, collectionIri)
     await waitForCacheMiss(api, inFilterUri)
     await waitForCacheMiss(api, excludedUri)
     await expectCacheHit(api, inFilterUri)
