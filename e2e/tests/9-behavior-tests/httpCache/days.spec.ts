@@ -2,9 +2,11 @@ import { test, expect } from '@playwright/test'
 import {
   bipiUser,
   bruceWayneUser,
+  grgrCampId,
   grgrPeriodId,
   harryMainPeriodId,
   harrySecondPeriodId,
+  skilagerCampId,
 } from '@/utils/constants'
 import {
   expectCacheHit,
@@ -141,5 +143,55 @@ test.describe('cache test: /periods/{periodId}/days', { tag: '@mature' }, () => 
     // ensure cache was invalidated
     await waitForCacheMiss(bipiApi, uri)
     await expectCacheHit(bipiApi, uri)
+  })
+})
+
+test.describe('cache test: filtered /periods/{periodId}/days', () => {
+  test.describe.configure({ mode: 'serial' })
+
+  test('caches and invalidates filtered /periods/{periodId}/days', async () => {
+    const collectionIri = `/api/periods/${grgrPeriodId}/days`
+    const inFilterUri = `${collectionIri}?period=%2Fperiods%2F${grgrPeriodId}`
+    const excludedUri = `${collectionIri}?period.camp=%2Fcamps%2F${skilagerCampId}`
+
+    const api = await getAuthContext(bipiUser)
+
+    const res = await apiGet(api, inFilterUri)
+    expect(res.headers()['x-cache']).toBe('MISS')
+    expect(res.headers()['xkey']?.split(' ')).toContain(collectionIri)
+    await expectCacheHit(api, inFilterUri)
+
+    await apiGet(api, excludedUri)
+    await expectCacheHit(api, excludedUri)
+
+    const postRes = await apiPost(api, '/api/day_responsibles', {
+      day: '/days/4b90ff5b42c0',
+      campCollaboration: '/camp_collaborations/c88fd78c90ea',
+    })
+    const body = await postRes.json()
+    const newDayResponsibleUri = body._links.self.href
+
+    await waitForCacheMiss(api, inFilterUri)
+    await waitForCacheMiss(api, excludedUri)
+    await expectCacheHit(api, inFilterUri)
+
+    await apiDelete(api, newDayResponsibleUri)
+
+    await waitForCacheMiss(api, inFilterUri)
+    await expectCacheHit(api, inFilterUri)
+  })
+
+  test('caches query params by exact URL order', async () => {
+    const uriA = `/api/periods/${grgrPeriodId}/days?period=%2Fperiods%2F${grgrPeriodId}&period.camp=%2Fcamps%2F${grgrCampId}`
+    const uriB = `/api/periods/${grgrPeriodId}/days?period.camp=%2Fcamps%2F${grgrCampId}&period=%2Fperiods%2F${grgrPeriodId}`
+
+    const api = await getAuthContext(bipiUser)
+
+    const resA = await apiGet(api, uriA)
+    expect(resA.headers()['x-cache']).toBe('MISS')
+    await expectCacheHit(api, uriA)
+
+    const resB = await apiGet(api, uriB)
+    expect(resB.headers()['x-cache']).toBe('MISS')
   })
 })

@@ -132,6 +132,41 @@ test.describe('cache test: /camps/{campId}/categories', () => {
     }
   )
 
+  test('caches and invalidates filtered /camps/{campId}/categories', async () => {
+    const collectionIri = `/api/camps/${grgrCampId}/categories`
+    const inFilterUri = `${collectionIri}?camp=%2Fcamps%2F${grgrCampId}`
+    const excludedUri = `${collectionIri}?camp=%2Fcamps%2F${loremIpsumCampId}`
+
+    const api = await getAuthContext(bipiUser)
+
+    const res = await apiGet(api, inFilterUri)
+    expect(res.headers()['x-cache']).toBe('MISS')
+    expect(res.headers()['xkey']?.split(' ')).toContain(collectionIri)
+    await expectCacheHit(api, inFilterUri)
+
+    await apiGet(api, excludedUri)
+    await expectCacheHit(api, excludedUri)
+
+    const postRes = await apiPost(api, '/api/categories', {
+      camp: `/api/camps/${grgrCampId}`,
+      short: 'new',
+      name: 'new Category',
+      color: '#000000',
+      numberingStyle: '1',
+    })
+    const body = await postRes.json()
+    const newCategoryUri = body._links.self.href
+
+    await waitForCacheMiss(api, inFilterUri)
+    await waitForCacheMiss(api, excludedUri)
+    await expectCacheHit(api, inFilterUri)
+
+    await apiDelete(api, newCategoryUri)
+
+    await waitForCacheMiss(api, inFilterUri)
+    await expectCacheHit(api, inFilterUri)
+  })
+
   test('invalidates cached data when user leaves a camp', async ({ browser }) => {
     const castorContext = await browser.newContext()
     const bipiContext = await browser.newContext()

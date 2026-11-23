@@ -47,3 +47,18 @@ test.describe('cache test: /content-types', { tag: '@mature' }, () => {
     await expectCacheHit(bipiApi, uri)
   })
 })
+
+test.describe('cache test: filtered /content_types', () => {
+  test.describe.configure({ mode: 'serial' })
+
+  test('caches filtered /content_types', async () => {
+    const uri = '/api/content_types?name=Checklist'
+
+    const api = await getAuthContext(bipiUser)
+
+    const res = await apiGet(api, uri)
+    expect(res.headers()['x-cache']).toBe('MISS')
+    expect(res.headers()['xkey']?.split(' ')).toContain('/api/content_types')
+    await expectCacheHit(api, uri)
+  })
+})

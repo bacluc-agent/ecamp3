@@ -269,3 +269,41 @@ test.describe(
     })
   }
 )
+
+test.describe('cache test: filtered /periods/{periodId}/scheduleEntries', () => {
+  test.describe.configure({ mode: 'serial' })
+
+  test('caches and invalidates filtered /periods/{periodId}/schedule_entries', async () => {
+    const collectionIri = `/api/periods/${grgrPeriodId}/schedule_entries`
+    const inFilterUri = `${collectionIri}?period=%2Fperiods%2F${grgrPeriodId}`
+    const excludedUri = `${collectionIri}?activity=%2Factivities%2Fa13fadc97610`
+
+    const api = await getAuthContext(bipiUser)
+
+    const res = await apiGet(api, inFilterUri)
+    expect(res.headers()['x-cache']).toBe('MISS')
+    expect(res.headers()['xkey']?.split(' ')).toContain(collectionIri)
+    await expectCacheHit(api, inFilterUri)
+
+    await apiGet(api, excludedUri)
+    await expectCacheHit(api, excludedUri)
+
+    const postRes = await apiPost(api, '/api/schedule_entries', {
+      start: '2036-05-10T10:00:00+00:00',
+      end: '2036-05-10T11:00:00+00:00',
+      period: `/api/periods/${grgrPeriodId}`,
+      activity: `/api/activities/ffd08c52288c`,
+    })
+    const body = await postRes.json()
+    const newScheduleEntryUri = body._links.self.href
+
+    await waitForCacheMiss(api, inFilterUri)
+    await waitForCacheMiss(api, excludedUri)
+    await expectCacheHit(api, inFilterUri)
+
+    await apiDelete(api, newScheduleEntryUri)
+
+    await waitForCacheMiss(api, inFilterUri)
+    await expectCacheHit(api, inFilterUri)
+  })
+})
