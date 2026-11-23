@@ -8,7 +8,7 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Serializer\TagCollectorInterface;
 use App\Entity\HasId;
-use Doctrine\Common\Util\ClassUtils;
+use App\Util\ClassInfoTrait;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
 /**
@@ -17,6 +17,8 @@ use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
  * @author Urban Suppiger <urban@suppiger.net>
  */
 class TagCollector implements TagCollectorInterface {
+    use ClassInfoTrait;
+
     public function __construct(
         private readonly ResponseTagger $responseTagger,
         private readonly NameConverterInterface $nameConverter,
@@ -63,7 +65,7 @@ class TagCollector implements TagCollectorInterface {
     }
 
     private function addCacheTagForRelation(array $context, string $iri): void {
-        $class = isset($context['object']) ? ClassUtils::getClass($context['object']) : null;
+        $class = isset($context['object']) ? $this->getObjectClass($context['object']) : null;
         $relation = $this->nameConverter->normalize($context['api_attribute'], $class);
         $cacheTag = CacheTag::forRelation($iri, $relation);
         $this->responseTagger->addTags([$cacheTag]);
