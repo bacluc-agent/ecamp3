@@ -170,6 +170,25 @@ describe('transformViolations', () => {
         })
       })
 
+      it('uses the fallback chain when the rumantsch translation is missing', () => {
+        const validationError = createValidationError()
+          .withViolation({
+            message: 'first message',
+            propertyPath: 'property',
+            i18n: {
+              key: 'api.activity.checklist.title',
+              translations: { en: 'Edit checklist' },
+            },
+          })
+          .build()
+        te.mockReturnValue(false)
+        locale.value = 'rm'
+
+        expect(transformViolations(validationError, i18n)).toEqual({
+          property: ['Edit checklist'],
+        })
+      })
+
       it('uses fallbackLocale', () => {
         const validationError = createValidationError()
           .withViolation({
