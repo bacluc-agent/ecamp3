@@ -55,12 +55,14 @@ jobs:
           job_name: Upgrade or install deployment / Deploy to Kubernetes
 
       - name: Create a pending GitHub deployment
-        uses: bobheadxi/deployments@v1.5.0
+        uses: chrnorm/deployment-action@v2.0.8
         id: deployment
         with:
-          step: start
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
-          env: ${{ inputs.env }}
+          environment: ${{ inputs.env }}
+          initial-status: in_progress
+          transient-environment: true
+          ref: ${{ github.ref }}
 
       - name: Comment progress on PR
         uses: thollander/actions-comment-pull-request@v3
@@ -170,15 +172,13 @@ jobs:
           echo "Pushed tag: $TAG"
 
       - name: Finish the GitHub deployment
-        uses: bobheadxi/deployments@v1.5.0
+        uses: chrnorm/deployment-status@v2.0.4
         if: always()
         with:
-          step: finish
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
-          status: ${{ job.status }}
-          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-          env_url: ${{ format('https://{0}.{1}', env.NAME, vars.DOMAIN) }}
-          env: ${{ steps.deployment.outputs.env }}
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+          state: ${{ job.status == 'cancelled' && 'inactive' || job.status }}
+          environment-url: ${{ job.status == 'success' && format('https://{0}.{1}', env.NAME, vars.DOMAIN) || '' }}
 
       - name: Get current time
         uses: josStorer/get-current-time@v2
