@@ -18,15 +18,27 @@ test('makes deleting a period require an exact description', async ({
   const thirdPeriod = `Third period ${runId}`
 
   await periods.goto()
+  const onlyPeriod = await periods.onlyPeriodDescription()
+  const lastPeriodDialog = await periods.openDelete(onlyPeriod, {
+    waitForPrompt: false,
+  })
+  await expect(lastPeriodDialog.lastPeriodWarning).toBeVisible()
+  await expect(lastPeriodDialog.deleteButton).toBeDisabled()
+  await lastPeriodDialog.close()
+
   await periods.create(secondPeriod, daysFromNow(10), daysFromNow(12))
   const deleteDialog = await periods.openDelete(secondPeriod)
   await expect(deleteDialog.scheduleEntryWarning).toContainText('keine Zeitplaneinträge')
   await expect(deleteDialog.deleteButton).toBeDisabled()
   await deleteDialog.fillPrompt('wrong')
   await expect(deleteDialog.deleteButton).toBeDisabled()
-  await deleteDialog.fillPrompt(secondPeriod)
-  await expect(deleteDialog.deleteButton).toBeEnabled()
-  await deleteDialog.submit()
+  await deleteDialog.close()
+  const reopenedDialog = await periods.openDelete(secondPeriod)
+  await expect(reopenedDialog.promptInput).toHaveValue('')
+  await expect(reopenedDialog.deleteButton).toBeDisabled()
+  await reopenedDialog.fillPrompt(secondPeriod)
+  await expect(reopenedDialog.deleteButton).toBeEnabled()
+  await reopenedDialog.submit()
   await periods.expectHidden(secondPeriod)
 
   await periods.create(thirdPeriod, daysFromNow(20), daysFromNow(22))

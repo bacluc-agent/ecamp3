@@ -29,6 +29,16 @@ export class DialogDeletePeriod {
     return this._deleteButton
   }
 
+  get promptInput() {
+    return this._promptInput
+  }
+
+  get lastPeriodWarning() {
+    return this._page
+      .locator('.v-overlay--active')
+      .getByText(/letzte Lagerabschnitt kann nicht gelöscht werden/i)
+  }
+
   @boxedStep
   async fillPrompt(description: string) {
     await this._promptInput.fill(description)

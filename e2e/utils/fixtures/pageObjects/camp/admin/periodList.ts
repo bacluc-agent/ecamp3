@@ -19,7 +19,10 @@ export class PeriodList {
     private readonly _campId: string,
     private readonly _createButton = _page.getByRole('button', {
       name: /Lagerabschnitt erstellen/i,
-    })
+    }),
+    private readonly _contentGroup = _page
+      .locator('.ec-content-group')
+      .filter({ has: _createButton })
   ) {}
 
   @boxedStep
@@ -30,7 +33,14 @@ export class PeriodList {
   }
 
   private period(description: string) {
-    return this._page.getByRole('listitem').filter({ hasText: description })
+    return this._contentGroup.getByRole('listitem').filter({ hasText: description })
+  }
+
+  @boxedStep
+  async onlyPeriodDescription() {
+    const periods = this._contentGroup.getByRole('listitem')
+    await expect(periods).toHaveCount(1)
+    return periods.locator('.v-list-item-title').innerText()
   }
 
   /** Picking from the popup commits the value immediately; typing only commits after a debounce. */
@@ -84,7 +94,7 @@ export class PeriodList {
   }
 
   @boxedStep
-  async openDelete(description: string) {
+  async openDelete(description: string, { waitForPrompt = true } = {}) {
     const item = this.period(description)
     await item.getByRole('button').click()
     await this._page
@@ -92,7 +102,11 @@ export class PeriodList {
       .getByText('Löschen', { exact: true })
       .click()
     const dialog = new DialogDeletePeriod(this._page)
-    await dialog.loaded()
+    if (waitForPrompt) {
+      await dialog.loaded()
+    } else {
+      await expect(dialog.deleteButton).toBeVisible()
+    }
     return dialog
   }
 
