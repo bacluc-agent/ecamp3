@@ -313,6 +313,7 @@
       },
       "printConfigurator": {
         "add": "Agiuntar cuntegn",
+        "collapsePreview": "Zuppentar la prevista",
         "config": {
           "Activity": "Singula activitad",
           "Cover": "Pagina da titel",
@@ -320,7 +321,12 @@
           "Program": "Program en detagl",
           "Story": "Fil cotschen",
           "Toc": "Tavla da cuntegn"
-        }
+        },
+        "configuration": "Parameters da stampa",
+        "moveDown": "Engiu",
+        "moveUp": "Ensi",
+        "preview": "Prevista",
+        "showPreview": "Activar la prevista"
       }
     },
     "program": {
