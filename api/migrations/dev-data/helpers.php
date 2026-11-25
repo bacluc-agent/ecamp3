@@ -29,7 +29,13 @@ function getStatementsForMigrationFile(): array {
     $sql = file_get_contents($dump_file);
 
     $parser = new Parser($sql);
-    $parsed_statements = array_map(fn (InsertStatement $statement) => $statement->build(), $parser->statements);
+    $parsed_statements = [];
+    foreach ($parser->statements as $statement) {
+        $parsed_statements[] = $statement->build();
+    }
+
+    array_unshift($parsed_statements, 'SET session_replication_role = replica;');
+    $parsed_statements[] = 'SET session_replication_role = DEFAULT;';
 
     return str_replace('`', '"', $parsed_statements);
 }
