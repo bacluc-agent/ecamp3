@@ -3,7 +3,7 @@ import { transformViolations } from '@/helpers/serverError'
 import { cloneDeep } from 'lodash-es'
 import { fallbackLocales } from '@/plugins/i18n'
 
-const fallbackLocale = fallbackLocales.default
+const fallbackLocale = fallbackLocales.default[0]
 
 describe('transformViolations', () => {
   describe('without i18n', () => {
@@ -167,6 +167,25 @@ describe('transformViolations', () => {
 
         expect(transformViolations(validationError, i18n)).toEqual({
           property: ['de_CH'],
+        })
+      })
+
+      it('uses the fallback chain when the rumantsch translation is missing', () => {
+        const validationError = createValidationError()
+          .withViolation({
+            message: 'first message',
+            propertyPath: 'property',
+            i18n: {
+              key: 'api.activity.checklist.title',
+              translations: { en: 'Edit checklist' },
+            },
+          })
+          .build()
+        te.mockReturnValue(false)
+        locale.value = 'rm'
+
+        expect(transformViolations(validationError, i18n)).toEqual({
+          property: ['Edit checklist'],
         })
       })
 
