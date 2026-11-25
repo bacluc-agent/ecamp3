@@ -99,7 +99,13 @@ export default {
       const appElement = this.$el
       if (!appElement) return
 
-      this.mutationObserver = new MutationObserver(() => {
+      this.mutationObserver = new MutationObserver((mutations) => {
+        const onlyOwnStyleWrite = (mutation) =>
+          mutation.type === 'attributes' &&
+          mutation.target === appElement &&
+          mutation.attributeName === 'style'
+        if (mutations.every(onlyOwnStyleWrite)) return
+
         this.updateFooterHeight()
       })
 
