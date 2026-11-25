@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { getPdfProperties } from '@/utils/getPdfProperties'
 import { loginAndSetCookie } from '@/utils/helpers'
+import { CampClientPrintPage } from '@/utils/fixtures/pageObjects/camp/admin/campClientPrintPage'
 
 import { readFileSync } from 'fs'
 
@@ -17,9 +18,8 @@ test.describe('Print test', { tag: '@mature' }, () => {
     await page.locator('a:has-text("Admin")').click()
     await page.locator('a:has-text("Drucken")').click()
 
-    const downloadPromise = page.waitForEvent('download')
-    await page.getByRole('button', { name: 'PDF herunterladen', exact: true }).click()
-    const download = await downloadPromise
+    const clientPrint = await new CampClientPrintPage(page).loaded()
+    const download = await clientPrint.downloadClientPdf()
 
     const path = await download.path()
     const buffer = readFileSync(path)
