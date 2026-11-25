@@ -1,0 +1,69 @@
+#!/bin/sh
+
+set -eu
+
+command -v helm >/dev/null
+command -v helmfile >/dev/null
+command -v yq >/dev/null
+
+chart_dir=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+work_dir=$(mktemp -d)
+env_file="$chart_dir/env.yaml"
+values_file="$chart_dir/values.yaml"
+if [ -e "$env_file" ] || [ -e "$values_file" ]; then
+  printf '%s\n' 'env.yaml or values.yaml already exists in the chart directory' >&2
+  exit 1
+fi
+cp "$chart_dir/env.example.yaml" "$env_file"
+trap 'rm -rf "$work_dir"; rm -f "$env_file" "$values_file"' EXIT
+
+render_routes() {
+  auth_enabled=$1
+  basic_auth_enabled=false
+  if [ "$auth_enabled" = enabled ]; then
+    basic_auth_enabled=true
+  fi
+  test_dir="$work_dir/$auth_enabled"
+  mkdir -p "$test_dir"
+  yq -i \
+    ".NAME = \"httproute-test\" |
+     .DOMAIN = \"example.test\" |
+     .DOCKER_HUB_USERNAME = \"test\" |
+     .IMAGE_TAG = \"test\" |
+     .HITOBITO_TOKEN_ENCRYPTION_KEY = \"test\" |
+     .JWT_PASSPHRASE = \"test\" |
+     .JWT_PRIVATE_KEY = \"test\" |
+     .JWT_PUBLIC_KEY = \"test\" |
+     .POSTGRES_URL = \"postgres://test:test@localhost:5432\" |
+     .BASIC_AUTH_ENABLED = $basic_auth_enabled |
+     .BASIC_AUTH_USERNAME = \"test\" |
+     .BASIC_AUTH_PASSWORD = \"test\"" \
+    "$env_file"
+  (cd "$chart_dir" && helmfile write-values --environment default --output-file-template values.yaml) >/dev/null
+  helm template httproute-test "$chart_dir" --values "$values_file" >"$test_dir/routes.yaml"
+  printf '%s\n' "$test_dir/routes.yaml"
+}
+
+assert_route() {
+  file=$1
+  name=$2
+  expression=$3
+  yq -e "select(.kind == \"HTTPRoute\" and .metadata.name == \"$name\") | $expression" "$file" >/dev/null
+}
+
+disabled=$(render_routes disabled)
+enabled=$(render_routes enabled)
+
+for file in "$disabled" "$enabled"; do
+  yq -e 'select(.kind == "HTTPRoute") | (.spec.rules[0] | ((has("filters") | not) or (.filters != null)))' "$file" >/dev/null
+done
+
+assert_route "$disabled" httproute-test-ecamp3-frontend 'has("spec") and (.spec.rules[0] | (has("filters") | not))'
+assert_route "$disabled" httproute-test-ecamp3-mail 'has("spec") and (.spec.rules[0] | (has("filters") | not))'
+assert_route "$disabled" httproute-test-ecamp3-api '(.spec.rules[0].filters | length == 2) and .spec.rules[0].filters[0].type == "URLRewrite" and .spec.rules[0].filters[0].urlRewrite.path.type == "ReplacePrefixMatch" and .spec.rules[0].filters[0].urlRewrite.path.replacePrefixMatch == "/" and .spec.rules[0].filters[1].type == "RequestHeaderModifier" and .spec.rules[0].filters[1].requestHeaderModifier.add[0].name == "X-Forwarded-Prefix" and .spec.rules[0].filters[1].requestHeaderModifier.add[0].value == "/api"'
+
+assert_route "$enabled" httproute-test-ecamp3-frontend '(.spec.rules[0].filters | length == 1) and .spec.rules[0].filters[0].type == "ExtensionRef" and .spec.rules[0].filters[0].extensionRef.group == "traefik.io" and .spec.rules[0].filters[0].extensionRef.kind == "Middleware" and .spec.rules[0].filters[0].extensionRef.name == "httproute-test-ecamp3-basic-auth"'
+assert_route "$enabled" httproute-test-ecamp3-mail '(.spec.rules[0].filters | length == 1) and .spec.rules[0].filters[0].type == "ExtensionRef" and .spec.rules[0].filters[0].extensionRef.group == "traefik.io" and .spec.rules[0].filters[0].extensionRef.kind == "Middleware" and .spec.rules[0].filters[0].extensionRef.name == "httproute-test-ecamp3-basic-auth"'
+assert_route "$enabled" httproute-test-ecamp3-api '(.spec.rules[0].filters | length == 3) and .spec.rules[0].filters[0].type == "URLRewrite" and .spec.rules[0].filters[0].urlRewrite.path.type == "ReplacePrefixMatch" and .spec.rules[0].filters[0].urlRewrite.path.replacePrefixMatch == "/" and .spec.rules[0].filters[1].type == "RequestHeaderModifier" and .spec.rules[0].filters[1].requestHeaderModifier.add[0].name == "X-Forwarded-Prefix" and .spec.rules[0].filters[1].requestHeaderModifier.add[0].value == "/api" and .spec.rules[0].filters[2].type == "ExtensionRef" and .spec.rules[0].filters[2].extensionRef.group == "traefik.io" and .spec.rules[0].filters[2].extensionRef.kind == "Middleware" and .spec.rules[0].filters[2].extensionRef.name == "httproute-test-ecamp3-basic-auth"'
+
+printf '%s\n' 'HTTPRoute filter validation passed for frontend, API, and mail with basic auth enabled and disabled.'
