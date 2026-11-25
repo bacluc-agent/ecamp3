@@ -99,3 +99,39 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
     })
   })
 })
+
+test.describe('cache test: /camps/{campId}/checklists with query params', () => {
+  test.describe.configure({ mode: 'serial' })
+
+  const collectionUri = `/api/camps/${basiskursCampId}/checklists`
+  const filteredUri = `${collectionUri}?camp=camps%2F${basiskursCampId}`
+  const checklistUri = '/api/checklists/ebbd0c61eb85'
+
+  test('caches a filtered url and tags it like the unfiltered one', async () => {
+    const bipiApi = await getAuthContext(bipiUser)
+
+    const filtered = await apiGet(bipiApi, filteredUri)
+    expect(filtered.headers()['x-cache']).toBe('MISS')
+    expect(filtered.headers()['xkey']).toContain(collectionUri)
+
+    await expectCacheHit(bipiApi, filteredUri)
+  })
+
+  test('invalidates every variant of the collection on checklist patch', async () => {
+    const bipiApi = await getAuthContext(bipiUser)
+
+    await apiPatch(bipiApi, checklistUri, { name: 'Training targets' })
+
+    await apiGet(bipiApi, collectionUri)
+    await expectCacheHit(bipiApi, collectionUri)
+    await apiGet(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+
+    await apiPatch(bipiApi, checklistUri, { name: 'Ausbildungsziele' })
+
+    await waitForCacheMiss(bipiApi, collectionUri)
+    await expectCacheHit(bipiApi, collectionUri)
+    await waitForCacheMiss(bipiApi, filteredUri)
+    await expectCacheHit(bipiApi, filteredUri)
+  })
+})
