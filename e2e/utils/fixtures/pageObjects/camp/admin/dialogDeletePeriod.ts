@@ -48,7 +48,7 @@ export class DialogDeletePeriod {
   @boxedStep
   async close() {
     await this._page
-      .locator('.v-overlay--active')
+      .locator('.v-overlay--active .v-card-actions')
       .getByRole('button', { name: /Abbrechen/i })
       .click()
     return this
