@@ -324,3 +324,50 @@ test.describe('cache test: /camps/{campId}/activities', { tag: '@mature' }, () =
     await expectCacheHit(bipiApi, uri)
   })
 })
+
+test.describe('cache test: filtered /camps/{campId}/activities', () => {
+  test.describe.configure({ mode: 'serial' })
+
+  test('caches and invalidates filtered /camps/{campId}/activities', async () => {
+    const collectionIri = `/api/camps/${grgrCampId}/activities`
+    const inFilterUri = `${collectionIri}?camp=%2Fcamps%2F${grgrCampId}`
+    const excludedUri = `${collectionIri}?camp=%2Fcamps%2F${skilagerCampId}`
+
+    const api = await getAuthContext(bipiUser)
+
+    const res = await apiGet(api, inFilterUri)
+    expect(res.headers()['x-cache']).toBe('MISS')
+    expect(res.headers()['xkey']?.split(' ')).toContain(collectionIri)
+    await expectCacheHit(api, inFilterUri)
+
+    await apiGet(api, excludedUri)
+    await expectCacheHit(api, excludedUri)
+
+    await apiGet(api, collectionIri)
+    await expectCacheHit(api, collectionIri)
+
+    const postRes = await apiPost(api, '/api/activities', {
+      title: 'New_activity',
+      category: '/api/categories/1a869b162875',
+      scheduleEntries: [
+        {
+          period: '/periods/76be24bce434',
+          start: '2036-05-10T08:00:00+00:00',
+          end: '2036-05-10T09:00:00+00:00',
+        },
+      ],
+    })
+    const body = await postRes.json()
+    const newActivityUri = body._links.self.href
+
+    await waitForCacheMiss(api, collectionIri)
+    await waitForCacheMiss(api, inFilterUri)
+    await waitForCacheMiss(api, excludedUri)
+    await expectCacheHit(api, inFilterUri)
+
+    await apiDelete(api, newActivityUri)
+
+    await waitForCacheMiss(api, inFilterUri)
+    await expectCacheHit(api, inFilterUri)
+  })
+})

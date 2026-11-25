@@ -99,3 +99,43 @@ test.describe('cache test: /camps/checklists', { tag: '@mature' }, () => {
     })
   })
 })
+
+test.describe('cache test: filtered /camps/{campId}/checklists', () => {
+  test.describe.configure({ mode: 'serial', retries: 3 })
+
+  test('caches and invalidates filtered /camps/{campId}/checklists', async () => {
+    const collectionIri = `/api/camps/${basiskursCampId}/checklists`
+    const inFilterUri = `${collectionIri}?camp=%2Fcamps%2F${basiskursCampId}`
+    const excludedUri = `${collectionIri}?isPrototype=true`
+
+    const api = await getAuthContext(bipiUser)
+
+    const res = await apiGet(api, inFilterUri)
+    expect(res.headers()['x-cache']).toBe('MISS')
+    expect(res.headers()['xkey']?.split(' ')).toContain(collectionIri)
+    await expectCacheHit(api, inFilterUri)
+
+    await apiGet(api, excludedUri)
+    await expectCacheHit(api, excludedUri)
+
+    await apiGet(api, collectionIri)
+    await expectCacheHit(api, collectionIri)
+
+    const postRes = await apiPost(api, '/api/checklists', {
+      camp: `/api/camps/${basiskursCampId}`,
+      name: 'new_checklist',
+    })
+    const body = await postRes.json()
+    const newChecklistUri = body._links.self.href
+
+    await waitForCacheMiss(api, collectionIri)
+    await waitForCacheMiss(api, inFilterUri)
+    await waitForCacheMiss(api, excludedUri)
+    await expectCacheHit(api, inFilterUri)
+
+    await apiDelete(api, newChecklistUri)
+
+    await waitForCacheMiss(api, inFilterUri)
+    await expectCacheHit(api, inFilterUri)
+  })
+})
