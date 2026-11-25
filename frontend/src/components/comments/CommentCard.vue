@@ -151,15 +151,11 @@ export default {
 
 .ec-comment-card:not(:hover) :deep(.visible-on-hover:not(:focus)) {
   opacity: 0;
-  max-width: 0;
-  overflow: hidden;
+  pointer-events: none;
 }
 
 .ec-comment-card :deep(.visible-on-hover) {
   opacity: 1;
-  max-width: 2rem;
-  transition:
-    opacity 0.1s linear,
-    max-width 0.1s linear;
+  transition: opacity 0.1s linear;
 }
 </style>
