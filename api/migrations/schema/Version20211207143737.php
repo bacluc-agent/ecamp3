@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use App\Doctrine\DBAL\CockroachDb;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -14,6 +15,11 @@ final class Version20211207143737 extends AbstractMigration {
     #[\Override]
     public function getDescription(): string {
         return '';
+    }
+
+    #[\Override]
+    public function isTransactional(): bool {
+        return !CockroachDb::is($this->connection);
     }
 
     public function up(Schema $schema): void {
@@ -46,7 +52,7 @@ final class Version20211207143737 extends AbstractMigration {
         $this->addSql('DROP INDEX uniq_8d93d649f85e0677');
         $this->addSql('DROP INDEX uniq_8d93d649e7927c74');
         $this->addSql('ALTER TABLE "user" ADD profileId VARCHAR(16)');
-        $this->addSql('ALTER TABLE "user" ADD CONSTRAINT FK_8D93D6499B26949C FOREIGN KEY (profileId) REFERENCES "profile" (id) ON DELETE RESTRICT NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE "user" ADD CONSTRAINT FK_8D93D6499B26949C FOREIGN KEY (profileId) REFERENCES "profile" (id) ON DELETE RESTRICT');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_8D93D6499B26949C ON "user" (profileId)');
         $this->addSql('UPDATE "user" u SET profileId = u.id');
         $this->addSql('ALTER TABLE "user" ALTER COLUMN profileId SET NOT NULL');

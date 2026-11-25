@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use App\Doctrine\DBAL\CockroachDb;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -17,13 +18,14 @@ final class Version20230502191133 extends AbstractMigration {
     }
 
     public function up(Schema $schema): void {
+        $deferrable = CockroachDb::is($this->connection) ? '' : ' deferrable initially deferred';
         $this->addSql(
-            <<<'EOF'
+            <<<SQL
                 alter table activity_progress_label
                     add constraint activity_progress_label_unique
                         unique (campid, position)
-                            deferrable initially deferred
-            EOF
+                            {$deferrable}
+            SQL
         );
     }
 
