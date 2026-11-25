@@ -30,6 +30,7 @@ test.describe('comments on an activity', () => {
 
     await comment.hover()
     await expect(comment.locator('button.ec-comment-card__delete')).toBeVisible()
+    await comment.locator('button.ec-comment-card__delete').focus()
     await comment.locator('button.ec-comment-card__delete').click()
     await page.locator('.v-overlay--active button.bg-error').click()
 
@@ -61,6 +62,7 @@ test.describe('comments on an activity', () => {
 
     await comment.hover()
     await expect(comment.locator('button.ec-comment-card__delete')).toBeVisible()
+    await comment.locator('button.ec-comment-card__delete').focus()
     await comment.locator('button.ec-comment-card__delete').click()
     await page.locator('.v-overlay--active button.bg-error').click()
 
@@ -120,12 +122,14 @@ test.describe('comments on an activity', () => {
 
     const reply = thread.getByTestId('comment-card').filter({ hasText: replyText })
     await reply.hover()
+    await reply.locator('button.ec-comment-card__delete').focus()
     await reply.locator('button.ec-comment-card__delete').click()
     await page.locator('.v-overlay--active button.bg-error').click()
     await expect(reply).toHaveCount(0)
 
     const root = thread.getByTestId('comment-card').first()
     await root.hover()
+    await root.locator('button.ec-comment-card__delete').focus()
     await root.locator('button.ec-comment-card__delete').click()
     await page.locator('.v-overlay--active button.bg-error').click()
     await expect(thread).toHaveCount(0)
