@@ -55,18 +55,20 @@ jobs:
           job_name: Upgrade or install deployment / Deploy to Kubernetes
 
       - name: Create a pending GitHub deployment
-        uses: bobheadxi/deployments@v1.5.0
+        uses: chrnorm/deployment-action@v2.0.8
         id: deployment
         with:
-          step: start
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
-          env: ${{ inputs.env }}
+          environment: ${{ inputs.env }}
+          initial-status: in_progress
+          transient-environment: true
+          ref: ${{ github.ref }}
 
       - name: Comment progress on PR
-        uses: thollander/actions-comment-pull-request@v3
+        uses: marocchino/sticky-pull-request-comment@v3.0.5
         if: ${{ inputs.env == 'feature-branch' }}
         with:
-          pr-number: ${{ inputs.pr-number }}
+          number_force: ${{ inputs.pr-number }}
           message: |
             ### <span aria-hidden="true">🏗️</span> Feature branch deployment in progress
 
@@ -75,7 +77,7 @@ jobs:
             |---------------------------------|------------------------|
             |<span aria-hidden="true">🔨</span> Latest commit | [${{ inputs.sha }}](https://github.com/${{ github.repository }}/commit/${{ inputs.sha }}) |
             |<span aria-hidden="true">🔍</span> Latest deploy log | [${{ steps.job-url.outputs.html_url }}](${{ steps.job-url.outputs.html_url }}) |
-          comment-tag: feature-branch-deployment-status
+          header: feature-branch-deployment-status
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -170,15 +172,13 @@ jobs:
           echo "Pushed tag: $TAG"
 
       - name: Finish the GitHub deployment
-        uses: bobheadxi/deployments@v1.5.0
+        uses: chrnorm/deployment-status@v2.0.4
         if: always()
         with:
-          step: finish
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
-          status: ${{ job.status }}
-          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-          env_url: ${{ format('https://{0}.{1}', env.NAME, vars.DOMAIN) }}
-          env: ${{ steps.deployment.outputs.env }}
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+          state: ${{ job.status == 'cancelled' && 'inactive' || job.status }}
+          environment-url: ${{ job.status == 'success' && format('https://{0}.{1}', env.NAME, vars.DOMAIN) || '' }}
 
       - name: Get current time
         uses: josStorer/get-current-time@v2
@@ -188,10 +188,10 @@ jobs:
           timezone: Europe/Zurich
 
       - name: Comment success on PR
-        uses: thollander/actions-comment-pull-request@v3
+        uses: marocchino/sticky-pull-request-comment@v3.0.5
         if: ${{ success() && inputs.env == 'feature-branch' }}
         with:
-          pr-number: ${{ inputs.pr-number }}
+          number_force: ${{ inputs.pr-number }}
           message: |
             ### <span aria-hidden="true">✅</span> Feature branch deployment ready!
 
@@ -205,13 +205,13 @@ jobs:
             |<span aria-hidden="true">🔍</span> Latest deploy log | [${{ steps.job-url.outputs.html_url }}](${{ steps.job-url.outputs.html_url }}) |
             |<span aria-hidden="true">📱</span> Preview on mobile | <details><summary> Toggle QR Code... </summary><br /><br />![QR Code](https://api.qrserver.com/v1/create-qr-code/?size=180x180&ecc=H&format=svg&qzone=4&color=5-72-97&data=https://${{ env.NAME }}.${{ vars.DOMAIN }}/)<br /><br />_Use your smartphone camera to open QR code link._</details> |
             ---
-          comment-tag: feature-branch-deployment-status
+          header: feature-branch-deployment-status
 
       - name: Comment failure on PR
-        uses: thollander/actions-comment-pull-request@v3
+        uses: marocchino/sticky-pull-request-comment@v3.0.5
         if: ${{ failure() && inputs.env == 'feature-branch' }}
         with:
-          pr-number: ${{ inputs.pr-number }}
+          number_force: ${{ inputs.pr-number }}
           message: |
             ### <span aria-hidden="true">💥</span> Feature branch deployment failed
 
@@ -222,7 +222,7 @@ jobs:
             |<span aria-hidden="true">🔨</span> Latest commit | [${{ inputs.sha }}](https://github.com/${{ github.repository }}/commit/${{ inputs.sha }}) |
             |<span aria-hidden="true">🔍</span> Latest deploy log | [${{ steps.job-url.outputs.html_url }}](${{ steps.job-url.outputs.html_url }}) |
             ---
-          comment-tag: feature-branch-deployment-status
+          header: feature-branch-deployment-status
 
       - name: Cleanup temp files
         if: always()
