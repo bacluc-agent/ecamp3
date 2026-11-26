@@ -136,9 +136,10 @@ jobs:
 
       - name: Verify install-script approvals are complete
         run: |
+          set -euo pipefail
           for d in . frontend print e2e translation .ops/aws-setup .ops/performance-test .agents/.ecamp/playwright-cli; do
             echo "== $d =="
-            n=$(cd "$d" && npm install-scripts ls --json | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>console.log(JSON.parse(s).allowScripts.length))')
+            n=$(cd "$d" && npm ci --no-audit --ignore-scripts >/dev/null && npm install-scripts ls --json | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>console.log(JSON.parse(s).allowScripts.length))')
             test "$n" -eq 0 || { echo "Unreviewed install scripts in $d"; exit 1; }
           done
 
