@@ -55,5 +55,6 @@
     "translate-print-en-it-ch-scout": "node deepl.js ../print/locales/en-CH-scout.json ../print/locales/it-CH-scout.json",
     "translate-print-en": "npm run translate-print-en-de && npm run translate-print-en-de-ch-scout && npm run translate-print-en-fr && npm run translate-print-en-fr-ch-scout && npm run translate-print-en-it && npm run translate-print-en-it-ch-scout",
     "translate-en": "npm run translate-common-en && npm run translate-frontend-en && npm run translate-print-en"
-  }
+  },
+  "allowScripts": {}
 }

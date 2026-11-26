@@ -29,5 +29,6 @@
   },
   "overrides": {
     "uri-js": "npm:uri-js-replace"
-  }
+  },
+  "allowScripts": {}
 }

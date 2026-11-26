@@ -11,5 +11,6 @@
   "license": "ISC",
   "devDependencies": {
     "@types/k6": "2.2.1"
-  }
+  },
+  "allowScripts": {}
 }
