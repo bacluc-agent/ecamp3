@@ -162,9 +162,9 @@ services:
     volumes:
       - ./.prettierrc:/.prettierrc
       - ./e2e:/e2e:delegated
-      - ./.cache/npm:/tmp/npm-cache:delegated
+      - ./.cache/npm:/tmp/.npm:delegated
     environment:
-      - NPM_CONFIG_CACHE=/tmp/npm-cache
+      - NPM_CONFIG_CACHE=/tmp/.npm
       - NPM_CONFIG_UPDATE_NOTIFIER=false
       - CI=${CI:-}
     network_mode: host
